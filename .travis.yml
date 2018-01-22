@@ -1,0 +1,16 @@
+language: python
+
+virtualenv:
+    system_site_packages: true
+
+python:
+    - "2.7"
+    - "3.4"
+
+install:
+    - pip install .
+
+notifications:
+  email:
+    on_success: change
+    on_failure: change
