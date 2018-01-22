@@ -11,18 +11,18 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='landdegradation',
+    name='trendsearth_schemas',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
     version='0.3',
 
-    description='A python package to facilitate analyzing remotely-sensed datasets from GEE in support of monitoring land degradation.',
+    description='Stores the schemas used internally in the trends.earth package to handle metadata for analysis results.',
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/ConservationInternational/landdegradation',
+    url='https://github.com/ConservationInternational/trends.earth-schemas',
 
     # Author details
     author='Conservation International',
@@ -68,7 +68,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['python-dateutil', 'marshmallow', 'earthengine-api'],
+    install_requires=['python-dateutil', 'marshmallow'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
