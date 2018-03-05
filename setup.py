@@ -4,22 +4,15 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
-here = path.abspath(path.dirname(__file__))
-
-# Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
-
 setup(
-    name='trendsearth_schemas',
+    name='trendsearth-schemas',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1',
+    version='0.43',
 
-    description='Stores the schemas used internally in the trends.earth package to handle metadata for analysis results.',
-    long_description=long_description,
+    description='Schemas supporting the Trends.Earth QGIS plugin.',
 
     # The project's main homepage.
     url='https://github.com/ConservationInternational/trends.earth-schemas',
@@ -29,7 +22,7 @@ setup(
     author_email='trends.earth@conservation.org',
 
     # Choose your license
-    license='MIT',
+    license='GPL-2.0',
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -62,13 +55,13 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['docs', 'tests']),
+    packages=find_packages(exclude=['.tx', 'build', 'gee', 'util', 'LDMP/help']),
 
     # List run-time dependencies here.  These will be installed by pip when
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['python-dateutil', 'marshmallow'],
+    install_requires=['marshmallow'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
