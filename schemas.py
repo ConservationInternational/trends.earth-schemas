@@ -51,25 +51,34 @@ class BandInfoSchema(Schema):
 ################################################################################
 # Schema for local analyses
 
-class FileList(object):
-    def __init__(self, base, files=[]):
-        self.base = base
-        self.files = files
+class File(object):
+    def __init__(self, file_name):
+        self.file_name = file_name
+
+
+class FileSchema(Schema):
+    file_name = fields.Str()
 
 
 class LocalResults(object):
-    def __init__(self, name, script_version, bands):
+    def __init__(self, name, bands, files, script_version, metadata, file_format='tif'):
         self.type = "LocalResults"
         self.name = name
-        self.script_version = script_version
         self.bands = bands
+        self.files = files
+        self.script_version = script_version
+        self.metadata = metadata
+        self.file_format = file_format
 
 
 class LocalResultsSchema(Schema):
     type = fields.Str()
     name = fields.Str()
-    script_version = fields.Str()
     bands = fields.Nested(BandInfoSchema(), many=True)
+    files = fields.Nested(FileSchema(), many=True)
+    script_version = fields.Str()
+    metadata = fields.Dict()
+    file_format = fields.Dict()
 
 
 ################################################################################
