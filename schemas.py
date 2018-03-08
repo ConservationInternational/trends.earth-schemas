@@ -77,8 +77,8 @@ class CloudResults(object):
 class CloudResultsSchema(Schema):
     type = fields.Str()
     name = fields.Str()
-    bands = fields.Nested(BandInfoSchema(), many=True)
-    urls = fields.Nested(UrlSchema(), many=True)
+    bands = fields.Nested(BandInfoSchema, many=True)
+    urls = fields.Nested(UrlSchema, many=True)
 
 ################################################################################
 # Schema for responses from api.trends.earth
