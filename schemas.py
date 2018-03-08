@@ -67,6 +67,25 @@ class UrlSchema(Schema):
 
 
 ################################################################################
+# Schema for output from cloud calculations
+
+class CloudResults(object):
+    def __init__(self, name, script_version, bands, urls):
+        self.type = "CloudResults"
+        self.name = name
+        self.script_version = script_version
+        self.bands = bands
+        self.urls = urls
+
+class CloudResultsSchema(Schema):
+    type = fields.Str()
+    name = fields.Str()
+    script_version = fields.Str()
+    bands = fields.Nested(BandInfoSchema(), many=True)
+    urls = fields.Nested(URLListSchema())
+
+
+################################################################################
 # Schema for responses from api.trends.earth
 
 class APIResponseSchema(Schema):
