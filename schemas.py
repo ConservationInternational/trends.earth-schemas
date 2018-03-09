@@ -42,7 +42,7 @@ class BandInfo(object):
 
     def getDict(self):
         bandinfo_schema = BandInfoSchema()
-        return bandinfo_schema.dump(self).data
+        return bandinfo_schema.dump(self)
 
 
 class BandInfoSchema(Schema):
