@@ -80,6 +80,10 @@ class CloudResultsSchema(Schema):
     bands = fields.Nested(BandInfoSchema, many=True)
     urls = fields.Nested(UrlSchema, many=True)
 
+    @post_load
+    def make_cloud_results(self, data):
+        return CloudResults(**data)
+
 ################################################################################
 # Schema for responses from api.trends.earth
 
