@@ -40,11 +40,6 @@ class BandInfo(object):
         self.add_to_map = add_to_map
         self.metadata = metadata
 
-    def getDict(self):
-        bandinfo_schema = BandInfoSchema()
-        return bandinfo_schema.dump(self)
-
-
 class BandInfoSchema(Schema):
     name = fields.Str(required=True)
     no_data_value = fields.Number(required=True)
