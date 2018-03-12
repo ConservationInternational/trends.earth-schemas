@@ -77,6 +77,7 @@ class CloudResultsSchema(Schema):
 
     @post_load
     def make_cloud_results(self, data):
+        data.pop('type')
         return CloudResults(**data)
 
 ################################################################################
