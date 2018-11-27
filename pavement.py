@@ -12,7 +12,7 @@ from paver.easy import *
 from paver.doctools import html
 
 options(
-    source_dir=path('trendsearth_schemas'),
+    source_dir=path('.'),
 )
 
 

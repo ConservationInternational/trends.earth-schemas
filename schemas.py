@@ -34,10 +34,12 @@ class TimeSeriesTableSchema(Schema):
 # Schema for storing information on bands
 
 class BandInfo(object):
-    def __init__(self, name, add_to_map=False, metadata={}, no_data_value=-32768):
+    def __init__(self, name, add_to_map=False, activated=True, metadata={}, 
+                 no_data_value=-32768):
         self.name = name
         self.no_data_value = no_data_value
         self.add_to_map = add_to_map
+        self.activated = activated
         self.metadata = metadata
 
 
@@ -45,6 +47,7 @@ class BandInfoSchema(Schema):
     name = fields.Str()
     no_data_value = fields.Number()
     add_to_map = fields.Boolean()
+    activated = fields.Boolean()
     metadata = fields.Dict()
 
 
