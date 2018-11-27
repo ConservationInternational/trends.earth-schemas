@@ -45,9 +45,9 @@ class BandInfo(object):
 class BandInfoSchema(Schema):
     name = fields.Str(required=True)
     no_data_value = fields.Number(required=True)
-    add_to_map = fields.Boolean(required=True)
-    activated = fields.Boolean(required=True)
-    metadata = fields.Dict(required=True)
+    add_to_map = fields.Boolean(default=False)
+    activated = fields.Boolean(default=True)
+    metadata = fields.Dict(default={}, required=True)
 
 
 ################################################################################
