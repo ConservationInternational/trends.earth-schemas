@@ -79,7 +79,7 @@ class CloudResultsSchema(Schema):
     urls = fields.Nested(UrlSchema, many=True)
 
     @post_load
-    def make_cloud_results(self, data):
+    def make_cloud_results(self, data, **kwargs):
         data.pop('type')
         return CloudResults(**data)
 
