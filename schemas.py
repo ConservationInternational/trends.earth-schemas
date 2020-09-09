@@ -54,7 +54,7 @@ class BandInfoSchema(Schema):
 # Schema for output from cloud calculations
 
 class Url(object):
-    def __init__(self, url, md5Hash):
+    def __init__(self, url, md5Hash=''):
         self.url = url
         self.md5Hash = md5Hash
 
