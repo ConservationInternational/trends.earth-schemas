@@ -103,7 +103,7 @@ class ImageryPNGSchema(Schema):
     name = fields.Str()
     lang = fields.Str()
     title = fields.Str()
-    date = fields.Date()
+    date = fields.List(fields.Date())
     about = fields.Str()
     url = fields.Nested(UrlSchema, many=False)
 
