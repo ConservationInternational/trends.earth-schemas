@@ -28,6 +28,34 @@ class TimeSeriesTableSchema(Schema):
     type = fields.Str()
     name = fields.Str()
     table = fields.Nested(TimeSeriesSchema, many=True)
+    
+###############################################################################
+# Schema for categorical data for plotting within a timeseries object
+class TimeSeriesCategorical(object):
+    def __init__(self, time, y, name=None):
+        self.time = time
+        self.y = y
+        self.name = name
+
+
+class TimeSeriesCategoricalSchema(Schema):
+    time = fields.List(fields.Float())
+    y = fields.List(fields.Str())
+    name = fields.Str()
+
+
+class TimeSeriesCategoricalTable(object):
+    def __init__(self, name, table):
+        self.type = "TimeSeriesCategoricalTable"
+        self.name = name
+        self.table = table
+
+
+class TimeSeriesTableCategoricalSchema(Schema):
+    type = fields.Str()
+    name = fields.Str()
+    table = fields.Nested(TimeSeriesCategoricalSchema, many=True)
+    
 
 
 ################################################################################
