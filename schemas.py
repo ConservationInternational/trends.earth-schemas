@@ -51,34 +51,10 @@ class BandInfoSchema(Schema):
 
 
 ################################################################################
-# Schema for plot output to cloud storage as PNG
-
-class ImageryPNG(object):
-    def __init__(self, name, lang, title, date, about, url):
-        self.type = "ImageryPNG"
-        self.name = name
-        self.lang = lang
-        self.title = title
-        self.date = date
-        self.about = about
-        self.url = url
-
-
-class ImageryPNGSchema(Schema):
-    type = fields.Str()
-    name = fields.Str()
-    lang = fields.Str()
-    title = fields.Str()
-    date = fields.Date()
-    about = fields.Str()
-    url = fields.Nested(UrlSchema, many=False)
-
-
-################################################################################
 # Schema for output from cloud calculations
 
 class Url(object):
-    def __init__(self, url, md5Hash):
+    def __init__(self, url, md5Hash=''):
         self.url = url
         self.md5Hash = md5Hash
 
@@ -106,6 +82,31 @@ class CloudResultsSchema(Schema):
     def make_cloud_results(self, data, **kwargs):
         data.pop('type')
         return CloudResults(**data)
+
+
+################################################################################
+# Schema for plot output to cloud storage as PNG
+
+class ImageryPNG(object):
+    def __init__(self, name, lang, title, date, about, url):
+        self.type = "ImageryPNG"
+        self.name = name
+        self.lang = lang
+        self.title = title
+        self.date = date
+        self.about = about
+        self.url = url
+
+
+class ImageryPNGSchema(Schema):
+    type = fields.Str()
+    name = fields.Str()
+    lang = fields.Str()
+    title = fields.Str()
+    date = fields.List(fields.Date())
+    about = fields.Str()
+    url = fields.Nested(UrlSchema, many=False)
+
 
 ################################################################################
 # Schema for responses from api.trends.earth
