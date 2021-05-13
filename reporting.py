@@ -7,6 +7,17 @@ from marshmallow_dataclass import dataclass
 from marshmallow import validate, fields
 
 ###############################################################################
+# Area of interest information
+
+class AreaOfInterest:
+    name: str
+    geojson: dict
+    crs_wkt: str
+
+    class Meta:
+        ordered = True
+
+###############################################################################
 # Land cover class, legend, and legend nesting schemas
 
 @dataclass(frozen=True)
@@ -73,20 +84,6 @@ class LCTransMatrix:
 
     class Meta:
         ordered = True
-
-# ###############################################################################
-# @dataclass
-# class LCSummary:
-#     legend: fields.Nested(LCLegend)
-#     # Can exclude the "child" legend from the nesting field that is the same as 
-#     # the overall legend for the LCSummary
-#     nesting: fields.Nested(LCLegendNesting(exclude='child'))
-#     # Can exclude the legend from the transition matrix field as it is the same 
-#     # as the overall legend for the LCSummary
-#     transition_matrix: fields.Nested(LCTransMatrix, exclude='legend')
-#
-#    class Meta:
-#        ordered = True
 
 
 # Area summary schemas
@@ -155,22 +152,25 @@ class CrossTab:
 class TrendsEarthVersion:
     version: str
     revision: str
-    release_date: str
+    release_date: datetime.datetime
 
     class Meta:
         ordered = True
+        datetimeformat = '%Y-%m-%dT%H:%M:%S+00:00'
 
 @dataclass
 class ReportMetadata:
     title: str
     date: datetime.datetime
     trends_earth_version: TrendsEarthVersion
+    area_of_interest: AreaOfInterest
 
     class Meta:
         ordered = True
+        datetimeformat = '%Y-%m-%dT%H:%M:%S+00:00'
 
 @dataclass
-class SDGReport:
+class SDG15Report:
     summary: AreaList
 
     class Meta:
@@ -203,18 +203,39 @@ class SoilOrganicCarbonReport:
     class Meta:
         ordered = True
 
+
 @dataclass
-class TrendsEarthSummary:
-    metadata: ReportMetadata
-    sdg: SDGReport
+class LandConditionReport:
+    sdg: SDG15Report
     productivity: ProductivityReport
     land_cover: LandCoverReport
     soil_organic_carbon: SoilOrganicCarbonReport
 
-    # TODO: Add land cover definitions
+    class Meta:
+        ordered = True
+
+@dataclass
+class AffectedPopulationReport:
+    pass
+
+    class Meta:
+        ordered = True
+
+@dataclass
+class DroughtReport:
+    pass
+
+    class Meta:
+        ordered = True
+
+@dataclass
+class TrendsEarthSummary:
+    metadata: ReportMetadata
+    land_condition: LandConditionReport
+    affected_population: AffectedPopulationReport
+    drought: DroughtReport
 
     # TODO: Add datasets needed for reporting (band number and filename)
 
     class Meta:
         ordered = True
-
