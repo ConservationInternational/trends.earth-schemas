@@ -1,6 +1,18 @@
 from marshmallow import Schema, fields, post_load
 
 
+###############################################################################
+# Area of interest information
+
+class AreaOfInterest:
+    name: str
+    geojson: dict
+    crs_wkt: str
+
+    class Meta:
+        ordered = True
+
+
 ################################################################################
 # Schema for numeric data for plotting within a timeseries object
 
