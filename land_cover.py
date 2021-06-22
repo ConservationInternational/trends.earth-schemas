@@ -10,9 +10,12 @@ from marshmallow import validate
 @dataclass(frozen=True)
 class LCClass:
     code: int
-    name_short: str = field(metadata={"validate": validate.Length(max=15)})
-    name_long: Optional[str] = field(default=None, metadata={"validate": validate.Length(max=50)})
+    name_short: str = field(metadata={"validate": validate.Length(max=15)}, 
+            default=None)
+    name_long: str = field(default=None,
+            metadata={"validate": validate.Length(max=90)})
     description: Optional[str] = field(default=None)
+    color: Optional[str] = field(default=None, metadata={'validate': validate.Regexp('^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$')})
 
     class Meta:
         ordered = True
@@ -23,10 +26,27 @@ class LCLegend:
     key: List[LCClass] = field(default_factory=list)
 
     #TODO: validate that all class codes are unique
-
     def __post_init__(self):
         self.class2code = {o: o.code for o in self.key}
         self.code2class = {o.code: o for o in self.key}
+
+    def classByCode(self, code):
+        out = [c for c in self.key if c.code == code][0]
+        if out == []:
+            return KeyError
+        else:
+            return out
+
+    def classByNameLong(self, name_long):
+        out = [c for c in self.key if c.name_long == name_long][0]
+        if out == []:
+            return KeyError
+        else:
+            return out
+
+    def orderByCode(self):
+        return LCLegend(name=self.name,
+                        key=sorted(list(self.key), key = lambda k: k.code))
 
     class Meta:
         ordered = True
@@ -47,6 +67,12 @@ class LCLegendNesting:
 
     class Meta:
         ordered = True
+
+    def parentCodeForChild(self, c):
+        if c not in self.child.key:
+            return KeyError
+        else:
+            return [p for p in self.nesting.keys() if c in p][0]
 
 @dataclass
 class LCTransMeaning:
@@ -71,5 +97,17 @@ class LCTransMatrix:
 
     class Meta:
         ordered = True
+
+    def __post_init__(self):
+        self.trans2meaning = {o: o.code for o in self.key}
+        self.code2class = {o.code: o for o in self.key}
+
+    def get_matrix(self, order):
+        pass
+        # Return a transition matrix with rows and columns ordered according to 
+        # the list of classes given in "order"
+        ##for c in order:
+
+
 
 
