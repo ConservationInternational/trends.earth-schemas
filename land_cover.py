@@ -1,5 +1,5 @@
 from dataclasses import field
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from marshmallow_dataclass import dataclass
 from marshmallow import validate
@@ -30,6 +30,9 @@ class LCLegend:
         self.class2code = {o: o.code for o in self.key}
         self.code2class = {o.code: o for o in self.key}
 
+    def codes(self):
+        return [c.code for c in self.key]
+
     def classByCode(self, code):
         out = [c for c in self.key if c.code == code][0]
         if out == []:
@@ -58,21 +61,25 @@ class LCLegend:
 class LCLegendNesting:
     parent: LCLegend
     child: LCLegend
-    nesting: dict = field(default_factory=dict)
+    nesting: Dict[int, List[int]] = field(default_factory=dict)
 
     # TODO: Add validation functions ensuring that:
     #   - each of the classes in parent and child are represented within the 
     #   nesting list
+    #   - each of the classes in child are nested in one and only 1 parent 
+    #   class
     #   - that no classes are in nesting list that aren't in parent and child
 
     class Meta:
         ordered = True
 
-    def parentCodeForChild(self, c):
-        if c not in self.child.key:
-            return KeyError
+    def parentClassForChild(self, c):
+        parent_code = [key for key, values in self.nesting.items() if c.code in values]
+        if len(parent_code) == 0:
+            raise KeyError
         else:
-            return [p for p in self.nesting.keys() if c in p][0]
+            return self.parent.classByCode(parent_code[0])
+
 
 @dataclass
 class LCTransMeaning:
