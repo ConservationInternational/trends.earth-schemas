@@ -5,7 +5,7 @@ from codecs import open
 from os import path
 
 setup(
-    name='trendsearth-schemas',
+    name='te_schemas',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
