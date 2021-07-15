@@ -92,6 +92,7 @@ def set_version(c, v=None):
         setup_regex = re.compile("^([ ]*version=[ ]*')[0-9]+([.][0-9]+)+")
         _replace('setup.py', setup_regex, '\g<1>' + v)
 
+@task()
 def set_tag(c):
     v = get_version(c)
     ret = subprocess.run(['git', 'diff-index', 'HEAD', '--'], 
