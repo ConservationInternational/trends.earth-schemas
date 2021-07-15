@@ -6,8 +6,8 @@ from typing import List, Optional
 from marshmallow_dataclass import dataclass
 from marshmallow import validate
 
-from schemas.schemas import AreaOfInterest
-from schemas.land_cover import LCTransMatrix, LCLegendNesting
+from schemas import AreaOfInterest
+from land_cover import LCTransMatrix, LCLegendNesting
 
 # Area summary schemas
 @dataclass
