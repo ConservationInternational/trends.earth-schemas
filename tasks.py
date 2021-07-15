@@ -92,6 +92,29 @@ def set_version(c, v=None):
         setup_regex = re.compile("^([ ]*version=[ ]*')[0-9]+([.][0-9]+)+")
         _replace('setup.py', setup_regex, '\g<1>' + v)
 
+def set_tag(c):
+    v = get_version(c)
+    ret = subprocess.run(['git', 'diff-index', 'HEAD', '--'], 
+                          capture_output=True, text=True)
+    if ret.stdout != '':
+        ret = query_yes_no('Uncommitted changes exist in repository. Commit these?')
+        if ret:
+            ret = subprocess.run(['git', 'commit', '-m', 'Updating version tags for v{}'.format(v)])
+            ret.check_returncode()
+        else:
+            print('Changes not committed - VERSION TAG NOT SET'.format(v))
+
+    print('Tagging version {} and pushing tag to origin'.format(v))
+    ret = subprocess.run(['git', 'tag', '-l', 'v{}'.format(v)], 
+                         capture_output=True, text=True)
+    ret.check_returncode()
+    if 'v{}'.format(v) in ret.stdout:
+        # Try to delete this tag on remote in case it exists there
+        ret = subprocess.run(['git', 'push', 'origin', '--delete', 'v{}'.format(v)])
+        if ret.returncode == 0:
+            print('Deleted tag v{} on origin'.format(v))
+    subprocess.check_call(['git', 'tag', '-f', '-a', 'v{}'.format(v), '-m', 'Version {}'.format(v)])
+    subprocess.check_call(['git', 'push', 'origin', 'v{}'.format(v)])
 
 ###############################################################################
 # Setup dependencies and install package
@@ -117,7 +140,7 @@ def read_requirements():
 # Options
 ###############################################################################
 
-ns = Collection(set_version)
+ns = Collection(set_version, set_tag)
 
 ns.configure({
     'version_file_raw': 'version.txt',
