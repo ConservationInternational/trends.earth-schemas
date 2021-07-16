@@ -93,9 +93,9 @@ class LCLegendNesting:
 
         # Check that nesting_parent_codes list is an is exact match of parent 
         # legend class list, and likewise for child
-        if not (self.parent.key.codes() == nesting_parent_codes):
+        if not (self.parent.codes() == nesting_parent_codes):
             raise KeyError("Codes listed in nesting dictionary don't match parent key")
-        if not (self.child.key.codes() == nesting_child_codes):
+        if not (self.child.codes() == nesting_child_codes):
             raise KeyError("Codes listed in nesting dictionary don't match child key")
 
     def parentClassForChild(self, c):
