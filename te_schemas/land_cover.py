@@ -75,28 +75,28 @@ class LCLegendNesting:
         ordered = True
 
     def __post_init__(self):
-        # Get all parent and child classes listed in nesting
-        nesting_parent_classes = self.nesting.keys()
-        # Note the below is to avoid having a list of lists of child classes 
+        # Get all parent and child codes listed in nesting
+        nesting_parent_codes = self.nesting.keys()
+        # Note the below is to avoid having a list of lists of child codes 
         # given the structure the "items" method returns them in
-        nesting_child_classes = [i for key,value in self.nesting.items() for i in value]
+        nesting_child_codes = [i for key,value in self.nesting.items() for i in value]
 
         # Sort the two nesting class lists by code before comparison with 
         # legend class lists
-        nesting_parent_classes = sorted(nesting_parent_classes, key=lambda c: c.code)
-        nesting_child_classes = sorted(nesting_child_classes, key=lambda c: c.code)
+        nesting_parent_codes = sorted(nesting_parent_codes)
+        nesting_child_codes = sorted(nesting_child_codes)
 
-        if not len(set(nesting_parent_classes)) == len(nesting_parent_classes):
-            raise KeyError('Duplicates detected in parent classes listed in nesting - each parent must be listed once and only once'.format(self.name))
-        if not len(set(nesting_child_classes)) == len(nesting_child_classes):
-            raise KeyError('Duplicates detected in child classes listed in nesting - each child must be listed once and only once'.format(self.name))
+        if not len(set(nesting_parent_codes)) == len(nesting_parent_codes):
+            raise KeyError('Duplicates detected in parent codes listed in nesting - each parent must be listed once and only once'.format(self.name))
+        if not len(set(nesting_child_codes)) == len(nesting_child_codes):
+            raise KeyError('Duplicates detected in child codes listed in nesting - each child must be listed once and only once'.format(self.name))
 
-        # Check that nesting_parent_classes list is an is exact match of parent 
+        # Check that nesting_parent_codes list is an is exact match of parent 
         # legend class list, and likewise for child
-        if not (self.parent.key == nesting_parent_classes):
-            raise KeyError("Classes listed in nesting dictionary don't match parent key")
-        if not (self.child.key == nesting_child_classes):
-            raise KeyError("Classes listed in nesting dictionary don't match child key")
+        if not (self.parent.key.codes() == nesting_parent_codes):
+            raise KeyError("Codes listed in nesting dictionary don't match parent key")
+        if not (self.child.key.codes() == nesting_child_codes):
+            raise KeyError("Codes listed in nesting dictionary don't match child key")
 
     def parentClassForChild(self, c):
         parent_code = [key for key, values in self.nesting.items() if c.code in values]
