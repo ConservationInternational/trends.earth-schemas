@@ -110,7 +110,3 @@ class LCTransMatrix:
         # Return a transition matrix with rows and columns ordered according to 
         # the list of classes given in "order"
         ##for c in order:
-
-
-
-
