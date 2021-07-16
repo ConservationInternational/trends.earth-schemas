@@ -79,7 +79,7 @@ class LCLegendNesting:
         nesting_parent_classes = self.nesting.keys()
         # Note the below is to avoid having a list of lists of child classes 
         # given the structure the "items" method returns them in
-        nesting_child_classes = [i for i in val_list for key, val_list in self.nesting.items()]
+        nesting_child_classes = [i for key,value in self.nesting.items for i in value]
 
         # Sort the two nesting class lists by code before comparison with 
         # legend class lists
