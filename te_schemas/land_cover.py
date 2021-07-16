@@ -105,6 +105,13 @@ class LCTransMatrix:
     class Meta:
         ordered = True
 
+    def meaningByTransition(self, initial, final):
+        out = [m.meaning for m in self.transitions if (m.initial == initial) and (m.final == final)][0]
+        if out == []:
+            return KeyError
+        else:
+            return out
+
     def get_matrix(self, order):
         pass
         # Return a transition matrix with rows and columns ordered according to 
