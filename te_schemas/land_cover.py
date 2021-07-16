@@ -105,10 +105,6 @@ class LCTransMatrix:
     class Meta:
         ordered = True
 
-    def __post_init__(self):
-        self.trans2meaning = {o: o.code for o in self.key}
-        self.code2class = {o.code: o for o in self.key}
-
     def get_matrix(self, order):
         pass
         # Return a transition matrix with rows and columns ordered according to 
