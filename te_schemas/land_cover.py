@@ -7,28 +7,35 @@ from marshmallow import validate
 ###############################################################################
 # Land cover class, legend, and legend nesting schemas
 
+
 @dataclass(frozen=True)
 class LCClass:
     code: int
     name_short: str = field(metadata={"validate": validate.Length(max=15)}, 
-            default=None)
+                            default=None)
     name_long: str = field(default=None,
-            metadata={"validate": validate.Length(max=90)})
+                           metadata={"validate": validate.Length(max=90)})
     description: Optional[str] = field(default=None)
-    color: Optional[str] = field(default=None, metadata={'validate': validate.Regexp('^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$')})
+    color: Optional[str] = field(default=None,
+                                 metadata={'validate': validate.Regexp('^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$')})
 
     class Meta:
         ordered = True
+
 
 @dataclass
 class LCLegend:
     name: str
     key: List[LCClass] = field(default_factory=list)
 
-    #TODO: validate that all class codes are unique
     def __post_init__(self):
-        self.class2code = {o: o.code for o in self.key}
-        self.code2class = {o.code: o for o in self.key}
+        # Check all class codes are unique
+        codes = [c.code for c in self.key]
+        if not len(set(codes)) == len(codes):
+            raise KeyError('Duplicate LCClass code found in legend {}'.format(self.name))
+
+        # Sort key by class codes
+        self.key = sorted(self.key, key=lambda c: c.code)
 
     def codes(self):
         return [c.code for c in self.key]
@@ -36,7 +43,7 @@ class LCLegend:
     def classByCode(self, code):
         out = [c for c in self.key if c.code == code][0]
         if out == []:
-            return KeyError
+            raise KeyError('No LCClass found for code "{}"'.format(code))
         else:
             return out
 
@@ -49,7 +56,8 @@ class LCLegend:
 
     def orderByCode(self):
         return LCLegend(name=self.name,
-                        key=sorted(list(self.key), key = lambda k: k.code))
+                        key=sorted(list(self.key),
+                                   key=lambda k: k.code))
 
     class Meta:
         ordered = True
@@ -63,15 +71,32 @@ class LCLegendNesting:
     child: LCLegend
     nesting: Dict[int, List[int]] = field(default_factory=dict)
 
-    # TODO: Add validation functions ensuring that:
-    #   - each of the classes in parent and child are represented within the 
-    #   nesting list
-    #   - each of the classes in child are nested in one and only 1 parent 
-    #   class
-    #   - that no classes are in nesting list that aren't in parent and child
-
     class Meta:
         ordered = True
+
+    def __post_init__(self):
+        # Get all parent and child classes listed in nesting
+        nesting_parent_classes = self.nesting.keys()
+        # Note the below is to avoid having a list of lists of child classes 
+        # given the structure the "items" method returns them in
+        nesting_child_classes = [i for i in val_list for key, val_list in self.nesting.items()]
+
+        # Sort the two nesting class lists by code before comparison with 
+        # legend class lists
+        nesting_parent_classes = sorted(nesting_parent_classes, key=lambda c: c.code)
+        nesting_child_classes = sorted(nesting_child_classes, key=lambda c: c.code)
+
+        if not len(set(nesting_parent_classes)) == len(nesting_parent_classes):
+            raise KeyError('Duplicates detected in parent classes listed in nesting - each parent must be listed once and only once'.format(self.name))
+        if not len(set(nesting_child_classes)) == len(nesting_child_classes):
+            raise KeyError('Duplicates detected in child classes listed in nesting - each child must be listed once and only once'.format(self.name))
+
+        # Check that nesting_parent_classes list is an is exact match of parent 
+        # legend class list, and likewise for child
+        if not (self.parent.key == nesting_parent_classes)
+            raise KeyError("Classes listed in nesting dictionary don't match parent key")
+        if not (self.child.key == nesting_child_classes)
+            raise KeyError("Classes listed in nesting dictionary don't match child key")
 
     def parentClassForChild(self, c):
         parent_code = [key for key, values in self.nesting.items() if c.code in values]
@@ -96,6 +121,7 @@ class LCTransMeaning:
 class LCTransMatrix:
     legend: LCLegend
     transitions: List[LCTransMeaning] = field(default_factory=list)
+
     # TODO: Add validation functions ensuring that:
     #   - every possible transition given the legend is present in the 
     #   transitions list
