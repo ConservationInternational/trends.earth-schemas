@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 
 from marshmallow_dataclass import dataclass
 from marshmallow import validate
+from marshmallow.exceptions import ValidationError
 
 ###############################################################################
 # Land cover class, legend, and legend nesting schemas
@@ -32,7 +33,7 @@ class LCLegend:
         # Check all class codes are unique
         codes = [c.code for c in self.key]
         if not len(set(codes)) == len(codes):
-            raise KeyError('Duplicate LCClass code found in legend {}'.format(self.name))
+            raise ValidationError('Duplicate LCClass code found in legend {}'.format(self.name))
 
         # Sort key by class codes
         self.key = sorted(self.key, key=lambda c: c.code)
@@ -87,16 +88,22 @@ class LCLegendNesting:
         nesting_child_codes = sorted(nesting_child_codes)
 
         if not len(set(nesting_parent_codes)) == len(nesting_parent_codes):
-            raise KeyError('Duplicates detected in parent codes listed in nesting - each parent must be listed once and only once'.format(self.name))
+            raise ValidationError('Duplicates detected in parent codes listed '
+                                  'in nesting - each parent must be listed '
+                                  'once and only once')
         if not len(set(nesting_child_codes)) == len(nesting_child_codes):
-            raise KeyError('Duplicates detected in child codes listed in nesting - each child must be listed once and only once'.format(self.name))
+            raise ValidationError('Duplicates detected in child codes listed '
+                                  'in nesting - each child must be listed '
+                                  'once and only once')
 
         # Check that nesting_parent_codes list is an is exact match of parent 
         # legend class list, and likewise for child
         if not (self.parent.codes() == nesting_parent_codes):
-            raise KeyError("Codes listed in nesting dictionary don't match parent key")
+            raise ValidationError("Codes listed in nesting dictionary don't "
+                                  "match parent key")
         if not (self.child.codes() == nesting_child_codes):
-            raise KeyError("Codes listed in nesting dictionary don't match child key")
+            raise ValidationError("Codes listed in nesting dictionary don't "
+                                  "match child key")
 
     def parentClassForChild(self, c):
         parent_code = [key for key, values in self.nesting.items() if c.code in values]
@@ -110,36 +117,66 @@ class LCLegendNesting:
 class LCTransMeaning:
     initial: LCClass
     final: LCClass
-    meaning: str = field(metadata={'validate': validate.OneOf(["degradation", "stable", "improvement"])})
+    meaning: str = field(metadata={'validate':
+                                   validate.OneOf(["degradation",
+                                                   "stable",
+                                                   "improvement"])})
 
     class Meta:
         ordered = True
 
-# Defines what each possible land cover transition means in terms of 
-# degradation, so one of degraded, stable, or improved
+    def get_meaning_int(self):
+        meaning_key = {'degradation': -1,
+                       'stable': 0,
+                       'improvement': -1}
+        return meaning_key[self.meaning]
+
+
 @dataclass
 class LCTransMatrix:
+    '''Define meaning of each possible land cover transition'''
     legend: LCLegend
     transitions: List[LCTransMeaning] = field(default_factory=list)
 
-    # TODO: Add validation functions ensuring that:
-    #   - every possible transition given the legend is present in the 
-    #   transitions list
-    #   - that no transitions are in the transitions list that aren't possible 
-    #   given the chosen legend
-
     class Meta:
         ordered = True
 
+    def __post_init__(self):
+        '''Ensure each transition is represented once and only once'''
+        meanings = 0
+        for c_initial in self.legend:
+            for c_final in self.legend:
+                trans = [t for t in self.transitions if (t.initial == 
+                         c_initial) and (t.final == c_final)]
+                if len(trans) == 0:
+                    raise ValidationError("Meaning of transition from {} to "
+                                          "{} is undefined".format(c_initial, c_final))
+                if len(trans) > 1:
+                    raise ValidationError("Multiple definitions found for "
+                                          "transition from {} to {} - each "
+                                          "transition must have only one "
+                                          "meaning".format(c_initial, c_final))
+                meanings += 1
+
+        if (len(meanings) != len(legend.key)**2):
+            raise ValidationError("Transitions list length does not match "
+                                  "expected length based on legend")
+
     def meaningByTransition(self, initial, final):
-        out = [m.meaning for m in self.transitions if (m.initial == initial) and (m.final == final)][0]
+        '''Get meaning for a particular transition'''
+        out = [m.meaning for m in self.transitions if (m.initial == initial)
+               and (m.final == final)][0]
         if out == []:
             return KeyError
         else:
             return out
 
     def get_matrix(self, order):
-        pass
-        # Return a transition matrix with rows and columns ordered according to 
-        # the list of classes given in "order"
-        ##for c in order:
+        '''Return the transition matrix in format needed for GEE'''
+        out = []
+        for c_initial in self.legend:
+            for c_final in self.legend:
+                trans = [t for t in self.transitions if (t.initial == 
+                         c_initial) and (t.final == c_final)]
+                out.append(trans.get_meaning_int())
+        return out
