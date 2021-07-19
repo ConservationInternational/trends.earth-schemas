@@ -1,6 +1,4 @@
-from marshmallow import Schema
-
-class SchemaBase(Schema):
+class SchemaBase:
     '''Base class for te_schemas schemas'''
     def validate(self):
         '''Validate this instance (for example after making changes)'''
