@@ -160,8 +160,9 @@ class LCTransMatrix:
         '''Ensure each transition is represented once and only once'''
         for c_final in self.legend.key:
             for c_initial in self.legend.key:
-                trans = [t for t in self.transitions if (t.initial == 
-                         c_initial) and (t.final == c_final)]
+                trans = [t for t in self.transitions if
+                        (t.initial == c_initial) and
+                        (t.final == c_final)]
                 if len(trans) == 0:
                     raise ValidationError("Meaning of transition from {} to "
                                           "{} is undefined".format(c_initial, c_final))
