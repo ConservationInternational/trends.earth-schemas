@@ -5,5 +5,5 @@ class SchemaBase:
         self.Schema().validate(data)
 
     def as_json(self):
-        self.Schema().dumps(nesting)
+        self.Schema().dumps(self)
 
