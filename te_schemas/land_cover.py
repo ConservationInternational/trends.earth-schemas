@@ -1,18 +1,21 @@
 import math
 
+from . import SchemaBase
+
 from dataclasses import field
 from typing import Dict, List, Optional
 
-from marshmallow_dataclass import dataclass
-from marshmallow import validate
+from marshmallow import validate, Schema
 from marshmallow.exceptions import ValidationError
+from marshmallow_dataclass import dataclass
+
 
 ###############################################################################
 # Land cover class, legend, and legend nesting schemas
 
 
 @dataclass(frozen=True)
-class LCClass:
+class LCClass(SchemaBase):
     code: int
     name_short: str = field(metadata={"validate": validate.Length(max=15)}, 
                             default=None)
@@ -27,7 +30,7 @@ class LCClass:
 
 
 @dataclass
-class LCLegend:
+class LCLegend(SchemaBase):
     name: str
     key: List[LCClass] = field(default_factory=list)
 
@@ -69,7 +72,7 @@ class LCLegend:
 # Defines how a more detailed land cover legend nests within a higher-level 
 # legend
 @dataclass
-class LCLegendNesting:
+class LCLegendNesting(SchemaBase):
     parent: LCLegend
     child: LCLegend
     # nesting is a dict where the keys are the parent classes, and the items
@@ -129,7 +132,7 @@ class LCLegendNesting:
 
 
 @dataclass
-class LCTransMeaning:
+class LCTransMeaning(SchemaBase):
     initial: LCClass
     final: LCClass
     meaning: str = field(metadata={'validate':
@@ -148,7 +151,7 @@ class LCTransMeaning:
 
 
 @dataclass
-class LCTransMatrix:
+class LCTransMatrix(SchemaBase):
     '''Define meaning of each possible land cover transition'''
     legend: LCLegend
     transitions: List[LCTransMeaning] = field(default_factory=list)
