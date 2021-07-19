@@ -216,9 +216,10 @@ class LCTransMatrix:
         out = [[], []]
         for c_final in self.legend.key:
             for c_initial in self.legend.key:
-                out[0].append(c_initial.code * self.get_multiplier() + c_final.code)
+                original_code = c_initial.code * self.get_multiplier() + c_final.code
+                out[0].append(original_code)
                 if c_final.code == c_initial.code:
                     out[1].append(c_initial.code)
                 else:
-                    out[1].append(out[0])
+                    out[1].append(original_code)
         return out
