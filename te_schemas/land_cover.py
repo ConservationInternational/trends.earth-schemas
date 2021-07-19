@@ -1,3 +1,5 @@
+import math
+
 from dataclasses import field
 from typing import Dict, List, Optional
 
@@ -70,6 +72,8 @@ class LCLegend:
 class LCLegendNesting:
     parent: LCLegend
     child: LCLegend
+    # nesting is a dict where the keys are the parent classes, and the items
+    # are the child classes
     nesting: Dict[int, List[int]] = field(default_factory=dict)
 
     class Meta:
@@ -106,11 +110,22 @@ class LCLegendNesting:
                                   "match child key")
 
     def parentClassForChild(self, c):
-        parent_code = [key for key, values in self.nesting.items() if c.code in values]
+        parent_code = [key for key, values in self.nesting.items()
+                       if c.code in values]
         if len(parent_code) == 0:
             raise KeyError
         else:
             return self.parent.classByCode(parent_code[0])
+
+    def get_list(self):
+        '''Return the nesting in format needed for GEE'''
+        out = [[], []]
+        # keys are parents, values are child (remapping from child to parent in
+        # GEE)
+        for key, values in self.nesting.items():
+            out[0].extend(values)
+            out[1].extend([key] * len(values))
+        return out
 
 
 @dataclass
@@ -128,7 +143,7 @@ class LCTransMeaning:
     def get_meaning_int(self):
         meaning_key = {'degradation': -1,
                        'stable': 0,
-                       'improvement': -1}
+                       'improvement': 1}
         return meaning_key[self.meaning]
 
 
@@ -143,9 +158,8 @@ class LCTransMatrix:
 
     def __post_init__(self):
         '''Ensure each transition is represented once and only once'''
-        meanings = 0
-        for c_initial in self.legend:
-            for c_final in self.legend:
+        for c_final in self.legend.key:
+            for c_initial in self.legend.key:
                 trans = [t for t in self.transitions if (t.initial == 
                          c_initial) and (t.final == c_final)]
                 if len(trans) == 0:
@@ -156,9 +170,8 @@ class LCTransMatrix:
                                           "transition from {} to {} - each "
                                           "transition must have only one "
                                           "meaning".format(c_initial, c_final))
-                meanings += 1
 
-        if (len(meanings) != len(legend.key)**2):
+        if (len(self.transitions) != len(self.legend.key)**2):
             raise ValidationError("Transitions list length does not match "
                                   "expected length based on legend")
 
@@ -171,12 +184,19 @@ class LCTransMatrix:
         else:
             return out
 
-    def get_matrix(self, order):
+    def get_list(self):
         '''Return the transition matrix in format needed for GEE'''
-        out = []
-        for c_initial in self.legend:
-            for c_final in self.legend:
-                trans = [t for t in self.transitions if (t.initial == 
-                         c_initial) and (t.final == c_final)]
-                out.append(trans.get_meaning_int())
+        out = [[], []]
+        # Figure out what number to multiply initial codes by so that initial 
+        # and final codes can be added in such a way that they appear to be 
+        # concatenated as strings (for example: initial=7, and final=5, would 
+        # be coded as 75)
+        multiplier = math.ceil(max([c.code for c in self.legend.key])/ 10) * 10
+        for c_final in self.legend.key:
+            for c_initial in self.legend.key:
+                out[0].append(c_initial.code * multiplier + c_final.code)
+                trans = [t for t in self.transitions if
+                         (t.initial == c_initial) and
+                         (t.final == c_final)][0]
+                out[1].append(trans.get_meaning_int())
         return out

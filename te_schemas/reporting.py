@@ -9,6 +9,7 @@ from marshmallow import validate
 from te_schemas.schemas import AreaOfInterest
 from te_schemas.land_cover import LCTransMatrix, LCLegendNesting
 
+
 # Area summary schemas
 @dataclass
 class Value:
@@ -17,6 +18,7 @@ class Value:
 
     class Meta:
         ordered = True
+
 
 @dataclass
 class AnnualValueList:
@@ -28,6 +30,7 @@ class AnnualValueList:
     class Meta:
         ordered = True
 
+
 # Area summary schemas
 @dataclass
 class Area:
@@ -37,14 +40,17 @@ class Area:
     class Meta:
         ordered = True
 
+
 @dataclass
 class AreaList:
     name: Optional[str]
-    unit: str = field(metadata={'validate': validate.OneOf(["m", "ha", "km sq"])})
+    unit: str = field(metadata={'validate':
+                      validate.OneOf(["m", "ha", "km sq"])})
     areas: List[Area]
 
     class Meta:
         ordered = True
+
 
 # Crosstab summary schemas
 @dataclass
@@ -55,6 +61,7 @@ class CrossTabEntry:
 
     class Meta:
         ordered = True
+
 
 @dataclass
 class CrossTab:
@@ -68,9 +75,9 @@ class CrossTab:
     class Meta:
         ordered = True
 
+
 ###
 # Schemas to facilitate UNCCD reporting
-
 @dataclass
 class TrendsEarthVersion:
     version: str
@@ -80,6 +87,7 @@ class TrendsEarthVersion:
     class Meta:
         ordered = True
         datetimeformat = '%Y-%m-%dT%H:%M:%S+00:00'
+
 
 @dataclass
 class ReportMetadata:
@@ -92,12 +100,14 @@ class ReportMetadata:
         ordered = True
         datetimeformat = '%Y-%m-%dT%H:%M:%S+00:00'
 
+
 @dataclass
 class SDG15Report:
     summary: AreaList
 
     class Meta:
         ordered = True
+
 
 @dataclass
 class ProductivityReport:
@@ -107,15 +117,18 @@ class ProductivityReport:
     class Meta:
         ordered = True
 
+
 @dataclass
 class LandCoverReport:
     summary: AreaList
     legend_nesting: LCLegendNesting
+    transition_matrix: LCTransMatrix
     crosstab_by_land_cover_class: CrossTab
     land_cover_areas_by_year: List[AnnualValueList]
 
     class Meta:
         ordered = True
+
 
 @dataclass
 class SoilOrganicCarbonReport:
@@ -137,6 +150,7 @@ class LandConditionReport:
     class Meta:
         ordered = True
 
+
 @dataclass
 class AffectedPopulationReport:
     pass
@@ -144,12 +158,14 @@ class AffectedPopulationReport:
     class Meta:
         ordered = True
 
+
 @dataclass
 class DroughtReport:
     pass
 
     class Meta:
         ordered = True
+
 
 @dataclass
 class TrendsEarthSummary:
