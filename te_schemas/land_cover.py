@@ -185,19 +185,40 @@ class LCTransMatrix:
         else:
             return out
 
+    def get_multiplier(self):
+        '''Return multiplier for transition calculations
+
+        Used to figure out what number to multiply initial codes by so that, 
+        when added to the final class code,  the result is the same as if the 
+        class codes were added as strings. For example: if the initial class 
+        code were 7, and, the  final class code were 5, the transition would be 
+        coded as 75)'''
+        return math.ceil(max([c.code for c in self.legend.key]) / 10) * 10
+
     def get_list(self):
-        '''Return the transition matrix in format needed for GEE'''
+        '''Get transition matrix, in GEE format'''
         out = [[], []]
-        # Figure out what number to multiply initial codes by so that initial 
-        # and final codes can be added in such a way that they appear to be 
-        # concatenated as strings (for example: initial=7, and final=5, would 
-        # be coded as 75)
-        multiplier = math.ceil(max([c.code for c in self.legend.key])/ 10) * 10
         for c_final in self.legend.key:
             for c_initial in self.legend.key:
-                out[0].append(c_initial.code * multiplier + c_final.code)
+                out[0].append(c_initial.code * self.get_multiplier() + c_final.code)
                 trans = [t for t in self.transitions if
                          (t.initial == c_initial) and
                          (t.final == c_final)][0]
                 out[1].append(trans.get_meaning_int())
+        return out
+
+    def get_persistence_list(self):
+        '''Get transition matrix to remap persistence classes, in GEE format
+
+        Remap persistence class codes (11, 22), etc., so they are sequential 
+        (1, 2, etc.). This makes it easier to assign a clear color ramp in 
+        QGIS.'''
+        out = [[], []]
+        for c_final in self.legend.key:
+            for c_initial in self.legend.key:
+                out[0].append(c_initial.code * self.get_multiplier() + c_final.code)
+                if c_final.code == c_initial.code:
+                    out[1].append(c_initial.code)
+                else:
+                    out[1].append(out[0])
         return out
