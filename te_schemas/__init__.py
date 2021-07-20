@@ -1,3 +1,5 @@
+from marshmallow_dataclass import class_schema
+
 class SchemaBase:
     '''Base class for te_schemas schemas'''
     def validate(self):
@@ -5,6 +7,10 @@ class SchemaBase:
         data, errors = self.Schema().dump(self)
         self.Schema().validate(data)
 
-    def as_json(self):
-        '''Export instance to json'''
-        self.Schema().dumps(self)
+    def dump(self):
+        '''Serialize to Python datatypes'''
+        return self.__class__.Schema().dump(self)
+
+    def dumps(self):
+        '''Serialize to json-formatted text'''
+        return self.__class__.Schema().dumps(self)
