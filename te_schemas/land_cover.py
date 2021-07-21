@@ -3,9 +3,9 @@ import math
 from . import SchemaBase
 
 from dataclasses import field
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
-from marshmallow import validate, Schema
+from marshmallow import validate, Schema, post_load, pre_load, validates_schema
 from marshmallow.exceptions import ValidationError
 from marshmallow_dataclass import dataclass
 
@@ -24,9 +24,6 @@ class LCClass(SchemaBase):
     description: Optional[str] = field(default=None)
     color: Optional[str] = field(default=None,
                                  metadata={'validate': validate.Regexp('^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$')})
-
-    class Meta:
-        ordered = True
 
 
 @dataclass
@@ -65,9 +62,6 @@ class LCLegend(SchemaBase):
                         key=sorted(list(self.key),
                                    key=lambda k: k.code))
 
-    class Meta:
-        ordered = True
-
 
 # Defines how a more detailed land cover legend nests within a higher-level 
 # legend
@@ -78,9 +72,6 @@ class LCLegendNesting(SchemaBase):
     # nesting is a dict where the keys are the parent classes, and the items
     # are the child classes
     nesting: Dict[int, List[int]] = field(default_factory=dict)
-
-    class Meta:
-        ordered = True
 
     def __post_init__(self):
         # Get all parent and child codes listed in nesting
@@ -131,53 +122,20 @@ class LCLegendNesting(SchemaBase):
         return out
 
 
+###############################################################################
+# Base classes for transition matrices to be used in defining meaning of land 
+# cover transitions in terms of degraded/stable/improvement, soil organic 
+# carbon change factors, etc.
 @dataclass
-class LCTransMeaning(SchemaBase):
-    initial: LCClass
-    final: LCClass
-    meaning: str = field(metadata={'validate':
-                                   validate.OneOf(["degradation",
-                                                   "stable",
-                                                   "improvement"])})
+class LCTransitionMatrixBase(SchemaBase):
+    '''Base class to define meaning of land cover transitions
 
-    class Meta:
-        ordered = True
+    Base class used for transition matrices defining meaning of land 
+    cover transitions in terms of degraded/stable/improvement, soil organic 
+    carbon change factors, etc.'''
 
-    def get_meaning_int(self):
-        meaning_key = {'degradation': -1,
-                       'stable': 0,
-                       'improvement': 1}
-        return meaning_key[self.meaning]
-
-
-@dataclass
-class LCTransMatrix(SchemaBase):
-    '''Define meaning of each possible land cover transition'''
-    legend: LCLegend
-    transitions: List[LCTransMeaning] = field(default_factory=list)
-
-    class Meta:
-        ordered = True
-
-    def __post_init__(self):
-        '''Ensure each transition is represented once and only once'''
-        for c_final in self.legend.key:
-            for c_initial in self.legend.key:
-                trans = [t for t in self.transitions if
-                        (t.initial == c_initial) and
-                        (t.final == c_final)]
-                if len(trans) == 0:
-                    raise ValidationError("Meaning of transition from {} to "
-                                          "{} is undefined".format(c_initial, c_final))
-                if len(trans) > 1:
-                    raise ValidationError("Multiple definitions found for "
-                                          "transition from {} to {} - each "
-                                          "transition must have only one "
-                                          "meaning".format(c_initial, c_final))
-
-        if (len(self.transitions) != len(self.legend.key)**2):
-            raise ValidationError("Transitions list length does not match "
-                                  "expected length based on legend")
+    transitions: list
+    name: str
 
     def meaningByTransition(self, initial, final):
         '''Get meaning for a particular transition'''
@@ -188,27 +146,68 @@ class LCTransMatrix(SchemaBase):
         else:
             return out
 
-    def get_multiplier(self):
-        '''Return multiplier for transition calculations
 
-        Used to figure out what number to multiply initial codes by so that, 
-        when added to the final class code,  the result is the same as if the 
-        class codes were added as strings. For example: if the initial class 
-        code were 7, and, the  final class code were 5, the transition would be 
-        coded as 75)'''
-        return math.ceil(max([c.code for c in self.legend.key]) / 10) * 10
+def validate_matrix(legend, transitions):
+    for c_final in legend.key:
+        for c_initial in legend.key:
+            trans = [t for t in transitions if
+                    (t.initial == c_initial) and
+                    (t.final == c_final)]
+            if len(trans) == 0:
+                raise ValidationError("Meaning of transition from {} to "
+                                      "{} is undefined for {}".format(c_initial, c_final, transitions))
+            if len(trans) > 1:
+                raise ValidationError("Multiple definitions found for "
+                                      "transition from {} to {} - each "
+                                      "transition must have only one "
+                                      "meaning".format(c_initial, c_final))
 
-    def get_list(self):
+    if (len(transitions) != len(legend.key)**2):
+        raise ValidationError("Transitions list length for {} does not match "
+                              "expected length based on legend")
+
+
+@dataclass
+class LCTransitionDefinitionBase(SchemaBase):
+    '''Base class to define meaning of land cover transitions
+
+    Can contain one more more definitions TransitionMatrixBase'''
+
+    legend: LCLegend
+    name: str
+    definitions: Any
+
+    @validates_schema
+    def validate_transitions(self, data, **kwargs):
+        '''Ensure each transition is represented once and only once'''
+        if isinstance(data['definitions'], dict):
+            for key, m in data['definitions']:
+                validate_matrix(data['legend'], m.transitions)
+        elif isinstance(data['definitions'], LCTransitionMatrixBase):
+                validate_matrix(data['legend'], data['definitions'].transitions)
+        else:
+            raise ValidationError
+        return data
+
+    def get_list(self, key=None):
         '''Get transition matrix, in GEE format'''
+        if isinstance(self.definitions, dict):
+            if key == None:
+                raise Exception
+            else:
+                m = self.definitions[key]
+        elif isinstance(self.definitions, LCTransitionMatrixBase):
+            m = self.definitions
+        else:
+            raise Exception
         out = [[], []]
         for c_final in self.legend.key:
             for c_initial in self.legend.key:
                 out[0].append(c_initial.code * self.get_multiplier() + c_final.code)
-                trans = [t for t in self.transitions if
+                trans = [t for t in m.transitions if
                          (t.initial == c_initial) and
                          (t.final == c_final)][0]
-                out[1].append(trans.get_meaning_int())
-        return out
+                out[1].append(trans.code())
 
     def get_persistence_list(self):
         '''Get transition matrix to remap persistence classes, in GEE format
@@ -226,3 +225,48 @@ class LCTransMatrix(SchemaBase):
                 else:
                     out[1].append(original_code)
         return out
+
+    def get_multiplier(self):
+        '''Return multiplier for transition calculations
+
+        Used to figure out what number to multiply initial codes by so that, 
+        when added to the final class code,  the result is the same as if the 
+        class codes were added as strings. For example: if the initial class 
+        code were 7, and, the  final class code were 5, the transition would be 
+        coded as 75)'''
+        return math.ceil(max([c.code for c in self.legend.key]) / 10) * 10
+
+
+@dataclass
+class LCTransitionMeaning(SchemaBase):
+    initial: LCClass
+    final: LCClass
+    meaning: Any  # Override with particular type when subclassed
+
+
+###############################################################################
+# Land cover change transition definitions (degraded/stable/improvement)
+@dataclass
+class LCTransitionMeaningDeg(LCTransitionMeaning):
+    meaning: str
+
+    @validates_schema
+    def validate_meanings(self, data, **kwargs):
+        self.meaning_key = {'degradation': -1,
+                            'stable': 0,
+                            'improvement': 1}
+        if data['meaning'] not in self.meaning_key.keys():
+            raise ValidationError('Unknown transition meaning "{}"'.format(data['meaning']))
+
+    def code(self):
+        return self.meaning_key[self.meaning]
+
+@dataclass
+class LCTransitionMatrixDeg(LCTransitionMatrixBase):
+    transitions: List[LCTransitionMeaningDeg]
+
+
+@dataclass
+class LCTransitionDefinitionDeg(LCTransitionDefinitionBase):
+    '''Define meaning of land cover transitions in terms of degradation'''
+    definitions: LCTransitionMatrixDeg
