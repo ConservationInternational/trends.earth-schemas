@@ -208,6 +208,7 @@ class LCTransitionDefinitionBase(SchemaBase):
                          (t.initial == c_initial) and
                          (t.final == c_final)][0]
                 out[1].append(trans.code())
+        return out
 
     def get_persistence_list(self):
         '''Get transition matrix to remap persistence classes, in GEE format
