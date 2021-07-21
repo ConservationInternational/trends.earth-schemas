@@ -248,18 +248,20 @@ class LCTransitionMeaning(SchemaBase):
 # Land cover change transition definitions (degraded/stable/improvement)
 @dataclass
 class LCTransitionMeaningDeg(LCTransitionMeaning):
-    meaning: str
+    meaning: str = field(metadata={'validate':
+                                   validate.OneOf(["degradation",
+                                                   "stable",
+                                                   "improvement"])})
 
-    @validates_schema
-    def validate_meanings(self, data, **kwargs):
-        self.meaning_key = {'degradation': -1,
-                            'stable': 0,
-                            'improvement': 1}
-        if data['meaning'] not in self.meaning_key.keys():
-            raise ValidationError('Unknown transition meaning "{}"'.format(data['meaning']))
+    class Meta:
+        ordered = True
 
     def code(self):
-        return self.meaning_key[self.meaning]
+        meaning_key = {'degradation': -1,
+                       'stable': 0,
+                       'improvement': 1}
+        return meaning_key[self.meaning]
+
 
 @dataclass
 class LCTransitionMatrixDeg(LCTransitionMatrixBase):
