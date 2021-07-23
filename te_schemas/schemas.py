@@ -1,4 +1,19 @@
+import datetime
+
 from marshmallow import Schema, fields, post_load
+from marshmallow_dataclass import dataclass
+
+
+@dataclass
+class TrendsEarthVersion:
+    version: str
+    revision: str
+    release_date: datetime.datetime
+
+    class Meta:
+        ordered = True
+        datetimeformat = '%Y-%m-%dT%H:%M:%S+00:00'
+
 
 
 ###############################################################################

@@ -6,8 +6,7 @@ from typing import List, Optional
 from marshmallow_dataclass import dataclass
 from marshmallow import validate
 
-from te_schemas.schemas import AreaOfInterest
-from te_schemas.land_cover import LCTransMatrix, LCLegendNesting
+from . import schemas, land_cover
 
 
 # Area summary schemas
@@ -79,22 +78,11 @@ class CrossTab:
 ###
 # Schemas to facilitate UNCCD reporting
 @dataclass
-class TrendsEarthVersion:
-    version: str
-    revision: str
-    release_date: datetime.datetime
-
-    class Meta:
-        ordered = True
-        datetimeformat = '%Y-%m-%dT%H:%M:%S+00:00'
-
-
-@dataclass
 class ReportMetadata:
     title: str
     date: datetime.datetime
-    trends_earth_version: TrendsEarthVersion
-    area_of_interest: AreaOfInterest
+    trends_earth_version: schemas.TrendsEarthVersion
+    area_of_interest: schemas.AreaOfInterest
 
     class Meta:
         ordered = True
@@ -121,8 +109,8 @@ class ProductivityReport:
 @dataclass
 class LandCoverReport:
     summary: AreaList
-    legend_nesting: LCLegendNesting
-    transition_matrix: LCTransMatrix
+    legend_nesting: land_cover.LCLegendNesting
+    transition_matrix: land_cover.LCTransitionDefinitionDeg
     crosstab_by_land_cover_class: CrossTab
     land_cover_areas_by_year: List[AnnualValueList]
 
