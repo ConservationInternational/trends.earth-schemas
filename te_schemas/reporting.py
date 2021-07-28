@@ -1,14 +1,57 @@
 import datetime
 
 from dataclasses import field
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from marshmallow_dataclass import dataclass
+from marshmallow_geojson.property import PropertiesSchema
+from marshmallow_geojson.feature import FeatureSchema 
 from marshmallow import validate
+from marshmallow.fields import Nested
 
 from . import schemas, land_cover
 
 
+###############################################################################
+# Hotspots / brightspots
+
+@dataclass
+class HotspotBrightspotProperties(PropertiesSchema):
+    name: str
+    area: float
+    type: str = field(metadata={'validate':
+                      validate.OneOf(["hotspot", "brightspot"])})
+    process: str
+    basis: str
+    periods: List[str]
+
+
+@dataclass
+class HotspotBrightspot(FeatureSchema):
+    properties: HotspotBrightspotProperties
+
+
+###############################################################################
+# False positive / negative
+
+@dataclass
+class ErrorClassificationProperties(PropertiesSchema):
+    area: float
+    type: str = field(metadata={'validate':
+                      validate.OneOf(["false negative", "false positive"])})
+    place_name: str
+    process: str
+    basis: str
+    periods: str = field(metadata={'validate':
+                         validate.OneOf(["baseline", "reporting", "both"])})
+
+
+@dataclass
+class ErrorClassification(FeatureSchema):
+    properties: ErrorClassificationProperties
+
+
+###############################################################################
 # Area summary schemas
 @dataclass
 class Value:
@@ -20,11 +63,10 @@ class Value:
 
 
 @dataclass
-class AnnualValueList:
+class ValuesByYearDict:
     name: str
-    year: Optional[int]
     unit: str
-    values: List[Value]
+    values: Dict[int, Dict[str, float]]
 
     class Meta:
         ordered = True
@@ -112,7 +154,7 @@ class LandCoverReport:
     legend_nesting: land_cover.LCLegendNesting
     transition_matrix: land_cover.LCTransitionDefinitionDeg
     crosstab_by_land_cover_class: CrossTab
-    land_cover_areas_by_year: List[AnnualValueList]
+    land_cover_areas_by_year: ValuesByYearDict
 
     class Meta:
         ordered = True
@@ -122,7 +164,7 @@ class LandCoverReport:
 class SoilOrganicCarbonReport:
     summary: AreaList
     crosstab_by_land_cover_class: CrossTab
-    soc_stock_by_year: List[AnnualValueList]
+    soc_stock_by_year: ValuesByYearDict
 
     class Meta:
         ordered = True
@@ -158,7 +200,7 @@ class DroughtReport:
 @dataclass
 class TrendsEarthSummary:
     metadata: ReportMetadata
-    land_condition: LandConditionReport
+    land_condition: Dict[str, LandConditionReport]
     affected_population: AffectedPopulationReport
     drought: DroughtReport
 

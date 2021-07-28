@@ -64,6 +64,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=['marshmallow==3.12.2',
                       'marshmallow-dataclass[enum]==8.4.2',
+                      'marshmallow-geojson=0.2.1',
                       'marshmallow-enum==1.5.1'],
 
     # List additional groups of dependencies here (e.g. development
