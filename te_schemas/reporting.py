@@ -4,19 +4,14 @@ from dataclasses import field
 from typing import List, Optional, Dict
 
 from marshmallow_dataclass import dataclass
-from marshmallow_geojson.property import PropertiesSchema
-from marshmallow_geojson.feature import FeatureSchema 
 from marshmallow import validate
 from marshmallow.fields import Nested
 
 from . import schemas, land_cover
 
 
-###############################################################################
-# Hotspots / brightspots
-
 @dataclass
-class HotspotBrightspotProperties(PropertiesSchema):
+class HotspotBrightspotProperties:
     name: str
     area: float
     type: str = field(metadata={'validate':
@@ -26,16 +21,11 @@ class HotspotBrightspotProperties(PropertiesSchema):
     periods: List[str]
 
 
-@dataclass
-class HotspotBrightspot(FeatureSchema):
-    properties: HotspotBrightspotProperties
-
-
 ###############################################################################
 # False positive / negative
 
 @dataclass
-class ErrorClassificationProperties(PropertiesSchema):
+class ErrorClassificationProperties:
     area: float
     type: str = field(metadata={'validate':
                       validate.OneOf(["false negative", "false positive"])})
@@ -44,11 +34,6 @@ class ErrorClassificationProperties(PropertiesSchema):
     basis: str
     periods: str = field(metadata={'validate':
                          validate.OneOf(["baseline", "reporting", "both"])})
-
-
-@dataclass
-class ErrorClassification(FeatureSchema):
-    properties: ErrorClassificationProperties
 
 
 ###############################################################################
