@@ -4,6 +4,7 @@ from dataclasses import field
 from typing import List, Optional, Dict
 
 from marshmallow_dataclass import dataclass
+from marshmallow_union import Union
 from marshmallow import validate
 from marshmallow.fields import Nested
 
@@ -89,14 +90,25 @@ class CrossTabEntry:
         ordered = True
 
 
+# Crosstab summary schemas
+@dataclass
+class CrossTabEntryInititalFinal:
+    initial_label: str
+    final_label: str
+    initial_value: float
+    final_value: float
+
+    class Meta:
+        ordered = True
+
+
 @dataclass
 class CrossTab:
     name: Optional[str]
-    #unit: str = field(metadata={'validate': validate.OneOf(["m", "ha", "km sq"])})
     unit: str
     initial_year: int
     final_year: int
-    values: List[CrossTabEntry]
+    values: Union(List[CrossTabEntry], List[CrossTabEntryInititalFinal])
 
     class Meta:
         ordered = True
