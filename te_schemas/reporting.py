@@ -1,10 +1,9 @@
 import datetime
 
 from dataclasses import field
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Union
 
 from marshmallow_dataclass import dataclass
-from marshmallow_union import Union
 from marshmallow import validate
 from marshmallow.fields import Nested
 
@@ -92,7 +91,7 @@ class CrossTabEntry:
 
 # Crosstab summary schemas
 @dataclass
-class CrossTabEntryInititalFinal:
+class CrossTabEntryInitialFinal:
     initial_label: str
     final_label: str
     initial_value: float
@@ -108,7 +107,7 @@ class CrossTab:
     unit: str
     initial_year: int
     final_year: int
-    values: Union(List[CrossTabEntry], List[CrossTabEntryInititalFinal])
+    values: Union[List[CrossTabEntry], List[CrossTabEntryInitialFinal]]
 
     class Meta:
         ordered = True
