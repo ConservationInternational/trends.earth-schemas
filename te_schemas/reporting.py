@@ -149,7 +149,7 @@ class LandCoverReport:
     summary: AreaList
     legend_nesting: land_cover.LCLegendNesting
     transition_matrix: land_cover.LCTransitionDefinitionDeg
-    crosstab_by_land_cover_class: CrossTab
+    crosstabs_by_land_cover_class: List[CrossTab]
     land_cover_areas_by_year: ValuesByYearDict
 
     class Meta:
