@@ -227,10 +227,21 @@ class LCTransitionDefinitionBase(SchemaBase):
                     out[1].append(original_code)
         return out
 
+    def get_transition_integers_key(self):
+        '''get key linking initial/final classes to their transition codes'''
+        out = {}
+        for c_initial in self.legend.key:
+            for c_final in self.legend.key:
+                out[c_initial.code * self.get_multiplier() + c_final.code] = {
+                    'initial': c_initial.code,
+                    'final': c_final.code
+                }
+        return out
+
     def get_multiplier(self):
         '''Return multiplier for transition calculations
 
-        Used to figure out what number to multiply initial codes by so that, 
+        Used to figure out what number to multiply initial codes so that, 
         when added to the final class code,  the result is the same as if the 
         class codes were added as strings. For example: if the initial class 
         code were 7, and, the  final class code were 5, the transition would be 
