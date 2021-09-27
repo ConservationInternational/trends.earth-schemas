@@ -22,8 +22,12 @@ class LCClass(SchemaBase):
     name_long: str = field(default=None,
                            metadata={"validate": validate.Length(max=90)})
     description: Optional[str] = field(default=None)
-    color: Optional[str] = field(default=None,
-                                 metadata={'validate': validate.Regexp('^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$')})
+    color: Optional[str] = field(
+        default=None,
+        metadata={
+            'validate': validate.Regexp('^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$')
+        }
+    )
 
 
 @dataclass
@@ -35,7 +39,9 @@ class LCLegend(SchemaBase):
         # Check all class codes are unique
         codes = [c.code for c in self.key]
         if not len(set(codes)) == len(codes):
-            raise ValidationError('Duplicate LCClass code found in legend {}'.format(self.name))
+            raise ValidationError(
+                f'Duplicate LCClass code found in legend {self.name}'
+            )
 
         # Sort key by class codes
         self.key = sorted(self.key, key=lambda c: c.code)
@@ -96,10 +102,10 @@ class LCLegendNesting(SchemaBase):
 
         # Check that nesting_parent_codes list is an is exact match of parent 
         # legend class list, and likewise for child
-        if not (self.parent.codes() == nesting_parent_codes):
+        if not (sorted(self.parent.codes()) == nesting_parent_codes):
             raise ValidationError("Codes listed in nesting dictionary don't "
                                   "match parent key")
-        if not (self.child.codes() == nesting_child_codes):
+        if not (sorted(self.child.codes()) == nesting_child_codes):
             raise ValidationError("Codes listed in nesting dictionary don't "
                                   "match child key")
 
