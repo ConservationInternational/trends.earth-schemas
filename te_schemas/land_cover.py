@@ -34,6 +34,7 @@ class LCClass(SchemaBase):
 class LCLegend(SchemaBase):
     name: str
     key: List[LCClass] = field(default_factory=list)
+    nodata: LCClass = field(default_factory=None)
 
     def __post_init__(self):
         # Check all class codes are unique
@@ -46,15 +47,21 @@ class LCLegend(SchemaBase):
         # Sort key by class codes
         self.key = sorted(self.key, key=lambda c: c.code)
 
+    def _key_with_nodata(self):
+        if self.nodata:
+            return self.key + [self.nodata]
+        else:
+            return self.key
+
     def codes(self):
-        return [c.code for c in self.key]
+        return [c.code for c in self._key_with_nodata()]
 
     def classByCode(self, code):
-        out = [c for c in self.key if c.code == code][0]
+        out = [c for c in self._key_with_nodata() if c.code == code]
         if out == []:
             raise KeyError('No LCClass found for code "{}"'.format(code))
         else:
-            return out
+            return out[0]
 
     def classByNameLong(self, name_long):
         out = [c for c in self.key if c.name_long == name_long][0]
@@ -64,13 +71,15 @@ class LCLegend(SchemaBase):
             return out
 
     def orderByCode(self):
-        return LCLegend(name=self.name,
-                        key=sorted(list(self.key),
-                                   key=lambda k: k.code))
+        return LCLegend(
+            name=self.name,
+            key=sorted(list(self.key), key=lambda k: k.code),
+            nodata=self.nodata
+        )
 
 
-# Defines how a more detailed land cover legend nests within a higher-level 
-# legend
+# Defines how a more detailed land cover legend nests within nodata=a 
+# higher-level legend
 @dataclass
 class LCLegendNesting(SchemaBase):
     parent: LCLegend
@@ -84,7 +93,7 @@ class LCLegendNesting(SchemaBase):
         nesting_parent_codes = self.nesting.keys()
         # Note the below is to avoid having a list of lists of child codes 
         # given the structure the "items" method returns them in
-        nesting_child_codes = [i for key,value in self.nesting.items() for i in value]
+        nesting_child_codes = [i for key, value in self.nesting.items() for i in value]
 
         # Sort the two nesting class lists by code before comparison with 
         # legend class lists
@@ -94,20 +103,26 @@ class LCLegendNesting(SchemaBase):
         if not len(set(nesting_parent_codes)) == len(nesting_parent_codes):
             raise ValidationError('Duplicates detected in parent codes listed '
                                   'in nesting - each parent must be listed '
-                                  'once and only once')
+                                  'once and only once. Parent codes: '
+                                  f'{nesting_parent_codes}')
         if not len(set(nesting_child_codes)) == len(nesting_child_codes):
             raise ValidationError('Duplicates detected in child codes listed '
                                   'in nesting - each child must be listed '
-                                  'once and only once')
+                                  'once and only once. Child codes: '
+                                  f'{nesting_child_codes}')
 
         # Check that nesting_parent_codes list is an is exact match of parent 
         # legend class list, and likewise for child
         if not (sorted(self.parent.codes()) == nesting_parent_codes):
-            raise ValidationError("Codes listed in nesting dictionary don't "
-                                  "match parent key")
+            raise ValidationError(
+                f"Codes listed in nesting dictionary {nesting_parent_codes} "
+                f"don't match parent key {self.parent.codes()}"
+            )
         if not (sorted(self.child.codes()) == nesting_child_codes):
-            raise ValidationError("Codes listed in nesting dictionary don't "
-                                  "match child key")
+            raise ValidationError(
+                f"Codes listed in nesting dictionary {nesting_child_codes} "
+                f"don't match child key {self.child.codes()}"
+            )
 
     def parentClassForChild(self, c):
         parent_code = [key for key, values in self.nesting.items()
@@ -153,15 +168,26 @@ class LCTransitionMatrixBase(SchemaBase):
             return out
 
 
-def validate_matrix(legend, transitions):
+def _validate_matrix(legend, transitions):
     for c_final in legend.key:
         for c_initial in legend.key:
+            if legend.nodata in (c_initial, c_final):
+                # Don't allow transitions to be defined when initial or final 
+                # class are nodata class
+                raise ValidationError(
+                    f"Meaning of transition from {c_initial} to {c_final} "
+                    f"is defined, but nodata is {legend.nodata}. Transition "
+                    "meanings are not allowed for transitions from or to "
+                    "nodata class."
+                )
             trans = [t for t in transitions if
                     (t.initial == c_initial) and
                     (t.final == c_final)]
             if len(trans) == 0:
-                raise ValidationError("Meaning of transition from {} to "
-                                      "{} is undefined for {}".format(c_initial, c_final, transitions))
+                raise ValidationError(
+                    f"Meaning of transition from {c_initial} to {c_final} "
+                    f"is undefined (nodata is {legend.nodata})."
+                )
             if len(trans) > 1:
                 raise ValidationError("Multiple definitions found for "
                                       "transition from {} to {} - each "
@@ -188,9 +214,9 @@ class LCTransitionDefinitionBase(SchemaBase):
         '''Ensure each transition is represented once and only once'''
         if isinstance(data['definitions'], dict):
             for key, m in data['definitions']:
-                validate_matrix(data['legend'], m.transitions)
+                _validate_matrix(data['legend'], m.transitions)
         elif isinstance(data['definitions'], LCTransitionMatrixBase):
-                validate_matrix(data['legend'], data['definitions'].transitions)
+                _validate_matrix(data['legend'], data['definitions'].transitions)
         else:
             raise ValidationError
         return data
