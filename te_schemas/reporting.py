@@ -83,7 +83,10 @@ class AreaList:
 @dataclass
 class Population:
     name: Optional[str]
-    area: int = field(metadata={"validate": validate.Range(min=0)})
+    population: int = field(metadata={"validate": validate.Range(min=0)})
+    type: str = field(metadata={
+        'validate': validate.OneOf(["Total population", "Female population", "Male population"])
+    })
 
     class Meta:
         ordered = True
@@ -92,14 +95,10 @@ class Population:
 @dataclass
 class PopulationList:
     name: Optional[str]
-    unit: str = field(metadata={
-        'validate': validate.OneOf(["Total", "Female", "Male"])
-    })
-    areas: List[Population]
+    values: List[Population]
 
     class Meta:
         ordered = True
-
 
 
 # Crosstab summary schemas
@@ -208,10 +207,23 @@ class AffectedPopulationReport:
     class Meta:
         ordered = True
 
+@dataclass
+class DroughtExposedPopulation:
+    drought_class: str = field(metadata={'validate': validate.OneOf(
+        ["Mild drought",
+         "Moderate drought",
+         "Severe drought",
+         "Extreme drought"]
+    )})
+    year: int
+    exposed_population: List[Population]
+
 
 @dataclass
 class DroughtReport:
-    pass
+    tier_one: List[AreaList]
+    tier_two: List[DroughtExposedPopulation]
+    tier_three: List[PopulationList]
 
     class Meta:
         ordered = True
