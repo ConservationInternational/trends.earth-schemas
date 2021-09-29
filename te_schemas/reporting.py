@@ -70,12 +70,36 @@ class Area:
 @dataclass
 class AreaList:
     name: Optional[str]
-    unit: str = field(metadata={'validate':
-                      validate.OneOf(["m", "ha", "km sq"])})
+    unit: str = field(metadata={
+        'validate': validate.OneOf(["m", "ha", "km sq"])
+    })
     areas: List[Area]
 
     class Meta:
         ordered = True
+
+
+# Population summary schema
+@dataclass
+class Population:
+    name: Optional[str]
+    area: int = field(metadata={"validate": validate.Range(min=0)})
+
+    class Meta:
+        ordered = True
+
+
+@dataclass
+class PopulationList:
+    name: Optional[str]
+    unit: str = field(metadata={
+        'validate': validate.OneOf(["Total", "Female", "Male"])
+    })
+    areas: List[Population]
+
+    class Meta:
+        ordered = True
+
 
 
 # Crosstab summary schemas
@@ -179,7 +203,7 @@ class LandConditionReport:
 
 @dataclass
 class AffectedPopulationReport:
-    pass
+    summary: PopulationList
 
     class Meta:
         ordered = True
@@ -197,10 +221,8 @@ class DroughtReport:
 class TrendsEarthSummary:
     metadata: ReportMetadata
     land_condition: Dict[str, LandConditionReport]
-    affected_population: AffectedPopulationReport
-    drought: DroughtReport
-
-    # TODO: Add datasets needed for reporting (band number and filename)
+    affected_population: Dict[str, AffectedPopulationReport]
+    drought: Dict[str, DroughtReport]
 
     class Meta:
         ordered = True
