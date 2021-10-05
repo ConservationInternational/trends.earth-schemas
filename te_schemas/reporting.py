@@ -213,7 +213,8 @@ class DroughtExposedPopulation:
         ["Mild drought",
          "Moderate drought",
          "Severe drought",
-         "Extreme drought"]
+         "Extreme drought",
+         "Non-drought"]
     )})
     year: int
     exposed_population: List[Population]
@@ -221,20 +222,39 @@ class DroughtExposedPopulation:
 
 @dataclass
 class DroughtReport:
-    tier_one: List[AreaList]
-    tier_two: List[DroughtExposedPopulation]
-    tier_three: List[PopulationList]
+    tier_one: Dict[int, AreaList]
+    tier_two: Dict[int, Dict[str, PopulationList]]
+    tier_three: Dict[int, PopulationList]
 
     class Meta:
         ordered = True
 
 
 @dataclass
-class TrendsEarthSummary:
+class TrendsEarthLandConditionSummary:
     metadata: ReportMetadata
     land_condition: Dict[str, LandConditionReport]
     affected_population: Dict[str, AffectedPopulationReport]
-    drought: Dict[str, DroughtReport]
+
+    class Meta:
+        ordered = True
+
+
+@dataclass
+class TrendsEarthDroughtSummary:
+    metadata: ReportMetadata
+    drought: DroughtReport
+
+    class Meta:
+        ordered = True
+
+
+@dataclass
+class TrendsEarthUNCCDReport:
+    metadata: ReportMetadata
+    land_condition: Dict[str, LandConditionReport]
+    affected_population: Dict[str, AffectedPopulationReport]
+    drought: DroughtReport
 
     class Meta:
         ordered = True
