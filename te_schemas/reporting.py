@@ -224,7 +224,7 @@ class DroughtExposedPopulation:
 class DroughtReport:
     tier_one: Dict[int, AreaList]
     tier_two: Dict[int, Dict[str, PopulationList]]
-    tier_three: Dict[int, PopulationList]
+    tier_three: Dict[int, Value]
 
     class Meta:
         ordered = True
