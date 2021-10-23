@@ -5,7 +5,6 @@ from typing import List, Optional, Dict, Union
 
 from marshmallow_dataclass import dataclass
 from marshmallow import validate
-from marshmallow.fields import Nested
 
 from . import schemas, land_cover
 

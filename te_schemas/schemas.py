@@ -1,4 +1,6 @@
 import datetime
+import typing
+import dataclasses
 
 from marshmallow import Schema, fields, post_load
 from marshmallow_dataclass import dataclass
@@ -7,13 +9,11 @@ from marshmallow_dataclass import dataclass
 @dataclass
 class TrendsEarthVersion:
     version: str
-    revision: str
     release_date: datetime.datetime
 
     class Meta:
         ordered = True
         datetimeformat = '%Y-%m-%dT%H:%M:%S+00:00'
-
 
 
 ###############################################################################
@@ -72,11 +72,11 @@ class BandInfo(object):
 class BandInfoSchema(Schema):
     name = fields.Str(required=True)
     no_data_value = fields.Number(required=True)
-    add_to_map = fields.Boolean(default=False)
-    activated = fields.Boolean(default=True)
+    add_to_map = fields.Boolean(dump_default=False)
+    activated = fields.Boolean(dump_default=True)
     metadata = fields.Dict(required=True)
 
-
+    
 ################################################################################
 # Schema for output from cloud calculations
 
