@@ -55,8 +55,10 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages = ['te_schemas'],
-    package_dir = {'te_schemas' : 'te_schemas'},
+    packages=['te_schemas'],
+    package_dir={'te_schemas' : 'te_schemas'},
+    package_data={'te_schemas': ['version.json']},
+    include_package_data=True,
 
     # List run-time dependencies here.  These will be installed by pip when
     # your project is installed. For an analysis of "install_requires" vs pip's
