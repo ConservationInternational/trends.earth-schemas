@@ -30,7 +30,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
@@ -55,8 +55,8 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=['te_schemas'],
-    package_dir={'te_schemas' : 'te_schemas'},
+    packages=find_packages('te_schemas'),
+    package_dir={'te_schemas': 'te_schemas'},
     package_data={'te_schemas': ['version.json']},
     include_package_data=True,
 
