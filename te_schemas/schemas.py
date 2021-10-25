@@ -9,6 +9,7 @@ from marshmallow_dataclass import dataclass
 @dataclass
 class TrendsEarthVersion:
     version: str
+    revision: str
     release_date: datetime.datetime
 
     class Meta:
