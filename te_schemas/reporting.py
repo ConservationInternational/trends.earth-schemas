@@ -200,6 +200,17 @@ class LandConditionReport:
 
 
 @dataclass
+class LandConditionProgressReport:
+    sdg: AreaList
+    productivity: AreaList
+    land_cover: AreaList
+    soil_organic_carbon: AreaList
+
+    class Meta:
+        ordered = True
+
+
+@dataclass
 class AffectedPopulationReport:
     summary: PopulationList
 
@@ -232,7 +243,8 @@ class DroughtReport:
 @dataclass
 class TrendsEarthLandConditionSummary:
     metadata: ReportMetadata
-    land_condition: Dict[str, LandConditionReport]
+    land_condition: Dict[str, Union[
+        LandConditionReport, LandConditionProgressReport]]
     affected_population: Dict[str, AffectedPopulationReport]
 
     class Meta:
@@ -251,7 +263,8 @@ class TrendsEarthDroughtSummary:
 @dataclass
 class TrendsEarthUNCCDReport:
     metadata: ReportMetadata
-    land_condition: Dict[str, LandConditionReport]
+    land_condition: Dict[str, Union[
+        LandConditionReport, LandConditionProgressReport]]
     affected_population: Dict[str, AffectedPopulationReport]
     drought: DroughtReport
 
