@@ -1,4 +1,8 @@
+import logging 
+
 from marshmallow_dataclass import class_schema
+
+logger = logging.getLogger(__name__)
 
 class SchemaBase:
     class Meta:
