@@ -9,7 +9,6 @@ import uuid
 import re
 
 import marshmallow_dataclass
-from marshmallow_enum import EnumField
 from marshmallow import pre_load, fields, post_load
 
 
@@ -60,9 +59,9 @@ class RemoteScript:
 
     @post_load
     def set_timezone(self, data, **kwargs):
-        data['created_at'] = data['created_at'].astimezone(
+        data['created_at'] = data['created_at'].replace(
             datetime.timezone.utc)
-        data['updated_at'] = data['updated_at'].astimezone(
+        data['updated_at'] = data['updated_at'].replace(
             datetime.timezone.utc)
         return data
     
@@ -217,11 +216,11 @@ class Job:
 
     @post_load
     def set_timezone(self, data, **kwargs):
-        data['start_date'] = data['start_date'].astimezone(
-            datetime.timezone.utc)
+        data['start_date'] = data['start_date'].replace(
+            tzinfo=datetime.timezone.utc)
         if data['end_date']:
-            data['end_date'] = data['end_date'].astimezone(
-                datetime.timezone.utc)
+            data['end_date'] = data['end_date'].replace(
+                tzinfo=datetime.timezone.utc)
         return data
 
     @property

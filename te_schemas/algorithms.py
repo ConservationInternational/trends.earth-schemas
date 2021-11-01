@@ -7,7 +7,6 @@ import typing
 import uuid
 
 import marshmallow_dataclass
-from marshmallow_enum import EnumField
 
 from marshmallow import pre_load
 
