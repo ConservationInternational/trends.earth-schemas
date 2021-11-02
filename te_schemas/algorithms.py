@@ -5,6 +5,7 @@ from dataclasses import (
 import enum
 import typing
 import uuid
+import re
 
 import marshmallow_dataclass
 

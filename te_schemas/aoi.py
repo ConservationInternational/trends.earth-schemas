@@ -1,6 +1,7 @@
 import json
 
 from osgeo import ogr, gdal
+from marshmallow_dataclass import dataclass
 
 from . import logger
 
@@ -18,10 +19,16 @@ def _get_bounding_box_geom(geom):
     return poly_envelope
 
 # TODO: Doesn't yet work on points
+@dataclass
 class AOI(object):
-    def __init__(self, geojson):
-        self._geojson = geojson
-        self._geometry = ogr.CreateGeometryFromJson(geojson)
+    fc: dict
+
+    @property
+    def crs(self):
+        return ogr.Open(json.dumps(self.fc)).GetSpatialReference().ExportToWkt()
+
+    def ogr_open(self):
+        return ogr.Open(AOI.Schema().dumps(self.fc))
 
 
     def meridian_split(self, as_extent=False, out_format='geojson'):
@@ -32,6 +39,8 @@ class AOI(object):
         crossing the 180th meridian
         """
 
+        fc_unioned = ogr.Open(json.dumps(self.fc))
+
         if out_format not in ['geojson', 'wkt']:
             raise ValueError(f'Unrecognized out_format "{out_format}')
 
@@ -40,7 +49,7 @@ class AOI(object):
         hemi_w = ogr.CreateGeometryFromWkt(
             'POLYGON ((-180 -90, -180 90, 0 90, 0 -90, -180 -90))')
         intersections = [
-            hemi.Intersection(self._geometry) for hemi in [hemi_e, hemi_w]
+            hemi.Intersection(self.fc) for hemi in [hemi_e, hemi_w]
         ]
 
         if as_extent:
@@ -117,12 +126,12 @@ class AOI(object):
         return out
 
     def get_crs_wkt(self):
-        return self._geometry.GetSpatialReference().ExportToWkt()
+        return self.fc.GetSpatialReference().ExportToWkt()
 
     def bounding_box_geom(self):
         'Returns bounding box in chosen destination coordinate system'
 
-        return _get_bounding_box_geom(self._geometry)
+        return _get_bounding_box_geom(self.fc)
 
     def bounding_box_gee_geojson(self):
         '''
@@ -157,7 +166,7 @@ class AOI(object):
         else:
             raise RuntimeError(
                 f"Failed to process area of interest - unknown geometry "
-                f"type: {self._geometry.GetGeometryType()}"
+                f"type: {self.fc.GetGeometryType()}"
             )
 
     def calc_frac_overlap(self, in_geom):

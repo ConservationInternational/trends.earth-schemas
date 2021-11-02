@@ -60,9 +60,9 @@ class RemoteScript:
     @post_load
     def set_timezone(self, data, **kwargs):
         data['created_at'] = data['created_at'].replace(
-            datetime.timezone.utc)
+            tzinfo=datetime.timezone.utc)
         data['updated_at'] = data['updated_at'].replace(
-            datetime.timezone.utc)
+            tzinfo=datetime.timezone.utc)
         return data
     
 
