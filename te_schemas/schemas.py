@@ -9,8 +9,8 @@ from marshmallow_dataclass import dataclass
 @dataclass
 class TrendsEarthVersion:
     version: str
-    revision: str
     release_date: datetime.datetime
+    revision: typing.Optional[str] = None
 
     class Meta:
         ordered = True

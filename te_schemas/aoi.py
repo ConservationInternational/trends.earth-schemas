@@ -1,9 +1,10 @@
 import json
+import logging
 
 from osgeo import ogr, gdal
 from marshmallow_dataclass import dataclass
 
-from . import logger
+logger = logging.getLogger(__name__)
 
 def _get_bounding_box_geom(geom):
     (minX, maxX, minY, maxY) = geom.GetEnvelope()
@@ -18,18 +19,26 @@ def _get_bounding_box_geom(geom):
 
     return poly_envelope
 
+
 # TODO: Doesn't yet work on points
 @dataclass
 class AOI(object):
-    fc: dict
+    geojson: dict
 
     @property
     def crs(self):
-        return ogr.Open(json.dumps(self.fc)).GetSpatialReference().ExportToWkt()
+        return ogr.Open(json.dumps(self.geojson)).GetSpatialReference().ExportToWkt()
 
-    def ogr_open(self):
-        return ogr.Open(AOI.Schema().dumps(self.fc))
-
+    def _get_unary_union(self):
+        logging.debug('getting unary union')
+        union = None
+        for layer in ogr.Open(json.dumps(self.geojson)):
+            for feature in layer:
+                if not union:
+                    union = feature.geometry().Clone()
+                else:
+                    union = union.Union(feature.geometry())
+        return union
 
     def meridian_split(self, as_extent=False, out_format='geojson'):
         """
@@ -39,19 +48,20 @@ class AOI(object):
         crossing the 180th meridian
         """
 
-        fc_unioned = ogr.Open(json.dumps(self.fc))
-
+        logging.debug('performing meridian split')
         if out_format not in ['geojson', 'wkt']:
             raise ValueError(f'Unrecognized out_format "{out_format}')
+        unary_union = self._get_unary_union()
 
         hemi_e = ogr.CreateGeometryFromWkt(
             'POLYGON ((0 -90, 0 90, 180 90, 180 -90, 0 -90))')
         hemi_w = ogr.CreateGeometryFromWkt(
             'POLYGON ((-180 -90, -180 90, 0 90, 0 -90, -180 -90))')
         intersections = [
-            hemi.Intersection(self.fc) for hemi in [hemi_e, hemi_w]
+            hemi.Intersection(unary_union) for hemi in [hemi_e, hemi_w]
         ]
 
+        logging.debug('making pieces')
         if as_extent:
             pieces = [
                 _get_bounding_box_geom(i)
@@ -63,22 +73,23 @@ class AOI(object):
             ]
 
         pieces_union = pieces[0].Clone()
-
         for piece in pieces[1:]:
             pieces_union = pieces_union.Union(piece)
         pieces_bounding = _get_bounding_box_geom(pieces_union)
 
         total_pieces_area = sum([piece.GetArea() for piece in pieces])
+        logging.debug(f'unary_union area {unary_union.GetArea()}')
+        logging.debug(f'pieces_union area {pieces_union.GetArea()}')
         logger.debug(f'total_pieces_area: {total_pieces_area}')
         logger.debug(f'len(pieces): {len(pieces)}')
         logger.debug(f'pieces_bounding.GetArea(): {pieces_bounding.GetArea()}')
 
         if (
             (
-                not pieces_bounding.GetArea() > total_pieces_area
+                not (pieces_bounding.GetArea() / 10) > total_pieces_area
             ) and (
                 (len(pieces) == 1) or
-                (total_pieces_area > (pieces_union.GetArea() / 2))
+                (total_pieces_area > (pieces_union.GetArea() / 10))
             )
         ):
             # If there is no area in one of the hemispheres, return the
@@ -87,11 +98,11 @@ class AOI(object):
             # from both hemispheres is not significantly smaller than that of
             # the original polygon.
             logger.info("AOI being processed in one piece "
-                        "(does not cross 180th meridian)")
+                        "(does not appear to cross 180th meridian)")
 
             out = [pieces_union]
         else:
-            logger.info("AOI crosses 180th meridian "
+            logger.info("AOI appears to cross 180th meridian "
                         "- splitting AOI into two geojsons.")
 
             out = pieces
@@ -114,7 +125,7 @@ class AOI(object):
                 # aoi).
                 # Use this to set bounds in vrt files in order to keep the
                 # pixels aligned with the chosen layer
-                geom = ogr.CreateGeometryFromJson(geojson)
+                geom = ogr.CreateGeometryFromJson(str(geojson))
                 (minx, maxx, miny, maxy) = geom.GetEnvelope()
                 gt = gdal.Open(f).GetGeoTransform()
                 left = minx - (minx - gt[0]) % gt[1]
@@ -126,12 +137,10 @@ class AOI(object):
         return out
 
     def get_crs_wkt(self):
-        return self.fc.GetSpatialReference().ExportToWkt()
-
-    def bounding_box_geom(self):
-        'Returns bounding box in chosen destination coordinate system'
-
-        return _get_bounding_box_geom(self.fc)
+        # TODO fix this
+        #return self.geojson.GetSpatialReference().ExportToWkt()
+        return 'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]'
+        return self.geojson.GetSpatialReference().ExportToWkt()
 
     def bounding_box_gee_geojson(self):
         '''
@@ -166,7 +175,7 @@ class AOI(object):
         else:
             raise RuntimeError(
                 f"Failed to process area of interest - unknown geometry "
-                f"type: {self.fc.GetGeometryType()}"
+                f"type: {self.geojson.GetGeometryType()}"
             )
 
     def calc_frac_overlap(self, in_geom):
@@ -188,10 +197,9 @@ class AOI(object):
         return frac
 
     def get_geojson(self, split=False):
-        out = {"type": "FeatureCollection", "features": []}
-
         if split:
+            out = {"type": "FeatureCollection", "features": []}
             out['features'].append(self.meridian_split(as_extent=False))
         else:
-            out = self._geojson
+            out = self.geojson
         return out
