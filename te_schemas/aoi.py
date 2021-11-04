@@ -86,10 +86,10 @@ class AOI(object):
 
         if (
             (
-                not (pieces_bounding.GetArea() / 10) > total_pieces_area
+                not (pieces_bounding.GetArea()) > total_pieces_area
             ) and (
                 (len(pieces) == 1) or
-                (total_pieces_area > (pieces_union.GetArea() / 10))
+                (total_pieces_area > (pieces_union.GetArea() / 2))
             )
         ):
             # If there is no area in one of the hemispheres, return the
