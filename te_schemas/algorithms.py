@@ -28,7 +28,6 @@ class ExecutionScript(SchemaBase):
 
     id: typing.Union[uuid.UUID, str]
     run_mode: typing.Optional[AlgorithmRunMode] = field(
-        default=None,
         metadata={"by_value": True}
     )
     name: typing.Optional[str] = field(default="")
@@ -42,14 +41,14 @@ class ExecutionScript(SchemaBase):
 
     @pre_load
     def set_id(self, data, **kwargs):
-        if not data.get('id', None):
-            data['id'] = data['name']
+        if not data.get('id'):
+            data['id'] = data.get('name')
 
         return data
 
     @pre_load
     def set_slug(self, data, **kwargs):
-        if not data.get('slug', None):
-            data['slug'] = data['name'].replace(" ", "-").lower()
+        if not data.get('slug'):
+            data['slug'] = data.get('name', '').replace(" ", "-").lower()
 
         return data

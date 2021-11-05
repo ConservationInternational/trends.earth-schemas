@@ -51,7 +51,9 @@ class RemoteScript:
     name: str
     slug: str
     description: str
-    status: str
+    status: ScriptStatus = dataclasses.field(
+        metadata={"by_value": True}
+    )
     created_at: datetime.datetime
     updated_at: datetime.datetime
     user_id: uuid.UUID
@@ -65,7 +67,6 @@ class RemoteScript:
             tzinfo=datetime.timezone.utc)
         return data
     
-
 
 class JobResultType(enum.Enum):
     CLOUD_RESULTS = "CloudResults"
@@ -240,4 +241,3 @@ class Job:
             name = "Unnamed task (unknown script)"
 
         return name
-
