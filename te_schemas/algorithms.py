@@ -40,15 +40,15 @@ class ExecutionScript(SchemaBase):
             default_factory=dict)
 
     @pre_load
-    def set_id(self, data, **kwargs):
-        if not data.get('id'):
-            data['id'] = data.get('name')
-
-        return data
-
-    @pre_load
-    def set_slug(self, data, **kwargs):
+    def set_id_and_slug(self, data, **kwargs):
         if not data.get('slug'):
             data['slug'] = data.get('name', '').replace(" ", "-").lower()
+        if not data.get('id'):
+            if data.get('name'):
+                data['id'] = data.get('name')
+            elif data.get('slug'):
+                data['id'] = data.get('slug')
+            else:
+                data['id'] = 'unknown-' + str(uuid.uuid4())
 
         return data
