@@ -129,9 +129,17 @@ class AOI(object):
                 (minx, maxx, miny, maxy) = geom.GetEnvelope()
                 gt = gdal.Open(f).GetGeoTransform()
                 left = minx - (minx - gt[0]) % gt[1]
+                if left < -180:
+                    left = -180
                 right = maxx + (gt[1] - ((maxx - gt[0]) % gt[1]))
+                if right > 180:
+                    right = 180
                 bottom = miny + (gt[5] - ((miny - gt[3]) % gt[5]))
+                if bottom < -90:
+                    bottom = -90 
                 top = maxy - (maxy - gt[3]) % gt[5]
+                if top > 90:
+                    top = 90
                 out.append([left, bottom, right, top])
 
         return out
