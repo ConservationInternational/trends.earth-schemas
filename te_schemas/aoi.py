@@ -62,35 +62,27 @@ class AOI(object):
         ]
 
         logging.debug('making pieces')
+        pieces = [
+            i for i in intersections if not i.IsEmpty()
+        ]
         if as_extent:
-            pieces = [
-                _get_bounding_box_geom(i)
-                for i in intersections if not i.IsEmpty()
-            ]
-        else:
-            pieces = [
-                i for i in intersections if not i.IsEmpty()
-            ]
+            pieces = [_get_bounding_box_geom(i) for i in pieces]
 
         pieces_union = pieces[0].Clone()
         for piece in pieces[1:]:
             pieces_union = pieces_union.Union(piece)
         pieces_bounding = _get_bounding_box_geom(pieces_union)
-
         total_pieces_area = sum([piece.GetArea() for piece in pieces])
-        logging.debug(f'unary_union area {unary_union.GetArea()}')
-        logging.debug(f'pieces_union area {pieces_union.GetArea()}')
-        logger.debug(f'total_pieces_area: {total_pieces_area}')
-        logger.debug(f'len(pieces): {len(pieces)}')
-        logger.debug(f'pieces_bounding.GetArea(): {pieces_bounding.GetArea()}')
+
+        logging.debug(
+            f'len(pieces): {len(pieces)} '
+            f'unary_union area {unary_union.GetArea()}, '
+            f'total_pieces_area: {total_pieces_area}, '
+            f'pieces_bounding.GetArea(): {pieces_bounding.GetArea()}')
 
         if (
-            (
-                not (pieces_bounding.GetArea()) > total_pieces_area
-            ) and (
-                (len(pieces) == 1) or
-                (total_pieces_area > (pieces_union.GetArea() / 2))
-            )
+            (len(pieces) == 1) or
+            (pieces_bounding.GetArea() < 5 * total_pieces_area)
         ):
             # If there is no area in one of the hemispheres, return the
             # original layer, or extent of the original layer. Also return the
@@ -99,12 +91,13 @@ class AOI(object):
             # the original polygon.
             logger.info("AOI being processed in one piece "
                         "(does not appear to cross 180th meridian)")
-
-            out = [pieces_union]
+            if as_extent:
+                out = [_get_bounding_box_geom(unary_union)]
+            else:
+                out = [unary_union]
         else:
             logger.info("AOI appears to cross 180th meridian "
                         "- splitting AOI into two geojsons.")
-
             out = pieces
 
         if out_format == 'geojson':
@@ -148,7 +141,6 @@ class AOI(object):
         # TODO fix this
         #return self.geojson.GetSpatialReference().ExportToWkt()
         return 'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]'
-        return self.geojson.GetSpatialReference().ExportToWkt()
 
     def bounding_box_gee_geojson(self):
         '''
