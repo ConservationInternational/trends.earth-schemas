@@ -65,24 +65,36 @@ class AOI(object):
         pieces = [
             i for i in intersections if not i.IsEmpty()
         ]
+        pieces_extents = [_get_bounding_box_geom(i) for i in pieces]
         if as_extent:
-            pieces = [_get_bounding_box_geom(i) for i in pieces]
+            split_out = pieces_extents
+            unsplit_out = [_get_bounding_box_geom(unary_union)]
+        else:
+            split_out = pieces
+            unsplit_out = [unary_union]
 
-        pieces_union = pieces[0].Clone()
-        for piece in pieces[1:]:
-            pieces_union = pieces_union.Union(piece)
-        pieces_bounding = _get_bounding_box_geom(pieces_union)
-        total_pieces_area = sum([piece.GetArea() for piece in pieces])
+        # Perform areal calculations on extents even if output is NOT extents,
+        # so that meridian split gives consistent results (in terms of number
+        # of pieces) regardless of whether requested output is original 
+        # polygons or extents
+        pieces_extents_union = pieces_extents[0].Clone()
+        for piece_extent in pieces_extents[1:]:
+            pieces_extents_union = pieces_extents_union.Union(piece_extent)
+        bounding_area_unsplit = _get_bounding_box_geom(
+            pieces_extents_union).GetArea()
+        bounding_area_split = sum(
+            [piece_extent.GetArea() for piece_extent in pieces_extents]
+        )
 
         logging.debug(
-            f'len(pieces): {len(pieces)} '
+            f'len(pieces_extents): {len(pieces_extents)} '
             f'unary_union area {unary_union.GetArea()}, '
-            f'total_pieces_area: {total_pieces_area}, '
-            f'pieces_bounding.GetArea(): {pieces_bounding.GetArea()}')
+            f'bounding_area_unsplit: {bounding_area_unsplit}',
+            f'bounding_area_split: {bounding_area_split}')
 
         if (
             (len(pieces) == 1) or
-            (pieces_bounding.GetArea() < 5 * total_pieces_area)
+            (bounding_area_unsplit < 5 * bounding_area_split)
         ):
             # If there is no area in one of the hemispheres, return the
             # original layer, or extent of the original layer. Also return the
@@ -91,14 +103,11 @@ class AOI(object):
             # the original polygon.
             logger.info("AOI being processed in one piece "
                         "(does not appear to cross 180th meridian)")
-            if as_extent:
-                out = [_get_bounding_box_geom(unary_union)]
-            else:
-                out = [unary_union]
+            out = unsplit_out
         else:
             logger.info("AOI appears to cross 180th meridian "
                         "- splitting AOI into two geojsons.")
-            out = pieces
+            out = split_out
 
         if out_format == 'geojson':
             return [json.loads(o.ExportToJson()) for o in out]
