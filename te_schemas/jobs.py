@@ -24,7 +24,12 @@ class PathField(fields.Field):
         return str(value)
 
     def _deserialize(self, value, attr, data, **kwargs):
-        return pathlib.Path(value)
+        if re.match(r"/vsi(s3)|(gs)", str(value)) is not None:
+            # Don't convert direction of slashes for GDAL vsi uris, as will 
+            # confuse GDAL
+            return pathlib.PurePosixPath(value)
+        else:
+            return pathlib.Path(value)
 
 
 Path = marshmallow_dataclass.NewType("Path", str, field=PathField)
