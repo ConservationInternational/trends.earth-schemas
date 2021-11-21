@@ -43,6 +43,8 @@ class ExecutionScript(SchemaBase):
     def set_id_and_slug(self, data, **kwargs):
         if not data.get('slug'):
             data['slug'] = data.get('name', '').replace(" ", "-").lower()
+            if data.get('version'):
+                data['slug'] = data['slug'] + '-' + data['version'].replace(".", "-")
         if not data.get('id'):
             if data.get('name'):
                 data['id'] = data.get('name')
