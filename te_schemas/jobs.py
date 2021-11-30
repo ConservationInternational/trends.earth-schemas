@@ -94,6 +94,7 @@ class JobUrl:
     url: str
     md5_hash: str = dataclasses.field(metadata={'data_key': 'md5Hash'})
 
+    #TODO: Fix below as doesn't work on an s3 file uploaded with multipart
     @property
     def decoded_md5_hash(self):
         return binascii.hexlify(base64.b64decode(self.md5_hash)).decode()
