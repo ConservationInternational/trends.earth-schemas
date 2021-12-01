@@ -190,10 +190,10 @@ class SoilOrganicCarbonReport:
 
 @dataclass
 class LandConditionReport:
-    sdg: SDG15Report
-    productivity: ProductivityReport
-    land_cover: LandCoverReport
-    soil_organic_carbon: SoilOrganicCarbonReport
+    sdg: Optional[SDG15Report] = field(default=None)
+    productivity: Optional[ProductivityReport] = field(default=None)
+    land_cover: Optional[LandCoverReport] = field(default=None)
+    soil_organic_carbon: Optional[SoilOrganicCarbonReport] = field(default=None)
 
     class Meta:
         ordered = True
