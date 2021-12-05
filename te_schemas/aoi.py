@@ -89,7 +89,7 @@ class AOI(object):
         logging.debug(
             f'len(pieces_extents): {len(pieces_extents)} '
             f'unary_union area {unary_union.GetArea()}, '
-            f'bounding_area_unsplit: {bounding_area_unsplit}',
+            f'bounding_area_unsplit: {bounding_area_unsplit} '
             f'bounding_area_split: {bounding_area_split}')
 
         if (
