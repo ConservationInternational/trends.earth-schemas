@@ -1,8 +1,9 @@
 import datetime
 import typing
-import dataclasses
 
-from marshmallow import Schema, fields, post_load
+from marshmallow import fields
+from marshmallow import post_load
+from marshmallow import Schema
 from marshmallow_dataclass import dataclass
 
 
@@ -20,6 +21,7 @@ class TrendsEarthVersion:
 ###############################################################################
 # Area of interest information
 
+
 class AreaOfInterest:
     name: str
     geojson: dict
@@ -31,6 +33,7 @@ class AreaOfInterest:
 
 ################################################################################
 # Schema for numeric data for plotting within a timeseries object
+
 
 class TimeSeries(object):
     def __init__(self, time, y, name=None):
@@ -61,14 +64,20 @@ class TimeSeriesTableSchema(Schema):
 ################################################################################
 # Schema for storing information on bands
 
+
 class BandInfo(object):
-    def __init__(self, name, add_to_map=False, activated=True, metadata={}, 
+    def __init__(self,
+                 name,
+                 add_to_map=False,
+                 activated=True,
+                 metadata={},
                  no_data_value=-32768):
         self.name = name
         self.no_data_value = no_data_value
         self.add_to_map = add_to_map
         self.activated = activated
         self.metadata = metadata
+
 
 class BandInfoSchema(Schema):
     name = fields.Str(required=True)
@@ -77,9 +86,10 @@ class BandInfoSchema(Schema):
     activated = fields.Boolean(dump_default=True)
     metadata = fields.Dict(required=True)
 
-    
+
 ################################################################################
 # Schema for output from cloud calculations
+
 
 class Url(object):
     def __init__(self, url, md5Hash=''):
@@ -109,11 +119,13 @@ class CloudResultsSchema(Schema):
     @post_load
     def make_cloud_results(self, data, **kwargs):
         data.pop('type')
+
         return CloudResults(**data)
 
 
 ################################################################################
 # Schema for plot output to cloud storage as PNG
+
 
 class ImageryPNG(object):
     def __init__(self, name, lang, title, date, about, url):
@@ -139,6 +151,7 @@ class ImageryPNGSchema(Schema):
 ################################################################################
 # Schema for responses from api.trends.earth
 
+
 class APIResponseSchema(Schema):
     end_date = fields.DateTime(required=True)
     id = fields.Str(required=True)
@@ -154,6 +167,7 @@ class APIResponseSchema(Schema):
 
 ################################################################################
 # Schema used for all TE results (cloud or local)
+
 
 class LocalRaster(object):
     def __init__(self, file, bands, metadata):
