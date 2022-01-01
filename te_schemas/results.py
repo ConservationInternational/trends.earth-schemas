@@ -84,6 +84,6 @@ class Raster():
 
 
 @marshmallow_dataclass.dataclass
-class CloudResultsV2(object):
+class CloudResultsV2():
     name = str
     data = typing.List[Raster]
