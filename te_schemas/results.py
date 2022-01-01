@@ -47,10 +47,10 @@ class RasterFileType(enum.Enum):
 
 
 class EtagType(enum.Enum):
-    AWS_ETAG = "AWS MD5 Etag"
-    AWS_Multipart_ETAG = "AWS Multipart Etag"
-    GCS_CRC32C_ETAG = "GCS CRC32C Etag"
-    GCS_MD5_ETAG = "GCS MD5 Etag"
+    AWS = "AWS MD5 Etag"
+    AWS_Multipart = "AWS Multipart Etag"
+    GCS_CRC32C = "GCS CRC32C Etag"
+    GCS_MD5 = "GCS MD5 Etag"
 
 
 @marshmallow_dataclass.dataclass
@@ -63,7 +63,7 @@ class Etag():
 class URI():
     type: str = field(metadata={'validate': validate.OneOf(["local", "url"])})
     uri: typing.Union(Path, Url)
-    etag: typing.Optional[str]
+    etag: typing.Optional[Etag]
 
 
 @marshmallow_dataclass.dataclass
@@ -84,6 +84,6 @@ class Raster():
 
 
 @marshmallow_dataclass.dataclass
-class CloudResults(object):
+class CloudResultsV2(object):
     name = str
     data = typing.List(Raster)
