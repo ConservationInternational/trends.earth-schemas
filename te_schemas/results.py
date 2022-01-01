@@ -69,10 +69,10 @@ class URI():
 @marshmallow_dataclass.dataclass
 class Band():
     name: str
-    no_data_value: typing.Union[int, float]
-    add_to_map: bool = dataclasses.field(default=False)
-    activated: bool = dataclasses.field(default=True)
-    metadata: typing.Optional[dict] = dataclasses.field(default_factory=dict)
+    metadata: dict
+    no_data_value: typing.Union[int, float] = -32768
+    add_to_map: bool = False
+    activated: bool = True
 
 
 @marshmallow_dataclass.dataclass
