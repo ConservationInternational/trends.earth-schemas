@@ -80,10 +80,10 @@ class Raster():
     datatype: DataType = dataclasses.field(metadata={"by_value": True})
     filetype: RasterFileType = dataclasses.field(metadata={"by_value": True})
     bands: typing.List[Band]
-    uri: typing.List(URI)
+    uri: typing.List[URI]
 
 
 @marshmallow_dataclass.dataclass
 class CloudResultsV2(object):
     name = str
-    data = typing.List(Raster)
+    data = typing.List[Raster]
