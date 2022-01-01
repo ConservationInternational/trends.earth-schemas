@@ -62,7 +62,7 @@ class Etag():
 @marshmallow_dataclass.dataclass
 class URI():
     type: str = field(metadata={'validate': validate.OneOf(["local", "url"])})
-    uri: typing.Union(Path, Url)
+    uri: typing.Union[Path, Url]
     etag: typing.Optional[Etag]
 
 
