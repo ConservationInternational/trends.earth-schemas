@@ -72,7 +72,7 @@ class Band():
     no_data_value: typing.Union[int, float]
     add_to_map: bool = dataclasses.field(default=False)
     activated: bool = dataclasses.field(default=True)
-    metadata: dict
+    metadata: typing.Optional[dict] = dataclasses.field(default_factory=dict)
 
 
 @marshmallow_dataclass.dataclass
