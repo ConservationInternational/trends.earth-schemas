@@ -10,6 +10,7 @@ from marshmallow import fields
 from marshmallow import validate
 from marshmallow_dataclass.typing import Url
 
+
 class PathField(fields.Field):
     def _serialize(self, value, attr, obj, **kwargs):
         if value is None:
@@ -66,7 +67,7 @@ class URI:
 
 
 @marshmallow_dataclass.dataclass
-class Band):
+class Band:
     name: str
     metadata: dict
     no_data_value: typing.Union[int, float] = -32768
