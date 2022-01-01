@@ -10,7 +10,6 @@ from marshmallow import fields
 from marshmallow import validate
 from marshmallow_dataclass.typing import Url
 
-
 class PathField(fields.Field):
     def _serialize(self, value, attr, obj, **kwargs):
         if value is None:
@@ -54,20 +53,20 @@ class EtagType(enum.Enum):
 
 
 @marshmallow_dataclass.dataclass
-class Etag():
+class Etag:
     hash: str
     type: EtagType = dataclasses.field(metadata={"by_value": True})
 
 
 @marshmallow_dataclass.dataclass
-class URI():
+class URI:
     type: str = field(metadata={'validate': validate.OneOf(["local", "url"])})
     uri: typing.Union[Path, Url]
     etag: typing.Optional[Etag]
 
 
 @marshmallow_dataclass.dataclass
-class Band():
+class Band):
     name: str
     metadata: dict
     no_data_value: typing.Union[int, float] = -32768
@@ -76,7 +75,7 @@ class Band():
 
 
 @marshmallow_dataclass.dataclass
-class Raster():
+class Raster:
     datatype: DataType = dataclasses.field(metadata={"by_value": True})
     filetype: RasterFileType = dataclasses.field(metadata={"by_value": True})
     bands: typing.List[Band]
@@ -84,6 +83,6 @@ class Raster():
 
 
 @marshmallow_dataclass.dataclass
-class CloudResultsV2():
+class CloudResultsV2:
     name: str
     data: typing.List[Raster]
