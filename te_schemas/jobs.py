@@ -13,6 +13,7 @@ from marshmallow import fields
 from marshmallow import post_load
 from marshmallow import pre_load
 
+from . import results
 from . import SchemaBase
 from .algorithms import ExecutionScript
 
@@ -81,6 +82,7 @@ class RemoteScript:
 
 class JobResultType(enum.Enum):
     CLOUD_RESULTS = "CloudResults"
+    CLOUD_RESULTS_V2 = "CloudResultsV2"
     LOCAL_RESULTS = "LocalResults"
     TIME_SERIES_TABLE = "TimeSeriesTable"
     JSON_RESULTS = "JsonResults"
@@ -132,6 +134,38 @@ class JobCloudResults:
     data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
     type: JobResultType = dataclasses.field(
         default=JobResultType.CLOUD_RESULTS, metadata={"by_value": True})
+
+
+@marshmallow_dataclass.dataclass
+class JobCloudResultsV2:
+    class Meta:
+        unknown = 'EXCLUDE'
+
+    name: str
+    rasters: typing.Dict[results.DataType, results.Raster]
+    data_path: typing.Optional[Path] = dataclasses.field(default=None)
+    other_paths: typing.Optional[typing.List[Path]] = dataclasses.field(
+        default_factory=list)
+    data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
+    type: JobResultType = dataclasses.field(
+        default=JobResultType.CLOUD_RESULTS_V2, metadata={"by_value": True})
+
+
+@marshmallow_dataclass.dataclass
+class CloudResultsV2_PraisData_Load_only(JobCloudResultsV2):
+    """
+    Only used for deserializing default country data from Prais
+    
+    Default data on Prais had old schema version, so this schema is used to
+    convert it. Should not be used for serialization.
+    """
+    @pre_load
+    def rename_data_field(self, in_data, **kwargs):
+        """Rename the 'data' field to 'rasters'"""
+        data_field = in_data.pop('data', None)
+        in_data['rasters'] = data_field
+
+        return d
 
 
 @marshmallow_dataclass.dataclass
@@ -187,7 +221,7 @@ class Job:
     local_context: typing.Optional[JobLocalContext] = dataclasses.field(
         default_factory=JobLocalContext)
     results: typing.Optional[typing.Union[
-        JobCloudResults, JobLocalResults, JobJsonResults,
+        JobCloudResults, JobCloudResultsV2, JobLocalResults, JobJsonResults,
         TimeSeriesTableResult,
         JobEmptyResults]] = dataclasses.field(default_factory=dict)
     task_name: typing.Optional[str] = None
