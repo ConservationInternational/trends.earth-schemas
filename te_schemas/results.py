@@ -80,7 +80,7 @@ class Raster:
     datatype: DataType = dataclasses.field(metadata={"by_value": True})
     filetype: RasterFileType = dataclasses.field(metadata={"by_value": True})
     bands: typing.List[Band]
-    uris: typing.List[URI]
+    uris: typing.List[URI]  # list in order to handle tiled rasters
 
 
 @marshmallow_dataclass.dataclass
