@@ -104,7 +104,7 @@ class Raster:
 @marshmallow_dataclass.dataclass
 class RasterResults:
     name: str
-    rasters: typing.Dict[DataType, typing.Union[Raster, TiledRaster]]
+    rasters: typing.Dict[str, typing.Union[Raster, TiledRaster]]
     uri: typing.Optional[
         URI] = None  # should point to a single VRT or tif linking all rasters
     data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
@@ -113,7 +113,7 @@ class RasterResults:
     )
 
     def has_tiled_raster(self):
-        for datatype, raster in self.rasters.items():
+        for key, raster in self.rasters.items():
             if raster.type == RasterType.TILED_RASTER:
                 return True
 
@@ -123,7 +123,7 @@ class RasterResults:
         return [raster.uri for raster in self.rasters.values()]
 
     def get_bands(self):
-        return [raster.bands for raster in self.rasters.values()]
+        return [b for raster in self.rasters.values() for b in raster.bands]
 
 
 @marshmallow_dataclass.dataclass

@@ -1,32 +1,26 @@
 from typing import List
-import pathlib
 
 import marshmallow_dataclass
 
-from osgeo import gdal, osr
-
-from .jobs import Path, JobBand
+from .jobs import Path
+from .results import Band
 
 
 @marshmallow_dataclass.dataclass
 class DataFile:
     path: Path
-    bands: List[JobBand]
+    bands: List[Band]
 
     def indices_for_name(
-        self,
-        name_filter: str,
-        field: str = None,
-        field_filter: str = None
+        self, name_filter: str, field: str = None, field_filter: str = None
     ):
         if field:
             assert field_filter is not None
 
             return [
-                index for index, band in enumerate(self.bands)
-                if (
-                    band.name == name_filter and
-                    band.metadata[field] == field_filter
+                index for index, band in enumerate(self.bands) if (
+                    band.name == name_filter
+                    and band.metadata[field] == field_filter
                 )
             ]
         else:
@@ -36,10 +30,7 @@ class DataFile:
             ]
 
     def index_for_name(
-        self,
-        name_filter: str,
-        field: str = None,
-        field_filter: str = None
+        self, name_filter: str, field: str = None, field_filter: str = None
     ):
         '''throw an error if more than one result'''
         out = self.indices_for_name(name_filter, field, field_filter)
@@ -84,17 +75,7 @@ class DataFile:
         self.bands = [b for d in datafiles for b in d.bands]
 
 
-def combine_data_files(
-    path,
-    datafiles: List[JobBand]
-) -> DataFile:
+def combine_data_files(path, datafiles: List[Band]) -> DataFile:
     '''combine multiple datafiles with same path into one object'''
 
-    return DataFile(
-        path=path,
-        bands=[
-            b for d in datafiles for b in d.bands
-        ]
-    )
-
-
+    return DataFile(path=path, bands=[b for d in datafiles for b in d.bands])
