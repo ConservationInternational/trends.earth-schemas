@@ -63,15 +63,14 @@ class Etag:
 class URI:
     uri: typing.Union[Url, Path]
     type: str = field(
-        metadata={'validate': validate.OneOf(["local", "cloud"])}
-    )
+        metadata={'validate': validate.OneOf(["local", "cloud"])})
     etag: typing.Optional[Etag] = None
 
 
 @marshmallow_dataclass.dataclass
 class Band:
-    metadata: dict
     name: str
+    metadata: dict
     no_data_value: typing.Union[int, float] = -32768
     activated: typing.Optional[bool] = dataclasses.field(default=True)
     add_to_map: typing.Optional[bool] = dataclasses.field(default=True)
@@ -85,9 +84,8 @@ class TiledRaster:
     filetype: RasterFileType = dataclasses.field(metadata={"by_value": True})
     uri: typing.Optional[
         URI] = None  # should point to a single VRT file linking the tiles
-    type: RasterType = dataclasses.field(
-        default=RasterType.TILED_RASTER, metadata={"by_value": True}
-    )
+    type: RasterType = dataclasses.field(default=RasterType.TILED_RASTER,
+                                         metadata={"by_value": True})
 
 
 @marshmallow_dataclass.dataclass
@@ -96,9 +94,8 @@ class Raster:
     bands: typing.List[Band]
     datatype: DataType = dataclasses.field(metadata={"by_value": True})
     filetype: RasterFileType = dataclasses.field(metadata={"by_value": True})
-    type: RasterType = dataclasses.field(
-        default=RasterType.ONE_FILE_RASTER, metadata={"by_value": True}
-    )
+    type: RasterType = dataclasses.field(default=RasterType.ONE_FILE_RASTER,
+                                         metadata={"by_value": True})
 
 
 @marshmallow_dataclass.dataclass
@@ -108,9 +105,8 @@ class RasterResults:
     uri: typing.Optional[
         URI] = None  # should point to a single VRT or tif linking all rasters
     data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
-    type: ResultType = dataclasses.field(
-        default=ResultType.RASTER_RESULTS, metadata={"by_value": True}
-    )
+    type: ResultType = dataclasses.field(default=ResultType.RASTER_RESULTS,
+                                         metadata={"by_value": True})
 
     def has_tiled_raster(self):
         for key, raster in self.rasters.items():
@@ -133,9 +129,8 @@ class EmptyResults:
 
     name: typing.Optional[str] = None
     data_path: typing.Optional[Path] = None
-    type: ResultType = dataclasses.field(
-        default=ResultType.EMPTY_RESULTS, metadata={"by_value": True}
-    )
+    type: ResultType = dataclasses.field(default=ResultType.EMPTY_RESULTS,
+                                         metadata={"by_value": True})
 
 
 @marshmallow_dataclass.dataclass
@@ -147,12 +142,11 @@ class CloudResults:
     bands: typing.List[Band]
     urls: typing.List[Url]
     data_path: typing.Optional[Path] = dataclasses.field(default=None)
-    other_paths: typing.Optional[typing.List[Path]
-                                 ] = dataclasses.field(default_factory=list)
+    other_paths: typing.Optional[typing.List[Path]] = dataclasses.field(
+        default_factory=list)
     data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
-    type: ResultType = dataclasses.field(
-        default=ResultType.CLOUD_RESULTS, metadata={"by_value": True}
-    )
+    type: ResultType = dataclasses.field(default=ResultType.CLOUD_RESULTS,
+                                         metadata={"by_value": True})
 
 
 @marshmallow_dataclass.dataclass
@@ -165,9 +159,8 @@ class LocalResults:
     data_path: typing.Optional[Path] = dataclasses.field(default=None)
     other_paths: typing.List[Path] = dataclasses.field(default_factory=list)
     data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
-    type: ResultType = dataclasses.field(
-        default=ResultType.LOCAL_RESULTS, metadata={"by_value": True}
-    )
+    type: ResultType = dataclasses.field(default=ResultType.LOCAL_RESULTS,
+                                         metadata={"by_value": True})
 
 
 @marshmallow_dataclass.dataclass
@@ -178,9 +171,8 @@ class JsonResults:
     name: str
     data: dict
 
-    type: ResultType = dataclasses.field(
-        default=ResultType.JSON_RESULTS, metadata={"by_value": True}
-    )
+    type: ResultType = dataclasses.field(default=ResultType.JSON_RESULTS,
+                                         metadata={"by_value": True})
 
 
 @marshmallow_dataclass.dataclass
@@ -190,6 +182,5 @@ class TimeSeriesTableResult:
 
     name: str
     table: typing.List[dict]
-    type: ResultType = dataclasses.field(
-        default=ResultType.TIME_SERIES_TABLE, metadata={"by_value": True}
-    )
+    type: ResultType = dataclasses.field(default=ResultType.TIME_SERIES_TABLE,
+                                         metadata={"by_value": True})
