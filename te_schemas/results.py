@@ -118,6 +118,20 @@ class RasterResults:
     def get_main_uris(self):
         return [raster.uri for raster in self.rasters.values()]
 
+    def get_all_uris(self):
+        if self.uri:
+            uris = [self.uri]  # main vrt
+
+        for raster in self.rasters.values():
+            if raster.uri:
+                uris.append(raster.uri)  # tif or main vrt (for TiledRaster)
+
+            if raster.type == ResultType.RASTER_RESULTS:
+                if raster.tile_uris:
+                    uris.extend(raster.tile_uris)  # tif (for TiledRaster)
+
+        return uris
+
     def get_bands(self):
         return [b for raster in self.rasters.values() for b in raster.bands]
 
