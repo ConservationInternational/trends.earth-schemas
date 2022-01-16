@@ -22,6 +22,7 @@ class TrendsEarthVersion:
 # Area of interest information
 
 
+@dataclass
 class AreaOfInterest:
     name: str
     geojson: dict
@@ -66,12 +67,14 @@ class TimeSeriesTableSchema(Schema):
 
 
 class BandInfo(object):
-    def __init__(self,
-                 name,
-                 add_to_map=False,
-                 activated=True,
-                 metadata={},
-                 no_data_value=-32768):
+    def __init__(
+        self,
+        name,
+        add_to_map=False,
+        activated=True,
+        metadata={},
+        no_data_value=-32768
+    ):
         self.name = name
         self.no_data_value = no_data_value
         self.add_to_map = add_to_map
