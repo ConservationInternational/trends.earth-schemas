@@ -1,20 +1,24 @@
 import datetime
-
 from dataclasses import field
-from typing import List, Optional, Dict, Union
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Union
 
-from marshmallow_dataclass import dataclass
 from marshmallow import validate
+from marshmallow_dataclass import dataclass
 
-from . import schemas, land_cover
+from . import land_cover
+from . import schemas
 
 
 @dataclass
 class HotspotBrightspotProperties:
     name: str
     area: float
-    type: str = field(metadata={'validate':
-                      validate.OneOf(["hotspot", "brightspot"])})
+    type: str = field(
+        metadata={'validate': validate.OneOf(["hotspot", "brightspot"])}
+    )
     process: str
     basis: str
     periods: List[str]
@@ -23,16 +27,23 @@ class HotspotBrightspotProperties:
 ###############################################################################
 # False positive / negative
 
+
 @dataclass
 class ErrorClassificationProperties:
     area: float
-    type: str = field(metadata={'validate':
-                      validate.OneOf(["false negative", "false positive"])})
+    type: str = field(
+        metadata={
+            'validate': validate.OneOf(["false negative", "false positive"])
+        }
+    )
     place_name: str
     process: str
     basis: str
-    periods: str = field(metadata={'validate':
-                         validate.OneOf(["baseline", "reporting", "both"])})
+    periods: str = field(
+        metadata={
+            'validate': validate.OneOf(["baseline", "reporting", "both"])
+        }
+    )
 
 
 ###############################################################################
@@ -69,9 +80,9 @@ class Area:
 @dataclass
 class AreaList:
     name: Optional[str]
-    unit: str = field(metadata={
-        'validate': validate.OneOf(["m", "ha", "km sq"])
-    })
+    unit: str = field(
+        metadata={'validate': validate.OneOf(["m", "ha", "km sq"])}
+    )
     areas: List[Area]
 
     class Meta:
@@ -83,9 +94,14 @@ class AreaList:
 class Population:
     name: Optional[str]
     population: int = field(metadata={"validate": validate.Range(min=0)})
-    type: str = field(metadata={
-        'validate': validate.OneOf(["Total population", "Female population", "Male population"])
-    })
+    type: str = field(
+        metadata={
+            'validate':
+            validate.OneOf(
+                ["Total population", "Female population", "Male population"]
+            )
+        }
+    )
 
     class Meta:
         ordered = True
@@ -193,7 +209,9 @@ class LandConditionReport:
     sdg: Optional[SDG15Report] = field(default=None)
     productivity: Optional[ProductivityReport] = field(default=None)
     land_cover: Optional[LandCoverReport] = field(default=None)
-    soil_organic_carbon: Optional[SoilOrganicCarbonReport] = field(default=None)
+    soil_organic_carbon: Optional[SoilOrganicCarbonReport] = field(
+        default=None
+    )
 
     class Meta:
         ordered = True
@@ -212,20 +230,25 @@ class LandConditionProgressReport:
 
 @dataclass
 class AffectedPopulationReport:
-    summary: PopulationList
+    summary: Dict[str, PopulationList]
 
     class Meta:
         ordered = True
 
+
 @dataclass
 class DroughtExposedPopulation:
-    drought_class: str = field(metadata={'validate': validate.OneOf(
-        ["Mild drought",
-         "Moderate drought",
-         "Severe drought",
-         "Extreme drought",
-         "Non-drought"]
-    )})
+    drought_class: str = field(
+        metadata={
+            'validate':
+            validate.OneOf(
+                [
+                    "Mild drought", "Moderate drought", "Severe drought",
+                    "Extreme drought", "Non-drought"
+                ]
+            )
+        }
+    )
     year: int
     exposed_population: List[Population]
 
@@ -243,8 +266,8 @@ class DroughtReport:
 @dataclass
 class TrendsEarthLandConditionSummary:
     metadata: ReportMetadata
-    land_condition: Dict[str, Union[
-        LandConditionReport, LandConditionProgressReport]]
+    land_condition: Dict[str, Union[LandConditionReport,
+                                    LandConditionProgressReport]]
     affected_population: Dict[str, AffectedPopulationReport]
 
     class Meta:
@@ -263,8 +286,8 @@ class TrendsEarthDroughtSummary:
 @dataclass
 class TrendsEarthUNCCDReport:
     metadata: ReportMetadata
-    land_condition: Dict[str, Union[
-        LandConditionReport, LandConditionProgressReport]]
+    land_condition: Dict[str, Union[LandConditionReport,
+                                    LandConditionProgressReport]]
     affected_population: Dict[str, AffectedPopulationReport]
     drought: DroughtReport
 
