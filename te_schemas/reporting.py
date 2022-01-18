@@ -175,7 +175,7 @@ class SDG15Report:
 
 @dataclass
 class ProductivityReport:
-    summary: AreaList
+    summaries: Dict[str, AreaList]
     crosstabs_by_productivity_class: List[CrossTab]
 
     class Meta:
@@ -196,7 +196,7 @@ class LandCoverReport:
 
 @dataclass
 class SoilOrganicCarbonReport:
-    summary: AreaList
+    summaries: Dict[str, AreaList]
     crosstab_by_land_cover_class: CrossTab
     soc_stock_by_year: ValuesByYearDict
 
@@ -220,9 +220,9 @@ class LandConditionReport:
 @dataclass
 class LandConditionProgressReport:
     sdg: AreaList
-    productivity: AreaList
+    productivity: Dict[str, AreaList]
     land_cover: AreaList
-    soil_organic_carbon: AreaList
+    soil_organic_carbon: Dict[str, AreaList]
 
     class Meta:
         ordered = True
