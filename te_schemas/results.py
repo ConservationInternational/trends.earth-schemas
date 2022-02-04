@@ -19,6 +19,7 @@ class ResultType(enum.Enum):
     TIME_SERIES_TABLE = "TimeSeriesTable"
     JSON_RESULTS = "JsonResults"
     EMPTY_RESULTS = "EmptyResults"
+    VECTOR_RESULTS = "VectorResults"
 
 
 class DataType(enum.Enum):
@@ -46,6 +47,10 @@ class EtagType(enum.Enum):
     AWS_MULTIPART = "AWS Multipart Etag"
     GCS_CRC32C = "GCS CRC32C Etag"
     GCS_MD5 = "GCS MD5 Etag"
+
+
+class VectorType(enum.Enum):
+    FALSE_POSITIVE = "False positive"
 
 
 @marshmallow_dataclass.dataclass
@@ -198,3 +203,19 @@ class TimeSeriesTableResult:
     table: typing.List[dict]
     type: ResultType = dataclasses.field(default=ResultType.TIME_SERIES_TABLE,
                                          metadata={"by_value": True})
+
+
+@marshmallow_dataclass.dataclass
+class VectorFalsePositive:
+    uri: URI
+    type: VectorType = dataclasses.field(default=VectorType.FALSE_POSITIVE,
+                                         metadata={"by_value": True})
+
+
+@marshmallow_dataclass.dataclass
+class VectorResults:
+    name: str
+    vector: typing.Union[VectorFalsePositive]
+    type: ResultType = dataclasses.field(default=ResultType.VECTOR_RESULTS,
+                                         metadata={"by_value": True})
+    uri: typing.Optional[URI] = None

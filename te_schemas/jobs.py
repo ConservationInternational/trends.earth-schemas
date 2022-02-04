@@ -17,6 +17,7 @@ from .results import JsonResults
 from .results import LocalResults
 from .results import RasterResults
 from .results import TimeSeriesTableResult
+from .results import VectorResults
 
 
 class ScriptStatus(enum.Enum):
@@ -81,7 +82,7 @@ class Job:
     )
     results: typing.Optional[typing.Union[RasterResults, LocalResults,
                                           JsonResults, TimeSeriesTableResult,
-                                          EmptyResults]
+                                          VectorResults, EmptyResults]
                              ] = dataclasses.field(default_factory=dict)
     task_name: typing.Optional[str] = None
     task_notes: typing.Optional[str] = None
@@ -147,10 +148,13 @@ class Job:
 
     @property
     def visible_name(self) -> str:
-        if self.script.name_readable:
-            script_name = self.script.name_readable
+        if self.script is not None:
+            if self.script.name_readable:
+                script_name = self.script.name_readable
+            else:
+                script_name = self.script.name
         else:
-            script_name = self.script.name
+            script_name = ''
 
         if self.task_name and script_name:
             name = f"{self.task_name} ({script_name})"
@@ -162,3 +166,6 @@ class Job:
             name = "Unnamed task (unknown script)"
 
         return name
+
+    def is_vector(self) -> bool:
+        return isinstance(self.results, VectorResults)
