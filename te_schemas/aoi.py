@@ -1,10 +1,12 @@
 import json
 import logging
 
-from osgeo import ogr, gdal
 from marshmallow_dataclass import dataclass
+from osgeo import gdal
+from osgeo import ogr
 
 logger = logging.getLogger(__name__)
+
 
 def _get_bounding_box_geom(geom):
     (minX, maxX, minY, maxY) = geom.GetEnvelope()
@@ -27,17 +29,20 @@ class AOI(object):
 
     @property
     def crs(self):
-        return ogr.Open(json.dumps(self.geojson)).GetSpatialReference().ExportToWkt()
+        return ogr.Open(json.dumps(self.geojson)
+                        ).GetSpatialReference().ExportToWkt()
 
     def _get_unary_union(self):
-        logging.debug('getting unary union')
+        logger.debug('getting unary union')
         union = None
+
         for layer in ogr.Open(json.dumps(self.geojson)):
             for feature in layer:
                 if not union:
                     union = feature.geometry().Clone()
                 else:
                     union = union.Union(feature.geometry())
+
         return union
 
     def meridian_split(self, as_extent=False, out_format='geojson'):
@@ -48,24 +53,26 @@ class AOI(object):
         crossing the 180th meridian
         """
 
-        logging.debug('performing meridian split')
+        logger.debug('performing meridian split')
+
         if out_format not in ['geojson', 'wkt']:
             raise ValueError(f'Unrecognized out_format "{out_format}')
         unary_union = self._get_unary_union()
 
         hemi_e = ogr.CreateGeometryFromWkt(
-            'POLYGON ((0 -90, 0 90, 180 90, 180 -90, 0 -90))')
+            'POLYGON ((0 -90, 0 90, 180 90, 180 -90, 0 -90))'
+        )
         hemi_w = ogr.CreateGeometryFromWkt(
-            'POLYGON ((-180 -90, -180 90, 0 90, 0 -90, -180 -90))')
+            'POLYGON ((-180 -90, -180 90, 0 90, 0 -90, -180 -90))'
+        )
         intersections = [
             hemi.Intersection(unary_union) for hemi in [hemi_e, hemi_w]
         ]
 
-        logging.debug('making pieces')
-        pieces = [
-            i for i in intersections if not i.IsEmpty()
-        ]
+        logger.debug('making pieces')
+        pieces = [i for i in intersections if not i.IsEmpty()]
         pieces_extents = [_get_bounding_box_geom(i) for i in pieces]
+
         if as_extent:
             split_out = pieces_extents
             unsplit_out = [_get_bounding_box_geom(unary_union)]
@@ -75,38 +82,44 @@ class AOI(object):
 
         # Perform areal calculations on extents even if output is NOT extents,
         # so that meridian split gives consistent results (in terms of number
-        # of pieces) regardless of whether requested output is original 
+        # of pieces) regardless of whether requested output is original
         # polygons or extents
         pieces_extents_union = pieces_extents[0].Clone()
+
         for piece_extent in pieces_extents[1:]:
             pieces_extents_union = pieces_extents_union.Union(piece_extent)
-        bounding_area_unsplit = _get_bounding_box_geom(
-            pieces_extents_union).GetArea()
+        bounding_area_unsplit = _get_bounding_box_geom(pieces_extents_union
+                                                       ).GetArea()
         bounding_area_split = sum(
             [piece_extent.GetArea() for piece_extent in pieces_extents]
         )
 
-        logging.debug(
+        logger.debug(
             f'len(pieces_extents): {len(pieces_extents)} '
             f'unary_union area {unary_union.GetArea()}, '
             f'bounding_area_unsplit: {bounding_area_unsplit} '
-            f'bounding_area_split: {bounding_area_split}')
+            f'bounding_area_split: {bounding_area_split}'
+        )
 
         if (
-            (len(pieces) == 1) or
-            (bounding_area_unsplit < 5 * bounding_area_split)
+            (len(pieces) == 1)
+            or (bounding_area_unsplit < 2 * bounding_area_split)
         ):
             # If there is no area in one of the hemispheres, return the
             # original layer, or extent of the original layer. Also return the
             # original layer (or extent) if the area of the combined pieces
             # from both hemispheres is not significantly smaller than that of
             # the original polygon.
-            logger.info("AOI being processed in one piece "
-                        "(does not appear to cross 180th meridian)")
+            logger.info(
+                "AOI being processed in one piece "
+                "(does not appear to cross 180th meridian)"
+            )
             out = unsplit_out
         else:
-            logger.info("AOI appears to cross 180th meridian "
-                        "- splitting AOI into two geojsons.")
+            logger.info(
+                "AOI appears to cross 180th meridian "
+                "- splitting AOI into two geojsons."
+            )
             out = split_out
 
         if out_format == 'geojson':
@@ -122,33 +135,61 @@ class AOI(object):
 
         else:
             out = []
+
             for geojson in geojsons:
                 # Compute the pixel-aligned bounding box (slightly larger than
                 # aoi).
                 # Use this to set bounds in vrt files in order to keep the
                 # pixels aligned with the chosen layer
                 geom = ogr.CreateGeometryFromJson(str(geojson))
-                (minx, maxx, miny, maxy) = geom.GetEnvelope()
-                gt = gdal.Open(f).GetGeoTransform()
-                left = minx - (minx - gt[0]) % gt[1]
+                (geom_minx, geom_maxx, geom_miny,
+                 geom_maxy) = geom.GetEnvelope()
+                ds = gdal.Open(f)
+                img_xmin, img_xres, _, img_ymax, _, img_yres = ds.GetGeoTransform(
+                )
+                width, height = ds.RasterXSize, ds.RasterYSize
+                img_xmax = img_xmin + img_xres * width
+                img_ymin = img_ymax + img_yres * height
+
+                logger.debug(
+                    'image img_xmin %s, img_xmax %s, img_xres %s, img_y_min %s, img_ymax %s, img_yres %s',
+                    img_xmin, img_xmax, img_xres, img_ymin, img_ymax, img_yres
+                )
+
+                logger.debug(
+                    'geom geom_minx %s, geom_maxx %s, geom_miny %s, geom_maxy %s',
+                    geom_minx, geom_maxx, geom_miny, geom_maxy
+                )
+                left = geom_minx - (geom_minx - img_xmin) % img_xres
+
                 if left < -180:
                     left = -180
-                right = maxx + (gt[1] - ((maxx - gt[0]) % gt[1]))
+                right = geom_maxx + (
+                    img_xres - ((geom_maxx - img_xmin) % img_xres)
+                )
+
                 if right > 180:
                     right = 180
-                bottom = miny + (gt[5] - ((miny - gt[3]) % gt[5]))
+                bottom = geom_miny + (
+                    img_yres - ((geom_miny - img_ymax) % img_yres)
+                )
+
                 if bottom < -90:
-                    bottom = -90 
-                top = maxy - (maxy - gt[3]) % gt[5]
+                    bottom = -90
+                top = geom_maxy - (geom_maxy - img_ymax) % img_yres
+
                 if top > 90:
                     top = 90
                 out.append([left, bottom, right, top])
+
+        logger.debug('aligned output bounds %s', out)
 
         return out
 
     def get_crs_wkt(self):
         # TODO fix this
         #return self.geojson.GetSpatialReference().ExportToWkt()
+
         return 'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]'
 
     def bounding_box_gee_geojson(self):
@@ -211,4 +252,5 @@ class AOI(object):
             out['features'].append(self.meridian_split(as_extent=False))
         else:
             out = self.geojson
+
         return out
