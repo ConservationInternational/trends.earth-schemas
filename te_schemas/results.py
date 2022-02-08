@@ -135,6 +135,12 @@ class RasterResults:
     def get_bands(self):
         return [b for raster in self.rasters.values() for b in raster.bands]
 
+    def get_band_uris(self):
+        return [
+            raster.uri for raster in self.rasters.values()
+            for b in raster.bands
+        ]
+
 
 @marshmallow_dataclass.dataclass
 class EmptyResults:
