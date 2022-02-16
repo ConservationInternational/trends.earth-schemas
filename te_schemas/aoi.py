@@ -244,6 +244,7 @@ class AOI(object):
         else:
             frac = aoi_geom.Intersection(in_geom).GetArea() / geom_area
 
+        logger.debug('fractional overlap is %s', frac)
         return frac
 
     def get_geojson(self, split=False):
