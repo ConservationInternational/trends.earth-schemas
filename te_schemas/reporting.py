@@ -159,6 +159,7 @@ class ReportMetadata:
     date: datetime.datetime
     trends_earth_version: schemas.TrendsEarthVersion
     area_of_interest: schemas.AreaOfInterest
+    affected_areas_only: bool = field(default=False)
 
     class Meta:
         ordered = True
