@@ -227,7 +227,8 @@ class TimeSeriesTableResult:
         unknown = 'EXCLUDE'
 
     name: str
-    table: typing.List[dict]    type: ResultType = dataclasses.field(default=ResultType.TIME_SERIES_TABLE,
+    table: typing.List[dict]
+    type: ResultType = dataclasses.field(default=ResultType.TIME_SERIES_TABLE,
                                          metadata={"by_value": True})
 
 
