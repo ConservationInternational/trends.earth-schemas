@@ -15,7 +15,7 @@ from .path import Path
 class ResultType(enum.Enum):
     CLOUD_RESULTS = "CloudResults"
     RASTER_RESULTS = "RasterResults"
-    LOCAL_RESULTS = "LocalResults"
+    FILE_RESULTS = "FileResults"
     TIME_SERIES_TABLE = "TimeSeriesTable"
     JSON_RESULTS = "JsonResults"
     EMPTY_RESULTS = "EmptyResults"
@@ -194,17 +194,16 @@ class CloudResults:
 
 
 @marshmallow_dataclass.dataclass
-class LocalResults:
+class FileResults:
     class Meta:
         unknown = 'EXCLUDE'
 
     name: str
-    bands: typing.List[Band]
-    data_path: typing.Optional[Path] = dataclasses.field(default=None)
-    other_paths: typing.List[Path] = dataclasses.field(default_factory=list)
+    uri: URI = dataclasses.field(default=None)
+    other_uris: typing.List[URI] = dataclasses.field(default_factory=list)
     data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
     type: ResultType = dataclasses.field(
-        default=ResultType.LOCAL_RESULTS, metadata={"by_value": True}
+        default=ResultType.FILE_RESULTS, metadata={"by_value": True}
     )
 
 

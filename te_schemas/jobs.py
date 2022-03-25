@@ -14,7 +14,7 @@ from .algorithms import ExecutionScript
 from .path import Path
 from .results import EmptyResults
 from .results import JsonResults
-from .results import LocalResults
+from .results import FileResults
 from .results import RasterResults
 from .results import TimeSeriesTableResult
 from .results import VectorResults
@@ -80,10 +80,10 @@ class Job:
     local_context: typing.Optional[JobLocalContext] = dataclasses.field(
         default_factory=JobLocalContext
     )
-    results: typing.Optional[typing.Union[RasterResults, LocalResults,
-                                          JsonResults, TimeSeriesTableResult,
-                                          VectorResults, EmptyResults]
-                             ] = dataclasses.field(default_factory=dict)
+    results: typing.Optional[typing.Union[
+        RasterResults, FileResults, JsonResults, TimeSeriesTableResult,
+        VectorResults, EmptyResults
+    ]] = dataclasses.field(default_factory=dict)
     task_name: typing.Optional[str] = None
     task_notes: typing.Optional[str] = None
     script: typing.Optional[ExecutionScript] = None
@@ -166,6 +166,9 @@ class Job:
             name = "Unnamed task (unknown script)"
 
         return name
+
+    def is_file(self) -> bool:
+        return isinstance(self.results, FileResults)
 
     def is_vector(self) -> bool:
         return isinstance(self.results, VectorResults)
