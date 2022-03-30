@@ -93,7 +93,11 @@ class TiledRaster:
     extents: typing.Optional[typing.List[typing.Tuple[float, float, float,
                                                       float]]] = None
     type: RasterType = dataclasses.field(
-        default=RasterType.TILED_RASTER, metadata={"by_value": True}
+        default=RasterType.TILED_RASTER,
+        metadata={
+            "by_value": True,
+            "validate": validate.Equal(RasterType.TILED_RASTER)
+        }
     )
 
 
@@ -105,7 +109,11 @@ class Raster:
     filetype: RasterFileType = dataclasses.field(metadata={"by_value": True})
     extent: typing.Optional[typing.Tuple[float, float, float, float]] = None
     type: RasterType = dataclasses.field(
-        default=RasterType.ONE_FILE_RASTER, metadata={"by_value": True}
+        default=RasterType.ONE_FILE_RASTER,
+        metadata={
+            "by_value": True,
+            "validate": validate.Equal(RasterType.ONE_FILE_RASTER)
+        }
     )
 
 
@@ -117,7 +125,11 @@ class RasterResults:
         URI] = None  # should point to a single VRT or tif linking all rasters
     data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
     type: ResultType = dataclasses.field(
-        default=ResultType.RASTER_RESULTS, metadata={"by_value": True}
+        default=ResultType.RASTER_RESULTS,
+        metadata={
+            "by_value": True,
+            "validate": validate.Equal(ResultType.RASTER_RESULTS)
+        }
     )
 
     def has_tiled_raster(self):
@@ -172,7 +184,11 @@ class EmptyResults:
     name: typing.Optional[str] = None
     data_path: typing.Optional[Path] = None
     type: ResultType = dataclasses.field(
-        default=ResultType.EMPTY_RESULTS, metadata={"by_value": True}
+        default=ResultType.EMPTY_RESULTS,
+        metadata={
+            "by_value": True,
+            "validate": validate.Equal(ResultType.EMPTY_RESULTS)
+        }
     )
 
 
@@ -189,7 +205,11 @@ class CloudResults:
                                  ] = dataclasses.field(default_factory=list)
     data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
     type: ResultType = dataclasses.field(
-        default=ResultType.CLOUD_RESULTS, metadata={"by_value": True}
+        default=ResultType.CLOUD_RESULTS,
+        metadata={
+            "by_value": True,
+            "validate": validate.Equal(ResultType.CLOUD_RESULTS)
+        }
     )
 
 
@@ -202,8 +222,13 @@ class FileResults:
     uri: URI = dataclasses.field(default=None)
     other_uris: typing.List[URI] = dataclasses.field(default_factory=list)
     data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
+
     type: ResultType = dataclasses.field(
-        default=ResultType.FILE_RESULTS, metadata={"by_value": True}
+        default=ResultType.FILE_RESULTS,
+        metadata={
+            "by_value": True,
+            "validate": validate.Equal(ResultType.FILE_RESULTS)
+        }
     )
 
 
@@ -216,7 +241,10 @@ class JsonResults:
     data: dict
 
     type: ResultType = dataclasses.field(
-        default=ResultType.JSON_RESULTS, metadata={"by_value": True}
+        default=ResultType.JSON_RESULTS, metadata={
+            "by_value": True,
+            "validate": validate.Equal(ResultType.JSON_RESULTS)
+        }
     )
 
 
@@ -227,21 +255,36 @@ class TimeSeriesTableResult:
 
     name: str
     table: typing.List[dict]
-    type: ResultType = dataclasses.field(default=ResultType.TIME_SERIES_TABLE,
-                                         metadata={"by_value": True})
+    type: ResultType = dataclasses.field(
+        default=ResultType.TIME_SERIES_TABLE,
+        metadata={
+            "by_value": True,
+            "validate": validate.Equal(ResultType.TIME_SERIES_TABLE)
+        }
+    )
 
 
 @marshmallow_dataclass.dataclass
 class VectorFalsePositive:
     uri: URI
-    type: VectorType = dataclasses.field(default=VectorType.FALSE_POSITIVE,
-                                         metadata={"by_value": True})
+    type: VectorType = dataclasses.field(
+        default=VectorType.FALSE_POSITIVE,
+        metadata={
+            "by_value": True,
+            "validate": validate.Equal(VectorType.FALSE_POSITIVE)
+        }
+    )
 
 
 @marshmallow_dataclass.dataclass
 class VectorResults:
     name: str
     vector: typing.Union[VectorFalsePositive]
-    type: ResultType = dataclasses.field(default=ResultType.VECTOR_RESULTS,
-                                         metadata={"by_value": True})
+    type: ResultType = dataclasses.field(
+        default=ResultType.VECTOR_RESULTS,
+        metadata={
+            "by_value": True,
+            "validate": validate.Equal(ResultType.VECTOR_RESULTS)
+        }
+    )
     uri: typing.Optional[URI] = None
