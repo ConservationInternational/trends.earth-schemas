@@ -50,7 +50,7 @@ class EtagType(enum.Enum):
 
 
 class VectorType(enum.Enum):
-    FALSE_POSITIVE = "False positive"
+    ERROR_RECODE = "False positive/negative"
 
 
 @marshmallow_dataclass.dataclass
@@ -268,10 +268,10 @@ class TimeSeriesTableResult:
 class VectorFalsePositive:
     uri: URI
     type: VectorType = dataclasses.field(
-        default=VectorType.FALSE_POSITIVE,
+        default=VectorType.ERROR_RECODE,
         metadata={
             "by_value": True,
-            "validate": validate.Equal(VectorType.FALSE_POSITIVE)
+            "validate": validate.Equal(VectorType.ERROR_RECODE)
         }
     )
 
