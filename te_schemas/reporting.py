@@ -81,7 +81,7 @@ class Area:
 class AreaList:
     name: Optional[str]
     unit: str = field(
-        metadata={'validate': validate.OneOf(["m", "ha", "km sq"])}
+        metadata={'validate': validate.OneOf(["m", "ha", "sq km"])}
     )
     areas: List[Area]
 
@@ -278,18 +278,6 @@ class TrendsEarthLandConditionSummary:
 @dataclass
 class TrendsEarthDroughtSummary:
     metadata: ReportMetadata
-    drought: DroughtReport
-
-    class Meta:
-        ordered = True
-
-
-@dataclass
-class TrendsEarthUNCCDReport:
-    metadata: ReportMetadata
-    land_condition: Dict[str, Union[LandConditionReport,
-                                    LandConditionProgressReport]]
-    affected_population: Dict[str, AffectedPopulationReport]
     drought: DroughtReport
 
     class Meta:
