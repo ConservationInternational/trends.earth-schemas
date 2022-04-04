@@ -280,6 +280,7 @@ class VectorFalsePositive:
 class VectorResults:
     name: str
     vector: typing.Union[VectorFalsePositive]
+    extent: typing.Optional[typing.Tuple[float, float, float, float]] = None
     type: ResultType = dataclasses.field(
         default=ResultType.VECTOR_RESULTS,
         metadata={
