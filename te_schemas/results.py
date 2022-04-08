@@ -175,6 +175,12 @@ class RasterResults:
             for _ in raster.bands
         ]
 
+    def update_uris(self, job_path):
+        for uri in self.get_all_uris():
+            possible_path = Path(job_path.parent / uri.uri.name).resolve()
+            if not uri.uri.exists() and possible_path.exists():
+                uri.uri = possible_path
+
 
 @marshmallow_dataclass.dataclass
 class EmptyResults:
@@ -231,6 +237,12 @@ class FileResults:
         }
     )
 
+    def update_uris(self, job_path):
+        for uri in [self.uri, *self.other_uris]:
+            possible_path = Path(job_path.parent / uri.uri.name).resolve()
+            if not uri.uri.exists() and possible_path.exists():
+                uri.uri = possible_path
+
 
 @marshmallow_dataclass.dataclass
 class JsonResults:
@@ -279,7 +291,7 @@ class VectorFalsePositive:
 @marshmallow_dataclass.dataclass
 class VectorResults:
     name: str
-    vector: typing.Union[VectorFalsePositive]
+    vector: VectorFalsePositive
     extent: typing.Optional[typing.Tuple[float, float, float, float]] = None
     type: ResultType = dataclasses.field(
         default=ResultType.VECTOR_RESULTS,
@@ -289,3 +301,9 @@ class VectorResults:
         }
     )
     uri: typing.Optional[URI] = None
+
+    def update_uris(self, job_path):
+        for uri in [self.uri, self.vector.uri]:
+            possible_path = Path(job_path.parent / uri.uri.name).resolve()
+            if possible_path.exists():
+                uri.uri = possible_path
