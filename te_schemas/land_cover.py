@@ -49,6 +49,10 @@ class LCLegend(SchemaBase):
         self.key = sorted(self.key, key=lambda c: c.code)
 
     def _key_with_nodata(self):
+        'soon to be deprecated'
+        return self.key_with_nodata()
+
+    def key_with_nodata(self):
         if self.nodata:
             return self.key + [self.nodata]
         else:
@@ -66,7 +70,7 @@ class LCLegend(SchemaBase):
             return out[0]
 
     def classByNameLong(self, name_long):
-        out = [c for c in self.key if c.name_long == name_long][0]
+        out = [c for c in self._key_with_nodata() if c.name_long == name_long][0]
 
         if out == []:
             return KeyError
