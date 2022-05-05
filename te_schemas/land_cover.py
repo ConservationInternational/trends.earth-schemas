@@ -48,7 +48,6 @@ class LCClass(SchemaBase):
             other_val = getattr(other, attr)
             self_val = getattr(self, attr)
             if self_val != other_val:
-                # setattr(self, attr, other_val)
                 object.__setattr__(self, attr, other_val)
 
 
