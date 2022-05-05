@@ -48,6 +48,7 @@ class LCClass(SchemaBase):
             other_val = getattr(other, attr)
             self_val = getattr(self, attr)
             if self_val != other_val:
+                # setattr(self, attr, other_val)
                 object.__setattr__(self, attr, other_val)
 
 
@@ -344,8 +345,8 @@ class LCLegendNesting(SchemaBase):
 class LCTransitionMatrixBase(SchemaBase):
     '''Base class to define meaning of land cover transitions
 
-    Base class used for transition matrices defining meaning of land 
-    cover transitions in terms of degraded/stable/improvement, soil organic 
+    Base class used for transition matrices defining meaning of land
+    cover transitions in terms of degraded/stable/improvement, soil organic
     carbon change factors, etc.'''
 
     transitions: list
@@ -371,12 +372,13 @@ class LCTransitionMatrixBase(SchemaBase):
         """
         Returns the meanings which contain the given land cover classes for
         initial and final respectively. Differs from
-        :ref:`meaningByTransition` as it will not raise an error but will
-        return None if there is no match.
+        :ref:`meaningByTransition` as it uses the code for comparison and
+        will not raise an error but will return None if there is no match.
         """
         matches = [
             m for m in self.transitions
-            if (m.initial == initial) and (m.final == final)
+            if (m.initial.code == initial.code) and
+               (m.final.code == final.code)
         ]
         if len(matches) == 0:
             return None
@@ -393,7 +395,7 @@ class LCTransitionMatrixBase(SchemaBase):
         """
         return [
             m for m in self.transitions
-            if (m.initial == lcc) or (m.final == lcc)
+            if (m.initial.code == lcc.code) or (m.final.code == lcc.code)
         ]
 
 
@@ -482,8 +484,8 @@ class LCTransitionDefinitionBase(SchemaBase):
     def get_persistence_list(self):
         '''Get transition matrix to remap persistence classes, in GEE format
 
-        Remap persistence class codes (11, 22), etc., so they are sequential 
-        (1, 2, etc.). This makes it easier to assign a clear color ramp in 
+        Remap persistence class codes (11, 22), etc., so they are sequential
+        (1, 2, etc.). This makes it easier to assign a clear color ramp in
         QGIS.'''
         out = [[], []]
 
@@ -516,10 +518,10 @@ class LCTransitionDefinitionBase(SchemaBase):
     def get_multiplier(self):
         '''Return multiplier for transition calculations
 
-        Used to figure out what number to multiply initial codes so that, 
-        when added to the final class code,  the result is the same as if the 
-        class codes were added as strings. For example: if the initial class 
-        code were 7, and, the  final class code were 5, the transition would be 
+        Used to figure out what number to multiply initial codes so that,
+        when added to the final class code,  the result is the same as if the
+        class codes were added as strings. For example: if the initial class
+        code were 7, and, the  final class code were 5, the transition would be
         coded as 75)'''
 
         return math.ceil(max([c.code for c in self.legend.key]) / 10) * 10
@@ -625,34 +627,33 @@ class LCTransitionDefinitionDeg(LCTransitionDefinitionBase):
         if meaning_str is None:
             meaning_str = 'stable'
 
-        lcc_exists = self.legend.contains_key(lcc.code)
-        if not lcc_exists:
-            for key_lcc in self.legend.key:
-                init_meaning = LCTransitionMeaningDeg(
-                    lcc,
-                    key_lcc,
-                    meaning_str
-                )
-                self.definitions.transitions.append(init_meaning)
-
-                final_meaning = LCTransitionMeaningDeg(
-                    key_lcc,
-                    lcc,
-                    meaning_str
-                )
-                self.definitions.transitions.append(final_meaning)
-
-            init_final_meaning = LCTransitionMeaningDeg(
-                lcc,
-                lcc,
-                meaning_str
-            )
-            self.definitions.transitions.append(init_final_meaning)
-
-        else:
-            self.definitions.update_meaning_classes(lcc)
-
         self.legend.add_update_class(lcc)
+
+        for init_lcc in self.legend.key:
+            for final_lcc in self.legend.key:
+                init_meaning = self.definitions.meaning_by_transition(
+                    init_lcc, final_lcc
+                )
+                if init_meaning is None:
+                    init_meaning = LCTransitionMeaningDeg(
+                        init_lcc,
+                        final_lcc,
+                        meaning_str
+                    )
+                    self.definitions.transitions.append(init_meaning)
+
+                final_meaning = self.definitions.meaning_by_transition(
+                    final_lcc, init_lcc
+                )
+                if final_meaning is None:
+                    final_meaning = LCTransitionMeaningDeg(
+                        final_lcc,
+                        init_lcc,
+                        meaning_str
+                    )
+                    self.definitions.transitions.append(final_meaning)
+
+        self.definitions.update_meaning_classes(lcc)
 
     def remove_class(self, lcc: LCClass) -> bool:
         """
