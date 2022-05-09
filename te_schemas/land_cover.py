@@ -280,9 +280,11 @@ class LCLegendNesting(SchemaBase):
             return False
 
         for c in children:
-            ex_child = self.child_class(c.code)
-            if ex_child is None:
-                self.child.add_update_class(c)
+            child_nodata = self.child.nodata
+            if not (child_nodata and c.code == child_nodata.code):
+                ex_child = self.child_class(c.code)
+                if ex_child is None:
+                    self.child.add_update_class(c)
 
             parent = self.parent_for_child(c)
             if parent is not None:
