@@ -291,7 +291,7 @@ class LCLegendNesting(SchemaBase):
                     self.child.add_update_class(c)
 
             parent = self.parent_for_child(c)
-            if parent is not None:
+            if parent is not None   :
                 self.nesting[parent.code].remove(c.code)
 
             if parent_lcc.code not in self.nesting:
