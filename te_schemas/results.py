@@ -222,7 +222,7 @@ class CloudResults:
 @marshmallow_dataclass.dataclass
 class FileResults:
     class Meta:
-        unknown = 'EXCLUDE'
+        unknown = EXCLUDE
 
     name: str
     uri: URI = dataclasses.field(default=None)
@@ -247,7 +247,7 @@ class FileResults:
 @marshmallow_dataclass.dataclass
 class JsonResults:
     class Meta:
-        unknown = 'EXCLUDE'
+        unknown = EXCLUDE
 
     name: str
     data: dict
@@ -263,7 +263,7 @@ class JsonResults:
 @marshmallow_dataclass.dataclass
 class TimeSeriesTableResult:
     class Meta:
-        unknown = 'EXCLUDE'
+        unknown = EXCLUDE
 
     name: str
     table: typing.List[dict]
