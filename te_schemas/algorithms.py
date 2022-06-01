@@ -9,7 +9,7 @@ import re
 
 import marshmallow_dataclass
 
-from marshmallow import pre_load
+from marshmallow import pre_load, EXCLUDE
 
 from te_schemas import SchemaBase
 
@@ -24,7 +24,7 @@ class AlgorithmRunMode(enum.Enum):
 @marshmallow_dataclass.dataclass
 class ExecutionScript(SchemaBase):
     class Meta:
-        unknown = 'EXCLUDE'
+        unknown = EXCLUDE
 
     id: typing.Union[uuid.UUID, str]
     run_mode: typing.Optional[AlgorithmRunMode] = field(
