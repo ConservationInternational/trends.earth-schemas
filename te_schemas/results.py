@@ -6,7 +6,7 @@ import typing
 from dataclasses import field
 
 import marshmallow_dataclass
-from marshmallow import validate
+from marshmallow import validate, EXCLUDE
 from marshmallow_dataclass.typing import Url
 
 from .path import Path
@@ -185,7 +185,7 @@ class RasterResults:
 @marshmallow_dataclass.dataclass
 class EmptyResults:
     class Meta:
-        unknown = 'EXCLUDE'
+        unknown = EXCLUDE
 
     name: typing.Optional[str] = None
     data_path: typing.Optional[Path] = None
@@ -201,7 +201,7 @@ class EmptyResults:
 @marshmallow_dataclass.dataclass
 class CloudResults:
     class Meta:
-        unknown = 'EXCLUDE'
+        unknown = EXCLUDE
 
     name: str
     bands: typing.List[Band]
@@ -222,7 +222,7 @@ class CloudResults:
 @marshmallow_dataclass.dataclass
 class FileResults:
     class Meta:
-        unknown = 'EXCLUDE'
+        unknown = EXCLUDE
 
     name: str
     uri: URI = dataclasses.field(default=None)
@@ -247,7 +247,7 @@ class FileResults:
 @marshmallow_dataclass.dataclass
 class JsonResults:
     class Meta:
-        unknown = 'EXCLUDE'
+        unknown = EXCLUDE
 
     name: str
     data: dict
@@ -263,7 +263,7 @@ class JsonResults:
 @marshmallow_dataclass.dataclass
 class TimeSeriesTableResult:
     class Meta:
-        unknown = 'EXCLUDE'
+        unknown = EXCLUDE
 
     name: str
     table: typing.List[dict]
