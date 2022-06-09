@@ -25,19 +25,19 @@ class ErrorRecodeProperties:
     periods: List[dict]
     recode_deg_to: Optional[int] = field(
         metadata={
-            'validate': validate.OneOf([-32768, 0, 1]),
+            'validate': validate.OneOf([None, -32768, 0, 1]),
             'missing': None
         }
     )
     recode_stable_to: Optional[int] = field(
         metadata={
-            'validate': validate.OneOf([-32768, -1, 1]),
+            'validate': validate.OneOf([None, -32768, -1, 1]),
             'missing': None
         }
     )
     recode_imp_to: Optional[int] = field(
         metadata={
-            'validate': validate.OneOf([-32768, -1, 0]),
+            'validate': validate.OneOf([None, -32768, -1, 0]),
             'missing': None
         }
     )
