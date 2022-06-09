@@ -22,7 +22,7 @@ class ErrorRecodeProperties:
     area_km_sq: Optional[float]
     process_driving_change: Optional[str]
     basis_for_judgement: Optional[str]
-    periods: List[dict]
+    periods: Optional[List[dict]]
     recode_deg_to: Optional[int] = field(
         metadata={
             'validate': validate.OneOf([None, -32768, 0, 1]),
