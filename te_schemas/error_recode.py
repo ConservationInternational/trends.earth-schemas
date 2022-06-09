@@ -4,6 +4,7 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 
+from marshmallow import EXCLUDE
 from marshmallow import pre_load
 from marshmallow import validate
 from marshmallow_dataclass import dataclass
@@ -11,6 +12,9 @@ from marshmallow_dataclass import dataclass
 
 @dataclass
 class ErrorRecodeProperties:
+    class Meta:
+        unknown = EXCLUDE
+
     fid: Optional[int]
     uuid: Optional[uuid_module.UUID
                    ] = field(metadata={'default': uuid_module.uuid4})
@@ -41,6 +45,9 @@ class ErrorRecodeProperties:
 
 @dataclass
 class ErrorRecodeFeature:
+    class Meta:
+        unknown = EXCLUDE
+
     geometry: dict
     properties: ErrorRecodeProperties
     type: str = field(metadata={'validate': validate.Equal('Feature')})
@@ -48,6 +55,9 @@ class ErrorRecodeFeature:
 
 @dataclass
 class ErrorRecodePolygons:
+    class Meta:
+        unknown = EXCLUDE
+
     features: List[ErrorRecodeFeature]
     name: Optional[str]
     crs: Optional[dict]
