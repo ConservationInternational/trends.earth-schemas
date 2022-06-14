@@ -15,9 +15,8 @@ class ErrorRecodeProperties:
     class Meta:
         unknown = EXCLUDE
 
+    uuid: uuid_module.UUID = field(metadata={'default': uuid_module.uuid4})
     fid: Optional[int]
-    uuid: Optional[uuid_module.UUID
-                   ] = field(metadata={'default': uuid_module.uuid4})
     location_name: Optional[str]
     area_km_sq: Optional[float]
     process_driving_change: Optional[str]
