@@ -15,31 +15,20 @@ class ErrorRecodeProperties:
     class Meta:
         unknown = EXCLUDE
 
+    uuid: uuid_module.UUID = field(metadata={"default": uuid_module.uuid4})
     fid: Optional[int]
-    uuid: Optional[uuid_module.UUID
-                   ] = field(metadata={'default': uuid_module.uuid4})
     location_name: Optional[str]
     area_km_sq: Optional[float]
     process_driving_change: Optional[str]
     basis_for_judgement: Optional[str]
-    periods: List[dict]
     recode_deg_to: Optional[int] = field(
-        metadata={
-            'validate': validate.OneOf([-32768, 0, 1]),
-            'missing': None
-        }
+        metadata={"validate": validate.OneOf([None, -32768, 0, 1]), "missing": None}
     )
     recode_stable_to: Optional[int] = field(
-        metadata={
-            'validate': validate.OneOf([-32768, -1, 1]),
-            'missing': None
-        }
+        metadata={"validate": validate.OneOf([None, -32768, -1, 1]), "missing": None}
     )
     recode_imp_to: Optional[int] = field(
-        metadata={
-            'validate': validate.OneOf([-32768, -1, 0]),
-            'missing': None
-        }
+        metadata={"validate": validate.OneOf([None, -32768, -1, 0]), "missing": None}
     )
 
 
@@ -50,7 +39,7 @@ class ErrorRecodeFeature:
 
     geometry: dict
     properties: ErrorRecodeProperties
-    type: str = field(metadata={'validate': validate.Equal('Feature')})
+    type: str = field(metadata={"validate": validate.Equal("Feature")})
 
 
 @dataclass
@@ -61,28 +50,26 @@ class ErrorRecodePolygons:
     features: List[ErrorRecodeFeature]
     name: Optional[str]
     crs: Optional[dict]
-    type: str = field(
-        metadata={'validate': validate.Equal('FeatureCollection')}
-    )
+    type: str = field(metadata={"validate": validate.Equal("FeatureCollection")})
     recode_deg_to_options: Optional[Tuple] = field(
         metadata={
-            'load_default': (None, -32768, 0, 1),
-            'dump_default': (None, -32768, 0, 1),
-            'allow_none': False
+            "load_default": (None, -32768, 0, 1),
+            "dump_default": (None, -32768, 0, 1),
+            "allow_none": False,
         }
     )
     recode_stable_to_options: Optional[Tuple] = field(
         metadata={
-            'load_default': (None, -32768, -1, 1),
-            'dump_default': (None, -32768, -1, 1),
-            'allow_none': False
+            "load_default": (None, -32768, -1, 1),
+            "dump_default": (None, -32768, -1, 1),
+            "allow_none": False,
         }
     )
     recode_imp_to_options: Optional[Tuple] = field(
         metadata={
-            'load_default': (None, -32768, -1, 0),
-            'dump_default': (None, -32768, -1, 0),
-            'allow_none': False
+            "load_default": (None, -32768, -1, 0),
+            "dump_default": (None, -32768, -1, 0),
+            "allow_none": False,
         }
     )
 
@@ -143,11 +130,13 @@ class ErrorRecodePolygons:
         for i in range(len(self.recode_deg_to_options)):
             for j in range(len(self.recode_stable_to_options)):
                 for k in range(len(self.recode_imp_to_options)):
-                    recode_to_trans_code[(
-                        self.recode_deg_to_options[i],
-                        self.recode_stable_to_options[j],
-                        self.recode_imp_to_options[k]
-                    )] = n
+                    recode_to_trans_code[
+                        (
+                            self.recode_deg_to_options[i],
+                            self.recode_stable_to_options[j],
+                            self.recode_imp_to_options[k],
+                        )
+                    ] = n
                     n += 1
 
         return recode_to_trans_code
