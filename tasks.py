@@ -96,8 +96,11 @@ def _replace(file_path, regex, subst):
 # Misc development tasks (change version, deploy GEE scripts)
 ###############################################################################
 
-@task(help={'v': 'Version to set'})
-def set_version(c, v=None):
+@task(help={
+    'v': 'Version to set',
+    't': 'Also set tag'
+})
+def set_version(c, v=None, tag=False):
     # Validate the version matches the regex
     if not v:
         version_update = False
@@ -124,8 +127,11 @@ def set_version(c, v=None):
 
         # Set in setup.py
         print('Setting version to {} in setup.py'.format(v))
-        setup_regex = re.compile("^([ ]*version=[ ]*')[0-9]+([.][0-9]+)+")
+        setup_regex = re.compile("^([ ]*version=[ ]*')[0-9]+([.][0-9]+)+(rc[0-9]*)?")
         _replace('setup.py', setup_regex, '\g<1>' + v)
+
+    if tag:
+        set_tag(c)
 
 @task()
 def set_tag(c):
