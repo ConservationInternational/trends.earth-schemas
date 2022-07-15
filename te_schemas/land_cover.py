@@ -24,7 +24,7 @@ class LCClass(SchemaBase):
     name_short: str = field(
         metadata={"validate": validate.Length(max=20)}, default=None
     )
-    name_long: str = field(default=None, metadata={"validate": validate.Length(max=90)})
+    name_long: str = field(default=None, metadata={"validate": validate.Length(max=120)})
     description: Optional[str] = field(default=None)
     color: Optional[str] = field(
         default=None,
