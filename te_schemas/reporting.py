@@ -210,9 +210,8 @@ class LandConditionReport:
     sdg: Optional[SDG15Report] = field(default=None)
     productivity: Optional[ProductivityReport] = field(default=None)
     land_cover: Optional[LandCoverReport] = field(default=None)
-    soil_organic_carbon: Optional[SoilOrganicCarbonReport] = field(
-        default=None
-    )
+    soil_organic_carbon: Optional[SoilOrganicCarbonReport] = field(default=None)
+    error_recode: Optional[ErrorRecodePolygons] = field(default=None)
 
     class Meta:
         ordered = True
