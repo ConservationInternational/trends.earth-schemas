@@ -1,8 +1,10 @@
 import uuid as uuid_module
 from dataclasses import field
+from typing import ClassVar
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Type
 
 from marshmallow import EXCLUDE
 from marshmallow import pre_load
@@ -16,7 +18,6 @@ class ErrorRecodeProperties:
         unknown = EXCLUDE
 
     uuid: uuid_module.UUID = field(metadata={"default": uuid_module.uuid4})
-    fid: Optional[int]
     location_name: Optional[str]
     area_km_sq: Optional[float]
     process_driving_change: Optional[str]
@@ -30,6 +31,7 @@ class ErrorRecodeProperties:
     recode_imp_to: Optional[int] = field(
         metadata={"validate": validate.OneOf([None, -32768, -1, 0]), "missing": None}
     )
+    stats: Optional[dict]
 
 
 @dataclass
@@ -51,42 +53,10 @@ class ErrorRecodePolygons:
     name: Optional[str]
     crs: Optional[dict]
     type: str = field(metadata={"validate": validate.Equal("FeatureCollection")})
-    recode_deg_to_options: Optional[Tuple] = field(
-        metadata={
-            "load_default": (None, -32768, 0, 1),
-            "dump_default": (None, -32768, 0, 1),
-            "allow_none": False,
-        }
-    )
-    recode_stable_to_options: Optional[Tuple] = field(
-        metadata={
-            "load_default": (None, -32768, -1, 1),
-            "dump_default": (None, -32768, -1, 1),
-            "allow_none": False,
-        }
-    )
-    recode_imp_to_options: Optional[Tuple] = field(
-        metadata={
-            "load_default": (None, -32768, -1, 0),
-            "dump_default": (None, -32768, -1, 0),
-            "allow_none": False,
-        }
-    )
 
-    @pre_load
-    def delete_none_values(self, in_data, **kwargs):
-        """Delete all None values so they get filled out with their 'missing' parameters."""
-        to_delete = []
-
-        for key, value in in_data.items():
-            if value is None or value == ():
-                # can't delete dict values on the fly, it produces an error
-                to_delete.append(key)
-
-        for key in to_delete:
-            del in_data[key]
-
-        return in_data
+    recode_deg_to_options: ClassVar[Type[Tuple]] = (None, -32768, 0, 1)
+    recode_stable_to_options: ClassVar[Type[Tuple]] = (None, -32768, -1, 1)
+    recode_imp_to_options: ClassVar[Type[Tuple]] = (None, -32768, -1, 0)
 
     @property
     def trans_code_lists(self):

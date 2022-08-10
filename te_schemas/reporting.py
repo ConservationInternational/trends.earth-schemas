@@ -10,6 +10,7 @@ from marshmallow_dataclass import dataclass
 
 from . import land_cover
 from . import schemas
+from .error_recode import ErrorRecodePolygons
 
 
 @dataclass
@@ -223,6 +224,7 @@ class LandConditionProgressReport:
     productivity: Dict[str, AreaList]
     land_cover: AreaList
     soil_organic_carbon: Dict[str, AreaList]
+    error_recode: Optional[ErrorRecodePolygons] = field(default=None)
 
     class Meta:
         ordered = True
