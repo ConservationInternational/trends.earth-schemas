@@ -169,6 +169,20 @@ class LCLegend(SchemaBase):
             c.translate(translations)
         self.nodata.translate(translations)
 
+    def get_ramp_items(self):
+        """
+        Uses the values, color hex codes, and labels to return a list of style items in
+        the format needed to generate a style for a layer within the QGIS Trends.Earth
+        plugin
+        """
+        out = []
+        for c in self._key_with_nodata():
+            if c.name_long:
+                name = c.name_long
+            else:
+                name = c.name_short
+            out.append({"value": c.code, "label": name, "color": c.color})
+        return out
 
 # Defines how a more detailed land cover legend nests within nodata=a
 # higher-level legend
