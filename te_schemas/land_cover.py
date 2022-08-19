@@ -53,7 +53,9 @@ class LCClass(SchemaBase):
         self.description = translations.get(self.description, self.description)
 
     def __eq__(self, other):
-        if (
+        if not isinstance(LCClass, other):
+            return False
+        elif (
             self.code == other.code and
             self.name_short == other.name_short and
             self.name_long == other.name_long and
@@ -82,7 +84,9 @@ class LCLegend(SchemaBase):
         self.key = sorted(self.key, key=lambda c: c.code)
 
     def __eq__(self, other):
-        if (
+        if not isinstance(LCLegend, other):
+            return False
+        elif (
             self.name == other.name and
             sorted(self.key) == sorted(other.key) and
             self.nodata == other.nodata
