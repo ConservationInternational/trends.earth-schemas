@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import math
 from dataclasses import field
 from dataclasses import fields
@@ -50,6 +52,18 @@ class LCClass(SchemaBase):
         self.name_long = translations.get(self.name_long, self.name_long)
         self.description = translations.get(self.description, self.description)
 
+    def __eq__(self, other):
+        if (
+            self.code == other.code and
+            self.name_short == other.name_short and
+            self.name_long == other.name_long and
+            self.description == other.description and
+            self.color == other.color
+        ):
+            return True
+        else:
+            return False
+
 
 @dataclass
 class LCLegend(SchemaBase):
@@ -66,6 +80,16 @@ class LCLegend(SchemaBase):
 
         # Sort key by class codes
         self.key = sorted(self.key, key=lambda c: c.code)
+
+    def __eq__(self, other):
+        if (
+            self.name == other.name and
+            sorted(self.key) == sorted(other.key) and
+            self.nodata == other.nodata
+        ):
+            return True
+        else:
+            return False
 
     def _key_with_nodata(self):
         "soon to be deprecated"
@@ -184,6 +208,7 @@ class LCLegend(SchemaBase):
             out.append({"value": c.code, "label": name, "color": c.color})
         return out
 
+
 # Defines how a more detailed land cover legend nests within nodata=a
 # higher-level legend
 @dataclass
@@ -267,7 +292,7 @@ class LCLegendNesting(SchemaBase):
         """
         Returns the parent for the given child. Varies from
         :ref:`parentClassForChild` in that it does not raise an error if
-        tehre is no parent, but instead returns None.
+        there is no parent, but instead returns None.
         """
         parent_code = [key for key, values in self.nesting.items() if c.code in values]
 
@@ -354,10 +379,45 @@ class LCLegendNesting(SchemaBase):
 
         return True
 
+    def nest(self, nesting) -> LCLegendNesting:
+        """
+        Given a nesting instance whose child class is the parent of this one, will nest
+        this child class legend under the parent of that instance, and return a new
+        nesting instance
+        """
+
+        if self.parent != nesting.child:
+            raise Exception
+
+        nesting = {}
+        for lcc in nesting.key:
+            current_parent_class = self.parentForChild(lcc)
+            new_parent_class = nesting.parentForChild(current_parent_class)
+            if lcc.code not in nesting:
+                nesting[new_parent_class.code] = [lcc.code]
+            else:
+                nesting[new_parent_class.code].append(lcc.code)
+
+        return LCLegendNesting(
+            parent=nesting.parent,
+            child=self.child,
+            nesting=nesting
+        )
+
     def translate(self, translations):
         self.parent.translate(translations)
         self.child.translate(translations)
 
+    def get_multiplier(self):
+        """Return multiplier for transition calculations
+
+        Used to figure out what number to multiply initial codes so that,
+        when added to the final class code,  the result is the same as if the
+        class codes were concatenated as strings. For example: if the initial class
+        code were 7, and, the  final class code were 5, the transition would be
+        coded as 75)"""
+
+        return math.ceil(max([c.code for c in self.child.key + self.parent.key]) / 10) * 10
 
 ###############################################################################
 # Base classes for transition matrices to be used in defining meaning of land
@@ -545,7 +605,7 @@ class LCTransitionDefinitionBase(SchemaBase):
 
         Used to figure out what number to multiply initial codes so that,
         when added to the final class code,  the result is the same as if the
-        class codes were added as strings. For example: if the initial class
+        class codes were concatenated as strings. For example: if the initial class
         code were 7, and, the  final class code were 5, the transition would be
         coded as 75)"""
 
