@@ -5,10 +5,10 @@ import enum
 import typing
 from dataclasses import field
 
+import marshmallow
 import marshmallow_dataclass
-from marshmallow import EXCLUDE
-from marshmallow import validate
-from marshmallow_dataclass.typing import Url
+
+Url = marshmallow_dataclass.NewType("Url", str, field=marshmallow.fields.Url)
 
 from .path import Path
 
@@ -69,7 +69,7 @@ class Etag:
 class URI:
     uri: typing.Union[Url, Path]
     type: str = field(
-        metadata={'validate': validate.OneOf(["local", "cloud"])}
+        metadata={'validate': marshmallow.validate.OneOf(["local", "cloud"])}
     )
     etag: typing.Optional[Etag] = None
 
@@ -97,7 +97,7 @@ class TiledRaster:
         default=RasterType.TILED_RASTER,
         metadata={
             "by_value": True,
-            "validate": validate.Equal(RasterType.TILED_RASTER)
+            "validate": marshmallow.validate.Equal(RasterType.TILED_RASTER)
         }
     )
 
@@ -113,7 +113,7 @@ class Raster:
         default=RasterType.ONE_FILE_RASTER,
         metadata={
             "by_value": True,
-            "validate": validate.Equal(RasterType.ONE_FILE_RASTER)
+            "validate": marshmallow.validate.Equal(RasterType.ONE_FILE_RASTER)
         }
     )
 
@@ -129,7 +129,7 @@ class RasterResults:
         default=ResultType.RASTER_RESULTS,
         metadata={
             "by_value": True,
-            "validate": validate.Equal(ResultType.RASTER_RESULTS)
+            "validate": marshmallow.validate.Equal(ResultType.RASTER_RESULTS)
         }
     )
 
@@ -186,7 +186,7 @@ class RasterResults:
 @marshmallow_dataclass.dataclass
 class EmptyResults:
     class Meta:
-        unknown = EXCLUDE
+        unknown = marshmallow.EXCLUDE
 
     name: typing.Optional[str] = None
     data_path: typing.Optional[Path] = None
@@ -194,7 +194,7 @@ class EmptyResults:
         default=ResultType.EMPTY_RESULTS,
         metadata={
             "by_value": True,
-            "validate": validate.Equal(ResultType.EMPTY_RESULTS)
+            "validate": marshmallow.validate.Equal(ResultType.EMPTY_RESULTS)
         }
     )
 
@@ -202,7 +202,7 @@ class EmptyResults:
 @marshmallow_dataclass.dataclass
 class CloudResults:
     class Meta:
-        unknown = EXCLUDE
+        unknown = marshmallow.EXCLUDE
 
     name: str
     bands: typing.List[Band]
@@ -215,7 +215,7 @@ class CloudResults:
         default=ResultType.CLOUD_RESULTS,
         metadata={
             "by_value": True,
-            "validate": validate.Equal(ResultType.CLOUD_RESULTS)
+            "validate": marshmallow.validate.Equal(ResultType.CLOUD_RESULTS)
         }
     )
 
@@ -223,7 +223,7 @@ class CloudResults:
 @marshmallow_dataclass.dataclass
 class FileResults:
     class Meta:
-        unknown = EXCLUDE
+        unknown = marshmallow.EXCLUDE
 
     name: str
     uri: URI = dataclasses.field(default=None)
@@ -234,7 +234,7 @@ class FileResults:
         default=ResultType.FILE_RESULTS,
         metadata={
             "by_value": True,
-            "validate": validate.Equal(ResultType.FILE_RESULTS)
+            "validate": marshmallow.validate.Equal(ResultType.FILE_RESULTS)
         }
     )
 
@@ -248,7 +248,7 @@ class FileResults:
 @marshmallow_dataclass.dataclass
 class JsonResults:
     class Meta:
-        unknown = EXCLUDE
+        unknown = marshmallow.EXCLUDE
 
     name: str
     data: dict
@@ -256,7 +256,7 @@ class JsonResults:
     type: ResultType = dataclasses.field(
         default=ResultType.JSON_RESULTS, metadata={
             "by_value": True,
-            "validate": validate.Equal(ResultType.JSON_RESULTS)
+            "validate": marshmallow.validate.Equal(ResultType.JSON_RESULTS)
         }
     )
 
@@ -264,7 +264,7 @@ class JsonResults:
 @marshmallow_dataclass.dataclass
 class TimeSeriesTableResult:
     class Meta:
-        unknown = EXCLUDE
+        unknown = marshmallow.EXCLUDE
 
     name: str
     table: typing.List[dict]
@@ -272,7 +272,7 @@ class TimeSeriesTableResult:
         default=ResultType.TIME_SERIES_TABLE,
         metadata={
             "by_value": True,
-            "validate": validate.Equal(ResultType.TIME_SERIES_TABLE)
+            "validate": marshmallow.validate.Equal(ResultType.TIME_SERIES_TABLE)
         }
     )
 
@@ -284,7 +284,7 @@ class VectorFalsePositive:
         default=VectorType.ERROR_RECODE,
         metadata={
             "by_value": True,
-            "validate": validate.Equal(VectorType.ERROR_RECODE)
+            "validate": marshmallow.validate.Equal(VectorType.ERROR_RECODE)
         }
     )
 
@@ -298,7 +298,7 @@ class VectorResults:
         default=ResultType.VECTOR_RESULTS,
         metadata={
             "by_value": True,
-            "validate": validate.Equal(ResultType.VECTOR_RESULTS)
+            "validate": marshmallow.validate.Equal(ResultType.VECTOR_RESULTS)
         }
     )
     uri: typing.Optional[URI] = None
