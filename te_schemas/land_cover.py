@@ -213,7 +213,7 @@ class LCLegend(SchemaBase):
         return out
 
 
-# Defines how a more detailed land cover legend nests within nodata=a
+# Defines how a more detailed land cover legend nests within a
 # higher-level legend
 @dataclass
 class LCLegendNesting(SchemaBase):
