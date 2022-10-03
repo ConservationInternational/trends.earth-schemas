@@ -17,9 +17,7 @@ from .error_recode import ErrorRecodePolygons
 class HotspotBrightspotProperties:
     name: str
     area: float
-    type: str = field(
-        metadata={'validate': validate.OneOf(["hotspot", "brightspot"])}
-    )
+    type: str = field(metadata={"validate": validate.OneOf(["hotspot", "brightspot"])})
     process: str
     basis: str
     periods: List[str]
@@ -33,17 +31,13 @@ class HotspotBrightspotProperties:
 class ErrorClassificationProperties:
     area: float
     type: str = field(
-        metadata={
-            'validate': validate.OneOf(["false negative", "false positive"])
-        }
+        metadata={"validate": validate.OneOf(["false negative", "false positive"])}
     )
     place_name: str
     process: str
     basis: str
     periods: str = field(
-        metadata={
-            'validate': validate.OneOf(["baseline", "reporting", "both"])
-        }
+        metadata={"validate": validate.OneOf(["baseline", "reporting", "both"])}
     )
 
 
@@ -81,9 +75,7 @@ class Area:
 @dataclass
 class AreaList:
     name: Optional[str]
-    unit: str = field(
-        metadata={'validate': validate.OneOf(["m", "ha", "sq km"])}
-    )
+    unit: str = field(metadata={"validate": validate.OneOf(["m", "ha", "sq km"])})
     areas: List[Area]
 
     class Meta:
@@ -97,8 +89,7 @@ class Population:
     population: int = field(metadata={"validate": validate.Range(min=0)})
     type: str = field(
         metadata={
-            'validate':
-            validate.OneOf(
+            "validate": validate.OneOf(
                 ["Total population", "Female population", "Male population"]
             )
         }
@@ -164,7 +155,7 @@ class ReportMetadata:
 
     class Meta:
         ordered = True
-        datetimeformat = '%Y-%m-%dT%H:%M:%S+00:00'
+        datetimeformat = "%Y-%m-%dT%H:%M:%S+00:00"
 
 
 @dataclass
@@ -242,11 +233,13 @@ class AffectedPopulationReport:
 class DroughtExposedPopulation:
     drought_class: str = field(
         metadata={
-            'validate':
-            validate.OneOf(
+            "validate": validate.OneOf(
                 [
-                    "Mild drought", "Moderate drought", "Severe drought",
-                    "Extreme drought", "Non-drought"
+                    "Mild drought",
+                    "Moderate drought",
+                    "Severe drought",
+                    "Extreme drought",
+                    "Non-drought",
                 ]
             )
         }
@@ -268,8 +261,7 @@ class DroughtReport:
 @dataclass
 class TrendsEarthLandConditionSummary:
     metadata: ReportMetadata
-    land_condition: Dict[str, Union[LandConditionReport,
-                                    LandConditionProgressReport]]
+    land_condition: Dict[str, Union[LandConditionReport, LandConditionProgressReport]]
     affected_population: Dict[str, AffectedPopulationReport]
 
     class Meta:

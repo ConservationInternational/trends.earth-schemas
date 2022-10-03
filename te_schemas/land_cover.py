@@ -26,7 +26,9 @@ class LCClass(SchemaBase):
     name_short: str = field(
         metadata={"validate": validate.Length(max=20)}, default=None
     )
-    name_long: str = field(default=None, metadata={"validate": validate.Length(max=120)})
+    name_long: str = field(
+        default=None, metadata={"validate": validate.Length(max=120)}
+    )
     description: Optional[str] = field(default=None)
     color: Optional[str] = field(
         default=None,
@@ -56,11 +58,11 @@ class LCClass(SchemaBase):
         if not isinstance(other, LCClass):
             return False
         elif (
-            self.code == other.code and
-            self.name_short == other.name_short and
-            self.name_long == other.name_long and
-            self.description == other.description and
-            self.color == other.color
+            self.code == other.code
+            and self.name_short == other.name_short
+            and self.name_long == other.name_long
+            and self.description == other.description
+            and self.color == other.color
         ):
             return True
         else:
@@ -87,9 +89,9 @@ class LCLegend(SchemaBase):
         if not isinstance(other, LCLegend):
             return False
         elif (
-            self.name == other.name and
-            sorted(self.key) == sorted(other.key) and
-            self.nodata == other.nodata
+            self.name == other.name
+            and sorted(self.key) == sorted(other.key)
+            and self.nodata == other.nodata
         ):
             return True
         else:
@@ -402,11 +404,7 @@ class LCLegendNesting(SchemaBase):
             else:
                 nesting[new_parent_class.code].append(lcc.code)
 
-        return LCLegendNesting(
-            parent=nesting.parent,
-            child=self.child,
-            nesting=nesting
-        )
+        return LCLegendNesting(parent=nesting.parent, child=self.child, nesting=nesting)
 
     def translate(self, translations):
         self.parent.translate(translations)
@@ -421,7 +419,10 @@ class LCLegendNesting(SchemaBase):
         code were 7, and, the  final class code were 5, the transition would be
         coded as 75)"""
 
-        return math.ceil(max([c.code for c in self.child.key + self.parent.key]) / 10) * 10
+        return (
+            math.ceil(max([c.code for c in self.child.key + self.parent.key]) / 10) * 10
+        )
+
 
 ###############################################################################
 # Base classes for transition matrices to be used in defining meaning of land
@@ -602,6 +603,21 @@ class LCTransitionDefinitionBase(SchemaBase):
                     "final": c_final.code,
                 }
 
+        return out
+
+    def get_transitions_ramp_items(self):
+        """
+        Uses the values, color hex codes, and labels to return a list of style
+        items for transtiions among classes in the format needed to generate
+        a style for a layer within the QGIS Trends.Earth plugin
+        """
+        out = []
+        for c in self.legend._key_with_nodata():
+            if c.name_long:
+                name = c.name_long
+            else:
+                name = c.name_short
+            out.append({"value": c.code, "label": name, "color": c.color})
         return out
 
     def get_multiplier(self):

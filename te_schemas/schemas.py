@@ -15,7 +15,7 @@ class TrendsEarthVersion:
 
     class Meta:
         ordered = True
-        datetimeformat = '%Y-%m-%dT%H:%M:%S+00:00'
+        datetimeformat = "%Y-%m-%dT%H:%M:%S+00:00"
 
 
 ###############################################################################
@@ -68,12 +68,7 @@ class TimeSeriesTableSchema(Schema):
 
 class BandInfo(object):
     def __init__(
-        self,
-        name,
-        add_to_map=False,
-        activated=True,
-        metadata={},
-        no_data_value=-32768
+        self, name, add_to_map=False, activated=True, metadata={}, no_data_value=-32768
     ):
         self.name = name
         self.no_data_value = no_data_value
@@ -95,7 +90,7 @@ class BandInfoSchema(Schema):
 
 
 class Url(object):
-    def __init__(self, url, md5Hash=''):
+    def __init__(self, url, md5Hash=""):
         self.url = url
         self.md5Hash = md5Hash
 
@@ -121,7 +116,7 @@ class CloudResultsSchema(Schema):
 
     @post_load
     def make_cloud_results(self, data, **kwargs):
-        data.pop('type')
+        data.pop("type")
 
         return CloudResults(**data)
 

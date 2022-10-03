@@ -59,7 +59,7 @@ class Etag:
     hash: str
     type: EtagType = dataclasses.field(metadata={"by_value": True})
 
-    #TODO: Fix below as doesn't work on an s3 file uploaded with multipart
+    # TODO: Fix below as doesn't work on an s3 file uploaded with multipart
     @property
     def decoded_hash(self):
         return binascii.hexlify(base64.b64decode(self.md5_hash)).decode()
@@ -69,7 +69,7 @@ class Etag:
 class URI:
     uri: typing.Union[Url, Path]
     type: str = field(
-        metadata={'validate': marshmallow.validate.OneOf(["local", "cloud"])}
+        metadata={"validate": marshmallow.validate.OneOf(["local", "cloud"])}
     )
     etag: typing.Optional[Etag] = None
 
@@ -90,15 +90,17 @@ class TiledRaster:
     datatype: DataType = dataclasses.field(metadata={"by_value": True})
     filetype: RasterFileType = dataclasses.field(metadata={"by_value": True})
     uri: typing.Optional[
-        URI] = None  # should point to a single VRT file linking the tiles
-    extents: typing.Optional[typing.List[typing.Tuple[float, float, float,
-                                                      float]]] = None
+        URI
+    ] = None  # should point to a single VRT file linking the tiles
+    extents: typing.Optional[
+        typing.List[typing.Tuple[float, float, float, float]]
+    ] = None
     type: RasterType = dataclasses.field(
         default=RasterType.TILED_RASTER,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(RasterType.TILED_RASTER)
-        }
+            "validate": marshmallow.validate.Equal(RasterType.TILED_RASTER),
+        },
     )
 
 
@@ -113,8 +115,8 @@ class Raster:
         default=RasterType.ONE_FILE_RASTER,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(RasterType.ONE_FILE_RASTER)
-        }
+            "validate": marshmallow.validate.Equal(RasterType.ONE_FILE_RASTER),
+        },
     )
 
 
@@ -123,14 +125,15 @@ class RasterResults:
     name: str
     rasters: typing.Dict[str, typing.Union[Raster, TiledRaster]]
     uri: typing.Optional[
-        URI] = None  # should point to a single VRT or tif linking all rasters
+        URI
+    ] = None  # should point to a single VRT or tif linking all rasters
     data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
     type: ResultType = dataclasses.field(
         default=ResultType.RASTER_RESULTS,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(ResultType.RASTER_RESULTS)
-        }
+            "validate": marshmallow.validate.Equal(ResultType.RASTER_RESULTS),
+        },
     )
 
     def has_tiled_raster(self):
@@ -171,10 +174,7 @@ class RasterResults:
         return [*set(extents)]
 
     def get_band_uris(self):
-        return [
-            raster.uri for raster in self.rasters.values()
-            for _ in raster.bands
-        ]
+        return [raster.uri for raster in self.rasters.values() for _ in raster.bands]
 
     def update_uris(self, job_path):
         for uri in self.get_all_uris():
@@ -194,8 +194,8 @@ class EmptyResults:
         default=ResultType.EMPTY_RESULTS,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(ResultType.EMPTY_RESULTS)
-        }
+            "validate": marshmallow.validate.Equal(ResultType.EMPTY_RESULTS),
+        },
     )
 
 
@@ -208,15 +208,16 @@ class CloudResults:
     bands: typing.List[Band]
     urls: typing.List[Url]
     data_path: typing.Optional[Path] = dataclasses.field(default=None)
-    other_paths: typing.Optional[typing.List[Path]
-                                 ] = dataclasses.field(default_factory=list)
+    other_paths: typing.Optional[typing.List[Path]] = dataclasses.field(
+        default_factory=list
+    )
     data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
     type: ResultType = dataclasses.field(
         default=ResultType.CLOUD_RESULTS,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(ResultType.CLOUD_RESULTS)
-        }
+            "validate": marshmallow.validate.Equal(ResultType.CLOUD_RESULTS),
+        },
     )
 
 
@@ -234,8 +235,8 @@ class FileResults:
         default=ResultType.FILE_RESULTS,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(ResultType.FILE_RESULTS)
-        }
+            "validate": marshmallow.validate.Equal(ResultType.FILE_RESULTS),
+        },
     )
 
     def update_uris(self, job_path):
@@ -254,10 +255,11 @@ class JsonResults:
     data: dict
 
     type: ResultType = dataclasses.field(
-        default=ResultType.JSON_RESULTS, metadata={
+        default=ResultType.JSON_RESULTS,
+        metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(ResultType.JSON_RESULTS)
-        }
+            "validate": marshmallow.validate.Equal(ResultType.JSON_RESULTS),
+        },
     )
 
 
@@ -272,8 +274,8 @@ class TimeSeriesTableResult:
         default=ResultType.TIME_SERIES_TABLE,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(ResultType.TIME_SERIES_TABLE)
-        }
+            "validate": marshmallow.validate.Equal(ResultType.TIME_SERIES_TABLE),
+        },
     )
 
 
@@ -284,8 +286,8 @@ class VectorFalsePositive:
         default=VectorType.ERROR_RECODE,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(VectorType.ERROR_RECODE)
-        }
+            "validate": marshmallow.validate.Equal(VectorType.ERROR_RECODE),
+        },
     )
 
 
@@ -298,8 +300,8 @@ class VectorResults:
         default=ResultType.VECTOR_RESULTS,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(ResultType.VECTOR_RESULTS)
-        }
+            "validate": marshmallow.validate.Equal(ResultType.VECTOR_RESULTS),
+        },
     )
     uri: typing.Optional[URI] = None
 
