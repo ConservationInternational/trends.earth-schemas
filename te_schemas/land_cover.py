@@ -214,6 +214,54 @@ class LCLegend(SchemaBase):
             out.append({"value": c.code, "label": name, "color": c.color})
         return out
 
+    def get_transitions_ramp_items(self):
+        """
+        Uses the values, color hex codes, and labels to return a list of style
+        items for transtiions among classes in the format needed to generate
+        a style for a layer within the QGIS Trends.Earth plugin
+        """
+        # TODO: Need to handle translations in this function
+        out = [
+            {
+                "value": self.nodata.code,
+                "label": "No data",
+                "color": self.nodata.color,
+            },
+            {
+                "value": self.get_multiplier() - 1,
+                "label": "No change",
+                "color": "#ffffe0",
+            },
+        ]
+        max_code = None
+        for c in self.key:
+            if max_code is None or c.code > max_code:
+                max_code = c.code
+        for c in self.key:
+            if c.name_long:
+                name = c.name_long
+            else:
+                name = c.name_short
+            out.append(
+                {
+                    "value": self.get_multiplier() * c.code + max_code,
+                    "label": f"{name} loss",
+                    "color": c.color,
+                }
+            )
+        return out
+
+    def get_multiplier(self):
+        """Return multiplier for transition calculations
+
+        Used to figure out what number to multiply initial codes by so that,
+        when added to the final class code,  the result is the same as if the
+        class codes were concatenated as strings. For example: if the initial class
+        code were 7, and, the  final class code were 5, the transition would be
+        coded as 75)"""
+
+        return 10 ** math.ceil(max([c.code for c in self.key]) / 10.0)
+
 
 # Defines how a more detailed land cover legend nests within a
 # higher-level legend
@@ -419,8 +467,8 @@ class LCLegendNesting(SchemaBase):
         code were 7, and, the  final class code were 5, the transition would be
         coded as 75)"""
 
-        return (
-            math.ceil(max([c.code for c in self.child.key + self.parent.key]) / 10) * 10
+        return 10 ** math.ceil(
+            max([c.code for c in self.child.key + self.parent.key]) / 10.0
         )
 
 
@@ -562,7 +610,9 @@ class LCTransitionDefinitionBase(SchemaBase):
 
         for c_final in self.legend.key:
             for c_initial in self.legend.key:
-                out[0].append(c_initial.code * self.get_multiplier() + c_final.code)
+                out[0].append(
+                    c_initial.code * self.legend.get_multiplier() + c_final.code
+                )
                 trans = [
                     t
                     for t in m.transitions
@@ -582,7 +632,9 @@ class LCTransitionDefinitionBase(SchemaBase):
 
         for c_initial in self.legend.key:
             for c_final in self.legend.key:
-                original_code = c_initial.code * self.get_multiplier() + c_final.code
+                original_code = (
+                    c_initial.code * self.legend.get_multiplier() + c_final.code
+                )
                 out[0].append(original_code)
 
                 if c_final.code == c_initial.code:
@@ -598,38 +650,12 @@ class LCTransitionDefinitionBase(SchemaBase):
 
         for c_initial in self.legend.key:
             for c_final in self.legend.key:
-                out[c_initial.code * self.get_multiplier() + c_final.code] = {
+                out[c_initial.code * self.legend.get_multiplier() + c_final.code] = {
                     "initial": c_initial.code,
                     "final": c_final.code,
                 }
 
         return out
-
-    def get_transitions_ramp_items(self):
-        """
-        Uses the values, color hex codes, and labels to return a list of style
-        items for transtiions among classes in the format needed to generate
-        a style for a layer within the QGIS Trends.Earth plugin
-        """
-        out = []
-        for c in self.legend._key_with_nodata():
-            if c.name_long:
-                name = c.name_long
-            else:
-                name = c.name_short
-            out.append({"value": c.code, "label": name, "color": c.color})
-        return out
-
-    def get_multiplier(self):
-        """Return multiplier for transition calculations
-
-        Used to figure out what number to multiply initial codes so that,
-        when added to the final class code,  the result is the same as if the
-        class codes were concatenated as strings. For example: if the initial class
-        code were 7, and, the  final class code were 5, the transition would be
-        coded as 75)"""
-
-        return math.ceil(max([c.code for c in self.legend.key]) / 10) * 10
 
 
 @dataclass
