@@ -49,6 +49,12 @@ class LCClass(SchemaBase):
             if self_val != other_val:
                 object.__setattr__(self, attr, other_val)
 
+    def get_name_short(self):
+        if self.name_short and self.name_short != "":
+            return self.name_short
+        else:
+            return self.name_long[0:20]
+
     def translate(self, translations):
         self.name_short = translations.get(self.name_short, self.name_short)
         self.name_long = translations.get(self.name_long, self.name_long)
