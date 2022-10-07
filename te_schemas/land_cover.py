@@ -143,6 +143,11 @@ class LCLegend(SchemaBase):
         # Legacy support. Previous implementation raises an exception.
         return self.class_by_attr("code", code)
 
+    def class_index(self, lcc: LCClass) -> int:
+        # Returns index (1-based) of class after ordering key by codes
+        ordered_codes = sorted([c.code for c in self.key])
+        return ordered_codes.index(lcc) + 1
+
     def contains_key(self, code: int) -> bool:
         # Checks if there is a class with the given 'code'.
         lcc = self.class_by_code(code)
@@ -239,7 +244,6 @@ class LCLegend(SchemaBase):
                 "color": "#ffffe0",
             },
         ]
-        ordered_codes = sorted([c.code for c in self.key])
         for c in self.key:
             if c.name_long:
                 name = c.name_long
@@ -247,7 +251,7 @@ class LCLegend(SchemaBase):
                 name = c.name_short
             out.append(
                 {
-                    "value": ordered_codes.index(c.code) * self.get_multiplier()
+                    "value": self.class_index(c) * self.get_multiplier()
                     + len(self.key),
                     "label": f"{name} loss",
                     "color": c.color,
@@ -622,12 +626,11 @@ class LCTransitionDefinitionBase(SchemaBase):
             raise Exception
         out = [[], []]
 
-        ordered_codes = sorted([c.code for c in self.legend.key])
         for c_final in self.legend.key:
             for c_initial in self.legend.key:
                 out[0].append(
-                    ordered_codes.index(c_initial.code) * self.legend.get_multiplier()
-                    + ordered_codes.index(c_final.code)
+                    self.legend.class_index(c_initial) * self.legend.get_multiplier()
+                    + self.legend.class_index(c_final)
                 )
                 trans = [
                     t
@@ -646,12 +649,11 @@ class LCTransitionDefinitionBase(SchemaBase):
         QGIS."""
         out = [[], []]
 
-        ordered_codes = sorted([c.code for c in self.legend.key])
         for c_initial in self.legend.key:
             for c_final in self.legend.key:
-                original_code = ordered_codes.index(
-                    c_initial.code
-                ) * self.legend.get_multiplier() + ordered_codes.index(c_final.code)
+                original_code = self.legend.class_index(
+                    c_initial
+                ) * self.legend.get_multiplier() + self.legend.class_index(c_final)
                 out[0].append(original_code)
 
                 if c_final.code == c_initial.code:
@@ -665,12 +667,12 @@ class LCTransitionDefinitionBase(SchemaBase):
         """get key linking initial/final classes to their transition codes"""
         out = {}
 
-        ordered_codes = sorted([c.code for c in self.legend])
-        for c_initial in ordered_codes:
-            for c_final in ordered_codes:
+        ordered_legend = sorted([c for c in self.legend.orderByCode()])
+        for c_initial in ordered_legend:
+            for c_final in ordered_legend:
                 out[
-                    ordered_codes.index(c_initial.code) * self.legend.get_multiplier()
-                    + ordered_codes.index(c_final.code)
+                    self.legend.class_index(c_initial) * self.legend.get_multiplier()
+                    + self.legend.class_index(c_final)
                 ] = {
                     "initial": c_initial.code,
                     "final": c_final.code,
