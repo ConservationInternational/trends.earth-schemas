@@ -234,15 +234,12 @@ class LCLegend(SchemaBase):
                 "color": self.nodata.color,
             },
             {
-                "value": self.get_multiplier() - 1,
+                "value": len(self.key) - 1,
                 "label": "No change",
                 "color": "#ffffe0",
             },
         ]
-        max_code = None
-        for c in self.key:
-            if max_code is None or c.code > max_code:
-                max_code = c.code
+        ordered_codes = sorted([c.code for c in self.key])
         for c in self.key:
             if c.name_long:
                 name = c.name_long
@@ -250,7 +247,8 @@ class LCLegend(SchemaBase):
                 name = c.name_short
             out.append(
                 {
-                    "value": self.get_multiplier() * c.code + max_code,
+                    "value": ordered_codes.index(c.code) * self.get_multiplier()
+                    + len(self.key),
                     "label": f"{name} loss",
                     "color": c.color,
                 }
@@ -260,13 +258,18 @@ class LCLegend(SchemaBase):
     def get_multiplier(self):
         """Return multiplier for transition calculations
 
-        Used to figure out what number to multiply initial codes by so that,
-        when added to the final class code,  the result is the same as if the
-        class codes were concatenated as strings. For example: if the initial class
-        code were 7, and, the  final class code were 5, the transition would be
-        coded as 75)"""
+        Used to figure out what number to multiply an initial class code by so that
+        when added to a code for the class that a pixel transitions into, the result
+        is the same as if the two codes were concatenated as strings.
 
-        return 10 ** math.ceil(max([c.code for c in self.key]) / 10.0)
+        This function is retained for backwards-compatibility. The number
+        of classes in a legend in the QGIS plugin is limited 38, and the codes used
+        to represent classes in the transition layers are the position of each class
+        in an ordered list of class codes. This ensures a multiplier greater than 10
+        is never needed.
+        """
+
+        return 10
 
 
 # Defines how a more detailed land cover legend nests within a
@@ -467,15 +470,18 @@ class LCLegendNesting(SchemaBase):
     def get_multiplier(self):
         """Return multiplier for transition calculations
 
-        Used to figure out what number to multiply initial codes so that,
-        when added to the final class code,  the result is the same as if the
-        class codes were concatenated as strings. For example: if the initial class
-        code were 7, and, the  final class code were 5, the transition would be
-        coded as 75)"""
+        Used to figure out what number to multiply an initial class code by so that
+        when added to a code for the class that a pixel transitions into, the result
+        is the same as if the two codes were concatenated as strings.
 
-        return 10 ** math.ceil(
-            max([c.code for c in self.child.key + self.parent.key]) / 10.0
-        )
+        This function is retained for backwards-compatibility. The number
+        of classes in a legend in the QGIS plugin is limited 38, and the codes used
+        to represent classes in the transition layers are the position of each class
+        in an ordered list of class codes. This ensures a multiplier greater than 10
+        is never needed.
+        """
+
+        return 10
 
 
 ###############################################################################
@@ -614,10 +620,12 @@ class LCTransitionDefinitionBase(SchemaBase):
             raise Exception
         out = [[], []]
 
+        ordered_codes = sorted([c.code for c in self.legend.key])
         for c_final in self.legend.key:
             for c_initial in self.legend.key:
                 out[0].append(
-                    c_initial.code * self.legend.get_multiplier() + c_final.code
+                    ordered_codes.index(c_initial.code) * self.legend.get_multiplier()
+                    + ordered_codes.index(c_final.code)
                 )
                 trans = [
                     t
@@ -636,11 +644,12 @@ class LCTransitionDefinitionBase(SchemaBase):
         QGIS."""
         out = [[], []]
 
+        ordered_codes = sorted([c.code for c in self.legend.key])
         for c_initial in self.legend.key:
             for c_final in self.legend.key:
-                original_code = (
-                    c_initial.code * self.legend.get_multiplier() + c_final.code
-                )
+                original_code = ordered_codes.index(
+                    c_initial.code
+                ) * self.legend.get_multiplier() + ordered_codes.index(c_final.code)
                 out[0].append(original_code)
 
                 if c_final.code == c_initial.code:
@@ -654,14 +663,21 @@ class LCTransitionDefinitionBase(SchemaBase):
         """get key linking initial/final classes to their transition codes"""
         out = {}
 
-        for c_initial in self.legend.key:
-            for c_final in self.legend.key:
-                out[c_initial.code * self.legend.get_multiplier() + c_final.code] = {
+        ordered_codes = sorted([c.code for c in self.legend])
+        for c_initial in ordered_codes:
+            for c_final in ordered_codes:
+                out[
+                    ordered_codes.index(c_initial.code) * self.legend.get_multiplier()
+                    + ordered_codes.index(c_final.code)
+                ] = {
                     "initial": c_initial.code,
                     "final": c_final.code,
                 }
 
         return out
+
+    def get_definition(self, initial, final):
+        return self.definitions.meaning_by_transition(initial, final)
 
 
 @dataclass
