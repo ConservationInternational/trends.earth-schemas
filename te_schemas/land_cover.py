@@ -265,11 +265,11 @@ class LCLegend(SchemaBase):
         This function is retained for backwards-compatibility. The number
         of classes in a legend in the QGIS plugin is limited 38, and the codes used
         to represent classes in the transition layers are the position of each class
-        in an ordered list of class codes. This ensures a multiplier greater than 10
+        in an ordered list of class codes. This ensures a multiplier greater than 100
         is never needed.
         """
 
-        return 10
+        return 10 ** math.ceil(math.log10(max([c.code for c in self.key])))
 
 
 # Defines how a more detailed land cover legend nests within a
@@ -477,11 +477,13 @@ class LCLegendNesting(SchemaBase):
         This function is retained for backwards-compatibility. The number
         of classes in a legend in the QGIS plugin is limited 38, and the codes used
         to represent classes in the transition layers are the position of each class
-        in an ordered list of class codes. This ensures a multiplier greater than 10
+        in an ordered list of class codes. This ensures a multiplier greater than 100
         is never needed.
         """
 
-        return 10
+        return 10 ** math.ceil(
+            math.log10(max([c.code for c in self.child.key + self.parent.key]))
+        )
 
 
 ###############################################################################
