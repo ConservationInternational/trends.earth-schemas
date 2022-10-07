@@ -146,7 +146,7 @@ class LCLegend(SchemaBase):
     def class_index(self, lcc: LCClass) -> int:
         # Returns index (1-based) of class after ordering key by codes
         ordered_codes = sorted([c.code for c in self.key])
-        return ordered_codes.index(lcc) + 1
+        return ordered_codes.index(lcc.code) + 1
 
     def contains_key(self, code: int) -> bool:
         # Checks if there is a class with the given 'code'.
