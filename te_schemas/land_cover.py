@@ -657,7 +657,7 @@ class LCTransitionDefinitionBase(SchemaBase):
                 out[0].append(original_code)
 
                 if c_final.code == c_initial.code:
-                    out[1].append(c_initial.code)
+                    out[1].append(self.legend.class_index(c_initial))
                 else:
                     out[1].append(original_code)
 
@@ -667,7 +667,7 @@ class LCTransitionDefinitionBase(SchemaBase):
         """get key linking initial/final classes to their transition codes"""
         out = {}
 
-        ordered_legend = sorted([c for c in self.legend.orderByCode()])
+        ordered_legend = sorted([c for c in self.legend.orderByCode().key])
         for c_initial in ordered_legend:
             for c_final in ordered_legend:
                 out[
