@@ -273,7 +273,7 @@ class LCLegend(SchemaBase):
         is never needed.
         """
 
-        return 10 ** math.ceil(math.log10(max([c.code for c in self.key])))
+        return 10 ** math.ceil(math.log10(len(self.key)))
 
 
 # Defines how a more detailed land cover legend nests within a
@@ -486,7 +486,7 @@ class LCLegendNesting(SchemaBase):
         """
 
         return 10 ** math.ceil(
-            math.log10(max([c.code for c in self.child.key + self.parent.key]))
+            math.log10(max([len(self.child.key) + len(self.parent.key)]))
         )
 
 
