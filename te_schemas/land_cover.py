@@ -225,7 +225,7 @@ class LCLegend(SchemaBase):
             out.append({"value": c.code, "label": name, "color": c.color})
         return out
 
-    def get_transitions_ramp_items(self):
+    def get_transitions_ramp_items(self, translations={}):
         """
         Uses the values, color hex codes, and labels to return a list of style
         items for transtiions among classes in the format needed to generate
@@ -235,12 +235,12 @@ class LCLegend(SchemaBase):
         out = [
             {
                 "value": self.nodata.code,
-                "label": "No data",
+                "label": translations.get("No data", "No data"),
                 "color": self.nodata.color,
             },
             {
                 "value": len(self.key),
-                "label": "No change",
+                "label": translations.get("No change", "No change"),
                 "color": "#ffffe0",
             },
         ]
@@ -253,7 +253,7 @@ class LCLegend(SchemaBase):
                 {
                     "value": self.class_index(c) * self.get_multiplier()
                     + len(self.key),
-                    "label": f"{name} loss",
+                    "label": f"{translations.get('Loss', f'{name} loss')}",
                     "color": c.color,
                 }
             )
