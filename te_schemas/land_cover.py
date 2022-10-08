@@ -239,7 +239,7 @@ class LCLegend(SchemaBase):
                 "color": self.nodata.color,
             },
             {
-                "value": len(self.key) - 1,
+                "value": len(self.key),
                 "label": "No change",
                 "color": "#ffffe0",
             },
