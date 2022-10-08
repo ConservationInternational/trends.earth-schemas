@@ -486,7 +486,7 @@ class LCLegendNesting(SchemaBase):
         """
 
         return 10 ** math.ceil(
-            math.log10(max([len(self.child.key) + len(self.parent.key)]))
+            math.log10(max([len(self.child.key), len(self.parent.key)]))
         )
 
 
