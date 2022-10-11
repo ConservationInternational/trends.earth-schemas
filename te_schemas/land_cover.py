@@ -55,6 +55,12 @@ class LCClass(SchemaBase):
         else:
             return self.name_long[0:20]
 
+    def get_name(self):
+        if self.name_short and self.name_short != "":
+            return self.name_short
+        else:
+            return self.name_long
+
     def translate(self, translations):
         self.name_short = translations.get(self.name_short, self.name_short)
         self.name_long = translations.get(self.name_long, self.name_long)
@@ -667,9 +673,8 @@ class LCTransitionDefinitionBase(SchemaBase):
         """get key linking initial/final classes to their transition codes"""
         out = {}
 
-        ordered_legend = sorted([c for c in self.legend.orderByCode().key])
-        for c_initial in ordered_legend:
-            for c_final in ordered_legend:
+        for c_initial in self.legend.key:
+            for c_final in self.legend.key:
                 out[
                     self.legend.class_index(c_initial) * self.legend.get_multiplier()
                     + self.legend.class_index(c_final)
