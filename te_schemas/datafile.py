@@ -1,15 +1,18 @@
-from typing import List, Union
+from typing import List
+from typing import TYPE_CHECKING
+from typing import Union
 
 import marshmallow_dataclass
 
-from .jobs import Path
-from .results import Band
+if TYPE_CHECKING:
+    from .jobs import Path
+    from .results import Band
 
 
 @marshmallow_dataclass.dataclass
 class DataFile:
-    path: Path
-    bands: List[Band]
+    path: "Path"
+    bands: List["Band"]
 
     def indices_for_name(
         self, name_filter: Union[str, list], field: str = None, field_filter: str = None
@@ -82,7 +85,7 @@ class DataFile:
         self.bands = [b for d in datafiles for b in d.bands]
 
 
-def combine_data_files(path, datafiles: List[Band]) -> DataFile:
+def combine_data_files(path, datafiles: List["Band"]) -> DataFile:
     """combine multiple datafiles with same path into one object"""
 
     return DataFile(path=path, bands=[b for d in datafiles for b in d.bands])
