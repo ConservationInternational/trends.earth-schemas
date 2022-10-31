@@ -630,6 +630,7 @@ class LCTransitionDefinitionBase(SchemaBase):
             m = self.definitions
         else:
             raise Exception
+
         out = [[], []]
 
         for c_final in self.legend.key:
@@ -670,7 +671,11 @@ class LCTransitionDefinitionBase(SchemaBase):
         return out
 
     def get_transition_integers_key(self):
-        """get key linking initial/final classes to their transition codes"""
+        """
+        Get key linking initial/final classes to their transition codes
+
+        First keys are transition codes, values contain a dict of initial/final class
+        """
         out = {}
 
         for c_initial in self.legend.key:
@@ -682,6 +687,24 @@ class LCTransitionDefinitionBase(SchemaBase):
                     "initial": c_initial.code,
                     "final": c_final.code,
                 }
+
+        return out
+
+    def get_transition_initial_final_key(self):
+        """
+        Get key linking initial/final classes to their transition codes
+
+        First keys are transition codes, values contain a dict of initial/final class
+        """
+        out = {}
+
+        for c_initial in self.legend.key:
+            for c_final in self.legend.key:
+                if c_initial.code not in out:
+                    out[c_initial.code] = {}
+                out[c_initial.code][c_final.code] = self.legend.class_index(
+                    c_initial
+                ) * self.legend.get_multiplier() + self.legend.class_index(c_final)
 
         return out
 
