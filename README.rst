@@ -1,9 +1,9 @@
 trendsearth_schemas
 ===================
 
-.. image:: https://travis-ci.org/ConservationInternational/trends.earth-schemas.svg?branch=master
-    :target: https://travis-ci.org/ConservationInternational/trends.earth-schemas
-    :alt: Build Status 
+.. image:: https://github.com/ConservationInternational/trends.earth-schemas/actions/workflows/test.yaml/badge.svg
+    :target: https://github.com/ConservationInternational/trends.earth-schemas/actions/workflows/test.yaml
+    :alt: Test status 
 
 ``trendsearth_schemas`` is a python package that stores the schemas used for
 internal handling of the results of trends.earth analyses.
