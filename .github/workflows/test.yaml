@@ -1,11 +1,11 @@
-name: te_schemas
+name: Test
 
 on:
   workflow_dispatch:
   push:
     branches:
       - main
-      - test_ci
+      - develop
   pull_request:
     types:
       - opened
@@ -13,10 +13,10 @@ on:
       - synchronize
     branches:
       - main
+      - develop
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
