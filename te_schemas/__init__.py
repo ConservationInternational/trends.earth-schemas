@@ -1,6 +1,6 @@
 import logging
 
-from marshmallow_dataclass import class_schema
+from marshmallow.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 

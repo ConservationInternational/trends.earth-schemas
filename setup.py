@@ -1,11 +1,4 @@
-# Always prefer setuptools over distutils
-from codecs import open
-from os import path
-
-from setuptools import find_packages
 from setuptools import setup
-
-# To use a consistent encoding
 
 setup(
     name="te_schemas",
