@@ -57,8 +57,8 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         "typing-inspect==0.7.1",
-        "marshmallow>=3.17.0",
-        "marshmallow-dataclass[enum, union]==8.5.8",
+        "marshmallow>=3.18.0",
+        "marshmallow-dataclass[enum, union]==8.5.9",
     ],
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
