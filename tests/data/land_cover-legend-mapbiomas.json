@@ -1,0 +1,562 @@
+[
+	{
+		"lcc": {
+			"code": 14,
+			"color": "#FFFFB2",
+			"description": null,
+			"name_long": "Farming",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 3,
+			"color": "#FFFB6E",
+			"description": null,
+			"name_long": "Cropland",
+			"name_short": "Cropland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 15,
+			"color": "#FFD966",
+			"description": null,
+			"name_long": "Pasture",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 3,
+			"color": "#FFFB6E",
+			"description": null,
+			"name_long": "Cropland",
+			"name_short": "Cropland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 18,
+			"color": "#E974ED",
+			"description": null,
+			"name_long": "Agriculture",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 3,
+			"color": "#FFFB6E",
+			"description": null,
+			"name_long": "Cropland",
+			"name_short": "Cropland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 19,
+			"color": "#D5A6BD",
+			"description": null,
+			"name_long": "Temporary Crop",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 3,
+			"color": "#FFFB6E",
+			"description": null,
+			"name_long": "Cropland",
+			"name_short": "Cropland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 39,
+			"color": "#c59ff4",
+			"description": null,
+			"name_long": "Soybean",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 3,
+			"color": "#FFFB6E",
+			"description": null,
+			"name_long": "Cropland",
+			"name_short": "Cropland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 20,
+			"color": "#C27BA0",
+			"description": null,
+			"name_long": "Sugar Cane",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 3,
+			"color": "#FFFB6E",
+			"description": null,
+			"name_long": "Cropland",
+			"name_short": "Cropland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 40,
+			"color": "#982c9e",
+			"description": null,
+			"name_long": "Rice",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 3,
+			"color": "#FFFB6E",
+			"description": null,
+			"name_long": "Cropland",
+			"name_short": "Cropland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 62,
+			"color": "#660066",
+			"description": null,
+			"name_long": "Cotton (beta)",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 3,
+			"color": "#FFFB6E",
+			"description": null,
+			"name_long": "Cropland",
+			"name_short": "Cropland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 41,
+			"color": "#e787f8",
+			"description": null,
+			"name_long": "Other Temporary Crops",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 3,
+			"color": "#FFFB6E",
+			"description": null,
+			"name_long": "Cropland",
+			"name_short": "Cropland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 36,
+			"color": "#f3b4f1",
+			"description": null,
+			"name_long": "Perennial Crop",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 3,
+			"color": "#FFFB6E",
+			"description": null,
+			"name_long": "Cropland",
+			"name_short": "Cropland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 46,
+			"color": "#cca0d4",
+			"description": null,
+			"name_long": "Coffee",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 3,
+			"color": "#FFFB6E",
+			"description": null,
+			"name_long": "Cropland",
+			"name_short": "Cropland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 47,
+			"color": "#d082de",
+			"description": null,
+			"name_long": "Citrus",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 3,
+			"color": "#FFFB6E",
+			"description": null,
+			"name_long": "Cropland",
+			"name_short": "Cropland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 48,
+			"color": "#cd49e4",
+			"description": null,
+			"name_long": "Other Perennial Crops",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 3,
+			"color": "#FFFB6E",
+			"description": null,
+			"name_long": "Cropland",
+			"name_short": "Cropland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 9,
+			"color": "#935132",
+			"description": null,
+			"name_long": "Forest Plantation",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 3,
+			"color": "#FFFB6E",
+			"description": null,
+			"name_long": "Cropland",
+			"name_short": "Cropland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 21,
+			"color": "#FFEFC3",
+			"description": null,
+			"name_long": "Mosaic of Uses",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 3,
+			"color": "#FFFB6E",
+			"description": null,
+			"name_long": "Cropland",
+			"name_short": "Cropland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 11,
+			"color": "#45C2A5",
+			"description": null,
+			"name_long": "Wetland",
+			"name_short": "Wetland"
+		},
+		"parent": {
+			"code": 4,
+			"color": "#00DB84",
+			"description": null,
+			"name_long": "Wetland",
+			"name_short": "Wetland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 24,
+			"color": "#af2a2a",
+			"description": null,
+			"name_long": "Urban Area",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 5,
+			"color": "#E60017",
+			"description": null,
+			"name_long": "Artificial",
+			"name_short": "Artificial"
+		}
+	},
+	{
+		"lcc": {
+			"code": 22,
+			"color": "#EA9999",
+			"description": null,
+			"name_long": "Non vegetated area",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 6,
+			"color": "#FFF3D7",
+			"description": null,
+			"name_long": "Other land",
+			"name_short": "Bare land"
+		}
+	},
+	{
+		"lcc": {
+			"code": 23,
+			"color": "#DD7E6B",
+			"description": null,
+			"name_long": "Beach, Dune and Sand Spot ",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 6,
+			"color": "#FFF3D7",
+			"description": null,
+			"name_long": "Other land",
+			"name_short": "Bare land"
+		}
+	},
+	{
+		"lcc": {
+			"code": 30,
+			"color": "#8A2BE2",
+			"description": null,
+			"name_long": "Mining",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 6,
+			"color": "#FFF3D7",
+			"description": null,
+			"name_long": "Other land",
+			"name_short": "Bare land"
+		}
+	},
+	{
+		"lcc": {
+			"code": 25,
+			"color": "#FF99FF",
+			"description": null,
+			"name_long": "Other non Vegetated Areas",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 6,
+			"color": "#FFF3D7",
+			"description": null,
+			"name_long": "Other land",
+			"name_short": "Bare land"
+		}
+	},
+	{
+		"lcc": {
+			"code": 31,
+			"color": "#29EEE4",
+			"description": null,
+			"name_long": "Aquaculture",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 7,
+			"color": "#0053C4",
+			"description": null,
+			"name_long": "Water body",
+			"name_short": "Water body"
+		}
+	},
+	{
+		"lcc": {
+			"code": 33,
+			"color": "#0000FF",
+			"description": null,
+			"name_long": "River, Lake and Ocean",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 7,
+			"color": "#0053C4",
+			"description": null,
+			"name_long": "Water body",
+			"name_short": "Water body"
+		}
+	},
+	{
+		"lcc": {
+			"code": 26,
+			"color": "#0000FF",
+			"description": null,
+			"name_long": "Water",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 7,
+			"color": "#0053C4",
+			"description": null,
+			"name_long": "Water body",
+			"name_short": "Water body"
+		}
+	},
+	{
+		"lcc": {
+			"code": 13,
+			"color": "#BDB76B",
+			"description": null,
+			"name_long": "Other non Forest Formations",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 2,
+			"color": "#FFAC42",
+			"description": null,
+			"name_long": "Grassland",
+			"name_short": "Grassland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 50,
+			"color": "#66ffcc",
+			"description": null,
+			"name_long": "Herbaceous Sandbank Vegetation",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 2,
+			"color": "#FFAC42",
+			"description": null,
+			"name_long": "Grassland",
+			"name_short": "Grassland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 29,
+			"color": "#FF8C00",
+			"description": null,
+			"name_long": "Rocky Outcrop",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 2,
+			"color": "#FFAC42",
+			"description": null,
+			"name_long": "Grassland",
+			"name_short": "Grassland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 32,
+			"color": "#968c46",
+			"description": null,
+			"name_long": "Hypersaline Tidal Flat",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 2,
+			"color": "#FFAC42",
+			"description": null,
+			"name_long": "Grassland",
+			"name_short": "Grassland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 12,
+			"color": "#B8AF4F",
+			"description": null,
+			"name_long": "Grassland",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 2,
+			"color": "#FFAC42",
+			"description": null,
+			"name_long": "Grassland",
+			"name_short": "Grassland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 10,
+			"color": "#BBFCAC",
+			"description": null,
+			"name_long": "Non Forest Natural Formation",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 2,
+			"color": "#FFAC42",
+			"description": null,
+			"name_long": "Grassland",
+			"name_short": "Grassland"
+		}
+	},
+	{
+		"lcc": {
+			"code": 49,
+			"color": "#6b9932",
+			"description": null,
+			"name_long": "Wooded Sandbank Vegetation",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 1,
+			"color": "#787F1B",
+			"description": null,
+			"name_long": "Tree-covered",
+			"name_short": "Tree-covered"
+		}
+	},
+	{
+		"lcc": {
+			"code": 5,
+			"color": "#687537",
+			"description": null,
+			"name_long": "Mangrove",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 1,
+			"color": "#787F1B",
+			"description": null,
+			"name_long": "Tree-covered",
+			"name_short": "Tree-covered"
+		}
+	},
+	{
+		"lcc": {
+			"code": 4,
+			"color": "#32CD32",
+			"description": null,
+			"name_long": "Savanna Formation",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 1,
+			"color": "#787F1B",
+			"description": null,
+			"name_long": "Tree-covered",
+			"name_short": "Tree-covered"
+		}
+	},
+	{
+		"lcc": {
+			"code": 1,
+			"color": "#129912",
+			"description": null,
+			"name_long": "Forest",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 1,
+			"color": "#787F1B",
+			"description": null,
+			"name_long": "Tree-covered",
+			"name_short": "Tree-covered"
+		}
+	},
+	{
+		"lcc": {
+			"code": 3,
+			"color": "#006400",
+			"description": null,
+			"name_long": "Forest Formation",
+			"name_short": ""
+		},
+		"parent": {
+			"code": 1,
+			"color": "#787F1B",
+			"description": null,
+			"name_long": "Tree-covered",
+			"name_short": "Tree-covered"
+		}
+	}
+]
