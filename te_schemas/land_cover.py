@@ -29,13 +29,13 @@ class LCClass(SchemaBase):
     name_long: str = field(
         default=None, metadata={"validate": validate.Length(max=120)}
     )
-    description: str | None = field(default=None)
-    color: str | None = field(
+    description: Optional[str] = field(default=None)
+    color: Optional[str] = field(
         default=None,
         metadata={"validate": validate.Regexp("^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$")},
     )
 
-    def update(self, other: LCClass):
+    def update(self, other: "LCClass"):
         """
         Update this object with attribute values from another LCClass object.
         Does not update 'code' since its assumed to be the unique identifier.
@@ -84,7 +84,7 @@ class LCClass(SchemaBase):
 @dataclass
 class LCLegend(SchemaBase):
     name: str
-    key: list[LCClass] = field(default_factory=list)
+    key: List[LCClass] = field(default_factory=list)
     nodata: LCClass = field(default_factory=None)
 
     def __post_init__(self):
@@ -290,7 +290,7 @@ class LCLegendNesting(SchemaBase):
     child: LCLegend
     # nesting is a dict where the keys are the parent classes, and the items
     # are the child classes
-    nesting: dict[int, list[int]] = field(default_factory=dict)
+    nesting: Dict[int, List[int]] = field(default_factory=dict)
 
     def __post_init__(self):
         # Get all parent and child codes listed in nesting
@@ -380,13 +380,13 @@ class LCLegendNesting(SchemaBase):
         """
         return self.child.class_by_code(code)
 
-    def add_update_parent(self, parent_lcc: LCClass, children: list[LCClass] | None):
+    def add_update_parent(self, parent_lcc: LCClass, children: Optional[List[LCClass]]):
         # Add new or update existing parent class with the given children.
         self.parent.add_update_class(parent_lcc)
         if children is not None and len(children) > 0:
             self.add_update_children(children, parent_lcc)
 
-    def add_update_children(self, children: list[LCClass], parent_lcc: LCClass) -> bool:
+    def add_update_children(self, children: List[LCClass], parent_lcc: LCClass) -> bool:
         """
         Add children to the given parent. If parent does not exist it will
         return False.
@@ -412,7 +412,7 @@ class LCLegendNesting(SchemaBase):
 
         return True
 
-    def children_for_parent(self, parent_lcc: LCClass) -> list[LCClass]:
+    def children_for_parent(self, parent_lcc: LCClass) -> List[LCClass]:
         """
         Get children for the given parent. Returns an empty list if the
         parent does not exist.
@@ -429,7 +429,7 @@ class LCLegendNesting(SchemaBase):
 
         return children
 
-    def orphan_children(self) -> list[LCClass]:
+    def orphan_children(self) -> List[LCClass]:
         """
         Returns a list of orphaned children i.e. without parents defined
         through nesting.
@@ -526,7 +526,7 @@ class LCTransitionMatrixBase(SchemaBase):
 
     def meaning_by_transition(
         self, initial: LCClass, final: LCClass
-    ) -> LCTransitionMeaningDeg:
+    ) -> "LCTransitionMeaningDeg":
         """
         Returns the meanings which contain the given land cover classes for
         initial and final respectively. Differs from
@@ -543,7 +543,7 @@ class LCTransitionMatrixBase(SchemaBase):
 
         return matches[0]
 
-    def meanings_by_class(self, lcc: LCClass) -> list[LCTransitionMeaningDeg]:
+    def meanings_by_class(self, lcc: LCClass) -> List["LCTransitionMeaningDeg"]:
         """
         Returns the meanings which contain the given land cover class in the
         'initial' and/or 'final' attributes.
@@ -718,7 +718,7 @@ class LCTransitionMeaning(SchemaBase):
     final: LCClass
     meaning: Any  # Override with particular type when subclassed
 
-    def contains_class(self, lcc: LCClass) -> tuple[bool, list]:
+    def contains_class(self, lcc: LCClass) -> Tuple[bool, list]:
         """
         Return False if the given class does not exist in the 'initial'
         and/or 'initial' attributes, else returns True together with the
@@ -773,7 +773,7 @@ class LCTransitionMeaningDeg(LCTransitionMeaning):
 
 @dataclass
 class LCTransitionMatrixDeg(LCTransitionMatrixBase):
-    transitions: list[LCTransitionMeaningDeg]
+    transitions: List[LCTransitionMeaningDeg]
 
     def remove_meanings_by_class(self, lcc: LCClass) -> bool:
         """

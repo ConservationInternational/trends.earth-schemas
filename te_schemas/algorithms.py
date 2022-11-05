@@ -1,13 +1,12 @@
+from dataclasses import field, dataclass
 import enum
-import re
 import typing
 import uuid
-from dataclasses import dataclass
-from dataclasses import field
+import re
 
 import marshmallow_dataclass
-from marshmallow import EXCLUDE
-from marshmallow import pre_load
+
+from marshmallow import pre_load, EXCLUDE
 
 from te_schemas import SchemaBase
 

@@ -1,5 +1,4 @@
-from . import SchemaBase
-from . import validate_matrix
+from . import SchemaBase, validate_matrix
 from .land_cover import LCLegend
 
 

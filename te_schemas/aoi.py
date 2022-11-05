@@ -24,7 +24,7 @@ def _get_bounding_box_geom(geom):
 
 # TODO: Doesn't yet work on points
 @dataclass
-class AOI:
+class AOI(object):
     geojson: dict
 
     @property

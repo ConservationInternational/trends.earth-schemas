@@ -1,8 +1,9 @@
 import pathlib
-import re
 
 import marshmallow_dataclass
 from marshmallow import fields
+
+import re
 
 
 class PathField(fields.Field):

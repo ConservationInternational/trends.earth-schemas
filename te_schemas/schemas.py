@@ -36,7 +36,7 @@ class AreaOfInterest:
 # Schema for numeric data for plotting within a timeseries object
 
 
-class TimeSeries:
+class TimeSeries(object):
     def __init__(self, time, y, name=None):
         self.time = time
         self.y = y
@@ -49,7 +49,7 @@ class TimeSeriesSchema(Schema):
     name = fields.Str()
 
 
-class TimeSeriesTable:
+class TimeSeriesTable(object):
     def __init__(self, name, table):
         self.type = "TimeSeriesTable"
         self.name = name
@@ -66,7 +66,7 @@ class TimeSeriesTableSchema(Schema):
 # Schema for storing information on bands
 
 
-class BandInfo:
+class BandInfo(object):
     def __init__(
         self, name, add_to_map=False, activated=True, metadata={}, no_data_value=-32768
     ):
@@ -89,7 +89,7 @@ class BandInfoSchema(Schema):
 # Schema for output from cloud calculations
 
 
-class Url:
+class Url(object):
     def __init__(self, url, md5Hash=""):
         self.url = url
         self.md5Hash = md5Hash
@@ -100,7 +100,7 @@ class UrlSchema(Schema):
     md5Hash = fields.Str()
 
 
-class CloudResults:
+class CloudResults(object):
     def __init__(self, name, bands, urls):
         self.type = "CloudResults"
         self.name = name
@@ -125,7 +125,7 @@ class CloudResultsSchema(Schema):
 # Schema for plot output to cloud storage as PNG
 
 
-class ImageryPNG:
+class ImageryPNG(object):
     def __init__(self, name, lang, title, date, about, url):
         self.type = "ImageryPNG"
         self.name = name
@@ -167,7 +167,7 @@ class APIResponseSchema(Schema):
 # Schema used for all TE results (cloud or local)
 
 
-class LocalRaster:
+class LocalRaster(object):
     def __init__(self, file, bands, metadata):
         self.file = file
         self.bands = bands
@@ -180,7 +180,7 @@ class LocalRasterSchema(Schema):
     metadata = fields.Dict(required=True)
 
 
-class LocalTable:
+class LocalTable(object):
     def __init__(self, data, metadata):
         self.data = data
         self.metadata = metadata
