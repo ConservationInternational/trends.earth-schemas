@@ -8,9 +8,9 @@ from dataclasses import field
 import marshmallow
 import marshmallow_dataclass
 
-Url = marshmallow_dataclass.NewType("Url", str, field=marshmallow.fields.Url)
+from .path import FilePath
 
-from .path import Path
+Url = marshmallow_dataclass.NewType("Url", str, field=marshmallow.fields.Url)
 
 
 class ResultType(enum.Enum):
@@ -67,7 +67,7 @@ class Etag:
 
 @marshmallow_dataclass.dataclass
 class URI:
-    uri: typing.Union[Url, Path]
+    uri: typing.Union[Url, FilePath]
     type: str = field(
         metadata={"validate": marshmallow.validate.OneOf(["local", "cloud"])}
     )
@@ -178,7 +178,7 @@ class RasterResults:
 
     def update_uris(self, job_path):
         for uri in self.get_all_uris():
-            possible_path = Path(job_path.parent / uri.uri.name).resolve()
+            possible_path = FilePath(job_path.parent / uri.uri.name).resolve()
             if not uri.uri.exists() and possible_path.exists():
                 uri.uri = possible_path
 
@@ -189,7 +189,7 @@ class EmptyResults:
         unknown = marshmallow.EXCLUDE
 
     name: typing.Optional[str] = None
-    data_path: typing.Optional[Path] = None
+    data_path: typing.Optional[FilePath] = None
     type: ResultType = dataclasses.field(
         default=ResultType.EMPTY_RESULTS,
         metadata={
@@ -207,8 +207,8 @@ class CloudResults:
     name: str
     bands: typing.List[Band]
     urls: typing.List[Url]
-    data_path: typing.Optional[Path] = dataclasses.field(default=None)
-    other_paths: typing.Optional[typing.List[Path]] = dataclasses.field(
+    data_path: typing.Optional[FilePath] = dataclasses.field(default=None)
+    other_paths: typing.Optional[typing.List[FilePath]] = dataclasses.field(
         default_factory=list
     )
     data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
@@ -241,7 +241,7 @@ class FileResults:
 
     def update_uris(self, job_path):
         for uri in [self.uri, *self.other_uris]:
-            possible_path = Path(job_path.parent / uri.uri.name).resolve()
+            possible_path = FilePath(job_path.parent / uri.uri.name).resolve()
             if not uri.uri.exists() and possible_path.exists():
                 uri.uri = possible_path
 
@@ -307,6 +307,6 @@ class VectorResults:
 
     def update_uris(self, job_path):
         for uri in [self.uri, self.vector.uri]:
-            possible_path = Path(job_path.parent / uri.uri.name).resolve()
+            possible_path = FilePath(job_path.parent / uri.uri.name).resolve()
             if possible_path.exists():
                 uri.uri = possible_path
