@@ -9,7 +9,6 @@ import marshmallow_dataclass
 from marshmallow import post_load
 from marshmallow import pre_load
 
-from . import SchemaBase
 from .algorithms import ExecutionScript
 from .path import FilePath
 from .results import EmptyResults

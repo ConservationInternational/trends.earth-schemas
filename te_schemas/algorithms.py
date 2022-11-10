@@ -1,8 +1,6 @@
 import enum
-import re
 import typing
 import uuid
-from dataclasses import dataclass
 from dataclasses import field
 
 import marshmallow_dataclass

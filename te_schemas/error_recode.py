@@ -7,7 +7,6 @@ from typing import Tuple
 from typing import Type
 
 from marshmallow import EXCLUDE
-from marshmallow import pre_load
 from marshmallow import validate
 from marshmallow_dataclass import dataclass
 
