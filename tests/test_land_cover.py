@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 import pytest
+from marshmallow.exceptions import ValidationError
 
 from te_schemas import land_cover
 
@@ -18,7 +19,7 @@ def test_legend_nesting():
         _get_json("land_cover-nesting-unccd_esa.json")
     )
 
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         # Below is wrong type
         land_cover.LCLegendNesting.Schema().load(
             _get_json("land_cover-legend-mapbiomas.json")

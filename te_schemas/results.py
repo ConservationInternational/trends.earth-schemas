@@ -1,16 +1,62 @@
+from __future__ import annotations
+
 import base64
 import binascii
 import dataclasses
 import enum
+import pathlib
 import typing
-from dataclasses import field
 
 import marshmallow
 import marshmallow_dataclass
+from marshmallow import EXCLUDE
+from marshmallow import fields
+from marshmallow import validate
+from marshmallow.exceptions import ValidationError
+from marshmallow_dataclass.typing import Url
 
-from .path import FilePath
 
-Url = marshmallow_dataclass.NewType("Url", str, field=marshmallow.fields.Url)
+class PathValidator(validate.Regexp):
+    def __call__(self, value):
+        if self.regex.match(str(value)) is None:
+            raise ValidationError(self._format_error(value))
+
+        return value
+
+
+class VSIPathField(fields.Field):
+    def _serialize(self, value: pathlib.PurePosixPath, attr, obj, **kwargs):
+        if value is None:
+            return ""
+
+        return str(value)
+
+    def _deserialize(self, value: dict, attr, data, **kwargs):
+        return pathlib.PurePosixPath(value)
+
+
+VSIPath = marshmallow_dataclass.NewType(
+    "VSIPath",
+    pathlib.PurePosixPath,
+    validate=PathValidator(r"/vsi(s3)|(gs)"),
+    field=VSIPathField,
+)
+
+
+class LocalPathField(fields.Field):
+    def _serialize(self, value: pathlib.Path, attr, obj, **kwargs):
+        if value is None:
+            return ""
+
+        return str(value)
+
+    def _deserialize(self, value: dict, attr, data, **kwargs):
+        return pathlib.Path(value)
+
+
+LocalPath = marshmallow_dataclass.NewType(
+    "LocalPath", pathlib.Path, field=LocalPathField
+)
 
 
 class ResultType(enum.Enum):
@@ -67,10 +113,11 @@ class Etag:
 
 @marshmallow_dataclass.dataclass
 class URI:
-    uri: typing.Union[Url, FilePath]
-    type: str = field(
-        metadata={"validate": marshmallow.validate.OneOf(["local", "cloud"])}
-    )
+    class Meta:
+        # Below is needed as URI used to include a type field, which is now deprecated
+        unknown = EXCLUDE
+
+    uri: typing.Union[Url, VSIPath, LocalPath, None]
     etag: typing.Optional[Etag] = None
 
 
@@ -99,7 +146,7 @@ class TiledRaster:
         default=RasterType.TILED_RASTER,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(RasterType.TILED_RASTER),
+            "validate": validate.Equal(RasterType.TILED_RASTER),
         },
     )
 
@@ -115,7 +162,7 @@ class Raster:
         default=RasterType.ONE_FILE_RASTER,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(RasterType.ONE_FILE_RASTER),
+            "validate": validate.Equal(RasterType.ONE_FILE_RASTER),
         },
     )
 
@@ -132,7 +179,7 @@ class RasterResults:
         default=ResultType.RASTER_RESULTS,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(ResultType.RASTER_RESULTS),
+            "validate": validate.Equal(ResultType.RASTER_RESULTS),
         },
     )
 
@@ -178,7 +225,7 @@ class RasterResults:
 
     def update_uris(self, job_path):
         for uri in self.get_all_uris():
-            possible_path = FilePath(job_path.parent / uri.uri.name).resolve()
+            possible_path = pathlib.Path(job_path.parent / uri.uri.name).resolve()
             if not uri.uri.exists() and possible_path.exists():
                 uri.uri = possible_path
 
@@ -189,12 +236,12 @@ class EmptyResults:
         unknown = marshmallow.EXCLUDE
 
     name: typing.Optional[str] = None
-    data_path: typing.Optional[FilePath] = None
+    data_path: typing.Optional[typing.Union[VSIPath, LocalPath]] = None
     type: ResultType = dataclasses.field(
         default=ResultType.EMPTY_RESULTS,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(ResultType.EMPTY_RESULTS),
+            "validate": validate.Equal(ResultType.EMPTY_RESULTS),
         },
     )
 
@@ -207,16 +254,18 @@ class CloudResults:
     name: str
     bands: typing.List[Band]
     urls: typing.List[Url]
-    data_path: typing.Optional[FilePath] = dataclasses.field(default=None)
-    other_paths: typing.Optional[typing.List[FilePath]] = dataclasses.field(
-        default_factory=list
+    data_path: typing.Optional[typing.Union[VSIPath, LocalPath]] = dataclasses.field(
+        default=None
     )
+    other_paths: typing.Optional[
+        typing.List[typing.Union[VSIPath, LocalPath]]
+    ] = dataclasses.field(default_factory=list)
     data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
     type: ResultType = dataclasses.field(
         default=ResultType.CLOUD_RESULTS,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(ResultType.CLOUD_RESULTS),
+            "validate": validate.Equal(ResultType.CLOUD_RESULTS),
         },
     )
 
@@ -235,13 +284,13 @@ class FileResults:
         default=ResultType.FILE_RESULTS,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(ResultType.FILE_RESULTS),
+            "validate": validate.Equal(ResultType.FILE_RESULTS),
         },
     )
 
     def update_uris(self, job_path):
         for uri in [self.uri, *self.other_uris]:
-            possible_path = FilePath(job_path.parent / uri.uri.name).resolve()
+            possible_path = pathlib.Path(job_path.parent / uri.uri.name).resolve()
             if not uri.uri.exists() and possible_path.exists():
                 uri.uri = possible_path
 
@@ -258,7 +307,7 @@ class JsonResults:
         default=ResultType.JSON_RESULTS,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(ResultType.JSON_RESULTS),
+            "validate": validate.Equal(ResultType.JSON_RESULTS),
         },
     )
 
@@ -274,7 +323,7 @@ class TimeSeriesTableResult:
         default=ResultType.TIME_SERIES_TABLE,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(ResultType.TIME_SERIES_TABLE),
+            "validate": validate.Equal(ResultType.TIME_SERIES_TABLE),
         },
     )
 
@@ -286,7 +335,7 @@ class VectorFalsePositive:
         default=VectorType.ERROR_RECODE,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(VectorType.ERROR_RECODE),
+            "validate": validate.Equal(VectorType.ERROR_RECODE),
         },
     )
 
@@ -300,13 +349,13 @@ class VectorResults:
         default=ResultType.VECTOR_RESULTS,
         metadata={
             "by_value": True,
-            "validate": marshmallow.validate.Equal(ResultType.VECTOR_RESULTS),
+            "validate": validate.Equal(ResultType.VECTOR_RESULTS),
         },
     )
     uri: typing.Optional[URI] = None
 
     def update_uris(self, job_path):
         for uri in [self.uri, self.vector.uri]:
-            possible_path = FilePath(job_path.parent / uri.uri.name).resolve()
+            possible_path = pathlib.Path(job_path.parent / uri.uri.name).resolve()
             if possible_path.exists():
                 uri.uri = possible_path

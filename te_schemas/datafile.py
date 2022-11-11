@@ -1,16 +1,15 @@
 from typing import List
-from typing import TYPE_CHECKING
 from typing import Union
 
 import marshmallow_dataclass
 
-from .jobs import Path
 from .results import Band
+from .results import LocalPath
 
 
 @marshmallow_dataclass.dataclass
 class DataFile:
-    path: Path
+    path: LocalPath
     bands: List[Band]
 
     def indices_for_name(

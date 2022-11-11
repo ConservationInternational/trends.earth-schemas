@@ -32,7 +32,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "marshmallow>=3.18.0",
-        "marshmallow-dataclass[enum, union]==8.5.9",
+        "marshmallow-dataclass[enum, union]==8.5.10",
     ],
     extras_require={
         "dev": ["check-manifest"],

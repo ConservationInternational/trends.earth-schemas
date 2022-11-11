@@ -10,10 +10,10 @@ from marshmallow import post_load
 from marshmallow import pre_load
 
 from .algorithms import ExecutionScript
-from .path import FilePath
 from .results import EmptyResults
 from .results import FileResults
 from .results import JsonResults
+from .results import LocalPath
 from .results import RasterResults
 from .results import TimeSeriesTableResult
 from .results import VectorResults
@@ -62,7 +62,7 @@ class RemoteScript:
 
 @marshmallow_dataclass.dataclass
 class JobLocalContext:
-    base_dir: FilePath = dataclasses.field(default=None)
+    base_dir: LocalPath = dataclasses.field(default=None)
     area_of_interest_name: str = dataclasses.field(default="unknown-area")
 
 
