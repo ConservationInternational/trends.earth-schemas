@@ -229,6 +229,33 @@ class RasterResults:
             if not uri.uri.exists() and possible_path.exists():
                 uri.uri = possible_path
 
+    def combine(self, other):
+        "Merge with another RasterResults with matching bands"
+
+        assert sorted(self.rasters.keys()) == sorted(other.rasters.keys())
+        assert self.data == other.data
+        for key in self.rasters:
+            assert self.rasters[key].bands == other.rasters[key].bands
+            assert self.rasters[key].datatype == other.rasters[key].datatype
+            assert self.rasters[key].filetype == other.rasters[key].filetype
+
+            tile_uris = []
+            if self.rasters[key].type == RasterType.ONE_FILE_RASTER:
+                tile_uris.append(self.rasters[key].uri)
+            elif self.rasters[key].type == RasterType.TILED_RASTER:
+                tile_uris.append(self.rasters[key].tile_uris)
+            if other.rasters[key].type == RasterType.ONE_FILE_RASTER:
+                tile_uris.append(other.rasters[key].uri)
+            elif other.rasters[key].type == RasterType.TILED_RASTER:
+                tile_uris.append(other.rasters[key].tile_uris)
+
+            self.rasters[key] = TiledRaster(
+                tile_uris=tile_uris,
+                bands=self.rasters[key].bands,
+                datatype=self.rasters[key].datatype,
+                filetype=self.rasters[key].datatype,
+            )
+
 
 @marshmallow_dataclass.dataclass
 class EmptyResults:
