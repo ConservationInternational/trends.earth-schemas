@@ -109,6 +109,7 @@ def test_raster_results_combine_raster():
     for value in base.rasters.values():
         assert len(value.tile_uris) == 2
         assert isinstance(value, TiledRaster)
+    RasterResults.Schema().dump(base)
 
 
 def test_raster_results_combine_tiledraster():
@@ -123,6 +124,7 @@ def test_raster_results_combine_tiledraster():
     for value in base.rasters.values():
         assert len(value.tile_uris) == 2
         assert isinstance(value, TiledRaster)
+    RasterResults.Schema().dump(base)
 
 
 def test_raster_results_combine_tiledraster_raster():
@@ -136,3 +138,4 @@ def test_raster_results_combine_tiledraster_raster():
     for value in base.rasters.values():
         assert len(value.tile_uris) == 2
         assert isinstance(value, TiledRaster)
+    RasterResults.Schema().dump(base)
