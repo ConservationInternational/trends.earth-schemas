@@ -253,7 +253,7 @@ class RasterResults:
                 tile_uris=tile_uris,
                 bands=self.rasters[key].bands,
                 datatype=self.rasters[key].datatype,
-                filetype=self.rasters[key].datatype,
+                filetype=self.rasters[key].filetype,
             )
 
 
