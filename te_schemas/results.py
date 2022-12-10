@@ -243,11 +243,11 @@ class RasterResults:
             if self.rasters[key].type == RasterType.ONE_FILE_RASTER:
                 tile_uris.append(self.rasters[key].uri)
             elif self.rasters[key].type == RasterType.TILED_RASTER:
-                tile_uris.append(self.rasters[key].tile_uris)
+                tile_uris.extend(self.rasters[key].tile_uris)
             if other.rasters[key].type == RasterType.ONE_FILE_RASTER:
                 tile_uris.append(other.rasters[key].uri)
             elif other.rasters[key].type == RasterType.TILED_RASTER:
-                tile_uris.append(other.rasters[key].tile_uris)
+                tile_uris.extend(other.rasters[key].tile_uris)
 
             self.rasters[key] = TiledRaster(
                 tile_uris=tile_uris,

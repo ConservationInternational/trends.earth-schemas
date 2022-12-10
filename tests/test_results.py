@@ -29,14 +29,20 @@ dummy_Raster_float32 = Raster(
 )
 
 dummy_TiledRaster_int16 = TiledRaster(
-    tile_uris=[URI("https://test.com/test/test_int16.tif", etag=None)],
+    tile_uris=[
+        URI("https://test.com/test/test_int16_1.tif", etag=None),
+        URI("https://test.com/test/test_int16_2.tif", etag=None),
+    ],
     bands=[dummy_Band],
     datatype=DataType.INT16,
     filetype=RasterFileType.GEOTIFF,
 )
 
 dummy_TiledRaster_float32 = TiledRaster(
-    tile_uris=[URI("https://test.com/test/test_float32.tif", etag=None)],
+    tile_uris=[
+        URI("https://test.com/test/test_float32_1.tif", etag=None),
+        URI("https://test.com/test/test_float32_2.tif", etag=None),
+    ],
     bands=[dummy_Band],
     datatype=DataType.FLOAT32,
     filetype=RasterFileType.GEOTIFF,
@@ -122,7 +128,7 @@ def test_raster_results_combine_tiledraster():
         assert isinstance(value, TiledRaster)
     base.combine(other)
     for value in base.rasters.values():
-        assert len(value.tile_uris) == 2
+        assert len(value.tile_uris) == 4
         assert isinstance(value, TiledRaster)
     RasterResults.Schema().dump(base)
 
@@ -136,6 +142,6 @@ def test_raster_results_combine_tiledraster_raster():
 
     base.combine(other)
     for value in base.rasters.values():
-        assert len(value.tile_uris) == 2
+        assert len(value.tile_uris) == 3
         assert isinstance(value, TiledRaster)
     RasterResults.Schema().dump(base)
