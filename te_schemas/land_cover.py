@@ -61,6 +61,12 @@ class LCClass(SchemaBase):
         else:
             return self.name_long
 
+    def get_name_long(self):
+        if self.name_long and self.name_long != "":
+            return self.name_long
+        else:
+            return self.name_short
+
     def translate(self, translations):
         self.name_short = translations.get(self.name_short, self.name_short)
         self.name_long = translations.get(self.name_long, self.name_long)
@@ -622,7 +628,7 @@ class LCTransitionDefinitionBase(SchemaBase):
         """Get transition matrix, in GEE format"""
 
         if isinstance(self.definitions, dict):
-            if key == None:
+            if key is None:
                 raise Exception
             else:
                 m = self.definitions[key]
