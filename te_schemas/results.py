@@ -196,6 +196,8 @@ class RasterResults:
     def get_all_uris(self):
         if self.uri:
             uris = [self.uri]  # main vrt
+        else:
+            uris = []
 
         for raster in self.rasters.values():
             if raster.uri:
