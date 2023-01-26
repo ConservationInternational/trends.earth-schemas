@@ -216,6 +216,7 @@ class LandConditionProgressReport:
     land_cover: AreaList
     soil_organic_carbon: Dict[str, AreaList]
     error_recode: Optional[ErrorRecodePolygons] = field(default=None)
+    sdg_error_recode: Optional[AreaList] = field(default=None)
 
     class Meta:
         ordered = True
