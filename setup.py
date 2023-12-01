@@ -31,6 +31,7 @@ setup(
     package_data={"te_schemas": ["version.json"]},
     include_package_data=True,
     install_requires=[
+        "defusedxml>=0.7.1",
         "marshmallow>=3.18.0",
         "marshmallow-dataclass[enum, union]==8.5.10",
     ],
