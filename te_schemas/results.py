@@ -136,12 +136,12 @@ class TiledRaster:
     bands: typing.List[Band]
     datatype: DataType = dataclasses.field(metadata={"by_value": True})
     filetype: RasterFileType = dataclasses.field(metadata={"by_value": True})
-    uri: typing.Optional[
-        URI
-    ] = None  # should point to a single VRT file linking the tiles
-    extents: typing.Optional[
-        typing.List[typing.Tuple[float, float, float, float]]
-    ] = None
+    uri: typing.Optional[URI] = (
+        None  # should point to a single VRT file linking the tiles
+    )
+    extents: typing.Optional[typing.List[typing.Tuple[float, float, float, float]]] = (
+        None
+    )
     type: RasterType = dataclasses.field(
         default=RasterType.TILED_RASTER,
         metadata={
@@ -171,9 +171,9 @@ class Raster:
 class RasterResults:
     name: str
     rasters: typing.Dict[str, typing.Union[Raster, TiledRaster]]
-    uri: typing.Optional[
-        URI
-    ] = None  # should point to a single VRT or tif linking all rasters
+    uri: typing.Optional[URI] = (
+        None  # should point to a single VRT or tif linking all rasters
+    )
     data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
     type: ResultType = dataclasses.field(
         default=ResultType.RASTER_RESULTS,
@@ -286,9 +286,9 @@ class CloudResults:
     data_path: typing.Optional[typing.Union[VSIPath, LocalPath]] = dataclasses.field(
         default=None
     )
-    other_paths: typing.Optional[
-        typing.List[typing.Union[VSIPath, LocalPath]]
-    ] = dataclasses.field(default_factory=list)
+    other_paths: typing.Optional[typing.List[typing.Union[VSIPath, LocalPath]]] = (
+        dataclasses.field(default_factory=list)
+    )
     data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
     type: ResultType = dataclasses.field(
         default=ResultType.CLOUD_RESULTS,
