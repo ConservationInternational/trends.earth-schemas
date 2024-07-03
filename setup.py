@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="te_schemas",
-    version="2.0.1",
+    version="2.1.15",
     description="Schemas supporting the Trends.Earth QGIS plugin.",
     long_description=long_description,
     url="https://github.com/ConservationInternational/trends.earth-schemas",
@@ -32,8 +32,8 @@ setup(
     include_package_data=True,
     install_requires=[
         "defusedxml>=0.7.1",
-        "marshmallow>=3.18.0",
-        "marshmallow-dataclass[enum, union]==8.5.10",
+        "marshmallow>=3.21.3",
+        "marshmallow-dataclass[enum, union]==8.7.0",
     ],
     extras_require={
         "dev": ["check-manifest"],
