@@ -1,10 +1,8 @@
-from typing import List
-from typing import Union
+from typing import List, Union
 
 import marshmallow_dataclass
 
-from .results import Band
-from .results import LocalPath
+from .results import Band, LocalPath
 
 
 @marshmallow_dataclass.dataclass

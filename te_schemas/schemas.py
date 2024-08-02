@@ -1,9 +1,7 @@
 import datetime
 import typing
 
-from marshmallow import fields
-from marshmallow import post_load
-from marshmallow import Schema
+from marshmallow import Schema, fields, post_load
 from marshmallow_dataclass import dataclass
 
 

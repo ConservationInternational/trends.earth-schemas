@@ -6,17 +6,18 @@ import typing
 import uuid
 
 import marshmallow_dataclass
-from marshmallow import post_load
-from marshmallow import pre_load
+from marshmallow import post_load, pre_load
 
 from .algorithms import ExecutionScript
-from .results import EmptyResults
-from .results import FileResults
-from .results import JsonResults
-from .results import LocalPath
-from .results import RasterResults
-from .results import TimeSeriesTableResult
-from .results import VectorResults
+from .results import (
+    EmptyResults,
+    FileResults,
+    JsonResults,
+    LocalPath,
+    RasterResults,
+    TimeSeriesTableResult,
+    VectorResults,
+)
 
 
 class ScriptStatus(enum.Enum):

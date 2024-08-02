@@ -1,16 +1,17 @@
 from copy import deepcopy
-from pathlib import Path
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 import pytest
 
-from te_schemas.results import Band
-from te_schemas.results import DataType
-from te_schemas.results import Raster
-from te_schemas.results import RasterFileType
-from te_schemas.results import RasterResults
-from te_schemas.results import TiledRaster
-from te_schemas.results import URI
+from te_schemas.results import (
+    URI,
+    Band,
+    DataType,
+    Raster,
+    RasterFileType,
+    RasterResults,
+    TiledRaster,
+)
 
 dummy_Band = Band(name="dummy band", metadata={"test_metadata_key": "test metadata"})
 

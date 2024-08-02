@@ -1,15 +1,11 @@
 import datetime
 from dataclasses import field
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Union
+from typing import Dict, List, Optional, Union
 
 from marshmallow import validate
 from marshmallow_dataclass import dataclass
 
-from . import land_cover
-from . import schemas
+from . import land_cover, schemas
 from .error_recode import ErrorRecodePolygons
 
 

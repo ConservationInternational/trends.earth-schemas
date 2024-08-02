@@ -2,8 +2,7 @@ import json
 import logging
 
 from marshmallow_dataclass import dataclass
-from osgeo import gdal
-from osgeo import ogr
+from osgeo import gdal, ogr
 
 logger = logging.getLogger(__name__)
 

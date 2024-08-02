@@ -1,13 +1,8 @@
 import uuid as uuid_module
 from dataclasses import field
-from typing import ClassVar
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Type
+from typing import ClassVar, List, Optional, Tuple, Type
 
-from marshmallow import EXCLUDE
-from marshmallow import validate
+from marshmallow import EXCLUDE, validate
 from marshmallow_dataclass import dataclass
 
 

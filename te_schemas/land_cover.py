@@ -1,16 +1,10 @@
 from __future__ import annotations
 
 import math
-from dataclasses import field
-from dataclasses import fields
-from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Tuple
+from dataclasses import field, fields
+from typing import Any, Dict, List, Optional, Tuple
 
-from marshmallow import validate
-from marshmallow import validates_schema
+from marshmallow import validate, validates_schema
 from marshmallow.exceptions import ValidationError
 from marshmallow_dataclass import dataclass
 

@@ -9,9 +9,7 @@ import typing
 
 import marshmallow
 import marshmallow_dataclass
-from marshmallow import EXCLUDE
-from marshmallow import fields
-from marshmallow import validate
+from marshmallow import EXCLUDE, fields, validate
 from marshmallow.exceptions import ValidationError
 from marshmallow_dataclass.typing import Url
 

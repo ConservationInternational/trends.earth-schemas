@@ -4,8 +4,7 @@ import uuid
 from dataclasses import field
 
 import marshmallow_dataclass
-from marshmallow import EXCLUDE
-from marshmallow import pre_load
+from marshmallow import EXCLUDE, pre_load
 
 from te_schemas import SchemaBase
 
