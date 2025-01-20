@@ -35,7 +35,7 @@ def validate_matrix(legend, transitions):
             ]
             if len(trans) == 0:
                 raise ValidationError(
-                    "Meaning of transition from {} to " "{} is undefined for {}".format(
+                    "Meaning of transition from {} to {} is undefined for {}".format(
                         c_initial, c_final, transitions
                     )
                 )

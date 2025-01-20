@@ -109,8 +109,7 @@ class AOI(object):
             out = unsplit_out
         else:
             logger.info(
-                "AOI appears to cross 180th meridian "
-                "- splitting AOI into two geojsons."
+                "AOI appears to cross 180th meridian - splitting AOI into two geojsons."
             )
             out = split_out
 
