@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="te_schemas",
-    version="2.1.16",
+    version="2.1.17",
     description="Schemas supporting the Trends.Earth QGIS plugin.",
     long_description=long_description,
     url="https://github.com/ConservationInternational/trends.earth-schemas",
