@@ -34,7 +34,6 @@ setup(
         "defusedxml>=0.7.1",
         "marshmallow>=3.21.3",
         "marshmallow-dataclass[enum, union]>=8.7.0",
-        "gdal",
     ],
     extras_require={
         "dev": ["check-manifest"],
