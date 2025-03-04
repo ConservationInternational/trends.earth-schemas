@@ -44,18 +44,12 @@ class Value:
     name: str
     value: float
 
-    class Meta:
-        ordered = True
-
 
 @dataclass
 class ValuesByYearDict:
     name: str
     unit: str
     values: Dict[int, Dict[str, float]]
-
-    class Meta:
-        ordered = True
 
 
 # Area summary schemas
@@ -64,18 +58,12 @@ class Area:
     name: Optional[str]
     area: float = field(metadata={"validate": validate.Range(min=0)})
 
-    class Meta:
-        ordered = True
-
 
 @dataclass
 class AreaList:
     name: Optional[str]
     unit: str = field(metadata={"validate": validate.OneOf(["m", "ha", "sq km"])})
     areas: List[Area]
-
-    class Meta:
-        ordered = True
 
 
 # Population summary schema
@@ -91,17 +79,11 @@ class Population:
         }
     )
 
-    class Meta:
-        ordered = True
-
 
 @dataclass
 class PopulationList:
     name: Optional[str]
     values: List[Population]
-
-    class Meta:
-        ordered = True
 
 
 # Crosstab summary schemas
@@ -110,9 +92,6 @@ class CrossTabEntry:
     initial_label: str
     final_label: str
     value: float
-
-    class Meta:
-        ordered = True
 
 
 # Crosstab summary schemas
@@ -123,9 +102,6 @@ class CrossTabEntryInitialFinal:
     initial_value: float
     final_value: float
 
-    class Meta:
-        ordered = True
-
 
 @dataclass
 class CrossTab:
@@ -134,9 +110,6 @@ class CrossTab:
     initial_year: int
     final_year: int
     values: Union[List[CrossTabEntry], List[CrossTabEntryInitialFinal]]
-
-    class Meta:
-        ordered = True
 
 
 ###
@@ -150,7 +123,6 @@ class ReportMetadata:
     affected_areas_only: bool = field(default=False)
 
     class Meta:
-        ordered = True
         datetimeformat = "%Y-%m-%dT%H:%M:%S+00:00"
 
 
@@ -158,17 +130,11 @@ class ReportMetadata:
 class SDG15Report:
     summary: AreaList
 
-    class Meta:
-        ordered = True
-
 
 @dataclass
 class ProductivityReport:
     summaries: Dict[str, AreaList]
     crosstabs_by_productivity_class: List[CrossTab]
-
-    class Meta:
-        ordered = True
 
 
 @dataclass
@@ -179,18 +145,12 @@ class LandCoverReport:
     crosstabs_by_land_cover_class: List[CrossTab]
     land_cover_areas_by_year: ValuesByYearDict
 
-    class Meta:
-        ordered = True
-
 
 @dataclass
 class SoilOrganicCarbonReport:
     summaries: Dict[str, AreaList]
     crosstab_by_land_cover_class: CrossTab
     soc_stock_by_year: ValuesByYearDict
-
-    class Meta:
-        ordered = True
 
 
 @dataclass
@@ -200,9 +160,6 @@ class LandConditionReport:
     land_cover: Optional[LandCoverReport] = field(default=None)
     soil_organic_carbon: Optional[SoilOrganicCarbonReport] = field(default=None)
     error_recode: Optional[ErrorRecodePolygons] = field(default=None)
-
-    class Meta:
-        ordered = True
 
 
 @dataclass
@@ -214,16 +171,10 @@ class LandConditionProgressReport:
     error_recode: Optional[ErrorRecodePolygons] = field(default=None)
     sdg_error_recode: Optional[AreaList] = field(default=None)
 
-    class Meta:
-        ordered = True
-
 
 @dataclass
 class AffectedPopulationReport:
     summary: Dict[str, PopulationList]
-
-    class Meta:
-        ordered = True
 
 
 @dataclass
@@ -251,9 +202,6 @@ class DroughtReport:
     tier_two: Dict[int, Dict[str, PopulationList]]
     tier_three: Dict[int, Value]
 
-    class Meta:
-        ordered = True
-
 
 @dataclass
 class TrendsEarthLandConditionSummary:
@@ -261,14 +209,8 @@ class TrendsEarthLandConditionSummary:
     land_condition: Dict[str, Union[LandConditionReport, LandConditionProgressReport]]
     affected_population: Dict[str, AffectedPopulationReport]
 
-    class Meta:
-        ordered = True
-
 
 @dataclass
 class TrendsEarthDroughtSummary:
     metadata: ReportMetadata
     drought: DroughtReport
-
-    class Meta:
-        ordered = True

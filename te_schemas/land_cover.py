@@ -762,9 +762,6 @@ class LCTransitionMeaningDeg(LCTransitionMeaning):
         metadata={"validate": validate.OneOf(["degradation", "stable", "improvement"])}
     )
 
-    class Meta:
-        ordered = True
-
     def code(self):
         meaning_key = {"degradation": -1, "stable": 0, "improvement": 1}
 

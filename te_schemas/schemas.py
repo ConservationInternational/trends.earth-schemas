@@ -12,7 +12,6 @@ class TrendsEarthVersion:
     revision: typing.Optional[str] = None
 
     class Meta:
-        ordered = True
         datetimeformat = "%Y-%m-%dT%H:%M:%S+00:00"
 
 
@@ -25,9 +24,6 @@ class AreaOfInterest:
     name: str
     geojson: dict
     crs_wkt: str
-
-    class Meta:
-        ordered = True
 
 
 ################################################################################

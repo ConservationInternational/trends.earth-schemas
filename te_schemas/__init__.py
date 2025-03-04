@@ -6,9 +6,6 @@ logger = logging.getLogger(__name__)
 
 
 class SchemaBase:
-    class Meta:
-        ordered = True
-
     """Base class for te_schemas schemas"""
 
     def validate(self):
