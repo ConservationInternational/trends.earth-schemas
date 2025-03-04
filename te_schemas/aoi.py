@@ -1,5 +1,6 @@
 import json
 import logging
+import tempfile
 
 from marshmallow_dataclass import dataclass
 from osgeo import gdal, ogr
@@ -21,27 +22,59 @@ def _get_bounding_box_geom(geom):
     return poly_envelope
 
 
-# TODO: Doesn't yet work on points
+ogr.UseExceptions()
+
+
 @dataclass
 class AOI(object):
     geojson: dict
 
+    def __init__(self, geojson):
+        if isinstance(geojson, str):
+            geojson = json.loads(geojson)
+
+        if "type" in geojson and geojson["type"] == "FeatureCollection":
+            self.geojson = geojson
+        elif "type" in geojson and geojson["type"] == "Feature":
+            self.geojson = {"type": "FeatureCollection", "features": [geojson]}
+        elif "type" in geojson and geojson["type"] in [
+            "Point",
+            "LineString",
+            "Polygon",
+            "MultiPoint",
+            "MultiLineString",
+            "MultiPolygon",
+        ]:
+            self.geojson = {
+                "type": "FeatureCollection",
+                "features": [{"type": "Feature", "geometry": geojson}],
+            }
+        elif isinstance(geojson, list):
+            # Assume it is a list of features
+            self.geojson = {"type": "FeatureCollection", "features": geojson}
+        else:
+            raise ValueError
+
+        if not self.is_valid():
+            raise ValueError
+
+    def is_valid(self):
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".geojson") as temp_file:
+            temp_file.write(json.dumps(self.geojson).encode("utf-8"))
+            temp_file_path = temp_file.name
+
+        try:
+            for layer in ogr.Open(temp_file_path):
+                for feature in layer:
+                    if not feature.geometry().IsValid():
+                        return False
+            return True
+        except (AttributeError, RuntimeError):
+            return False
+
     @property
     def crs(self):
         return ogr.Open(json.dumps(self.geojson)).GetSpatialReference().ExportToWkt()
-
-    def _get_unary_union(self):
-        logger.debug("getting unary union")
-        union = None
-
-        for layer in ogr.Open(json.dumps(self.geojson)):
-            for feature in layer:
-                if not union:
-                    union = feature.geometry().Clone()
-                else:
-                    union = union.Union(feature.geometry())
-
-        return union
 
     def meridian_split(self, as_extent=False, out_format="geojson"):
         """
@@ -55,7 +88,6 @@ class AOI(object):
 
         if out_format not in ["geojson", "wkt"]:
             raise ValueError(f'Unrecognized out_format "{out_format}')
-        unary_union = self._get_unary_union()
 
         hemi_e = ogr.CreateGeometryFromWkt(
             "POLYGON ((0 -90, 0 90, 180 90, 180 -90, 0 -90))"
@@ -63,60 +95,75 @@ class AOI(object):
         hemi_w = ogr.CreateGeometryFromWkt(
             "POLYGON ((-180 -90, -180 90, 0 90, 0 -90, -180 -90))"
         )
-        intersections = [hemi.Intersection(unary_union) for hemi in [hemi_e, hemi_w]]
 
-        logger.debug("making pieces")
-        pieces = [i for i in intersections if not i.IsEmpty()]
-        pieces_extents = [_get_bounding_box_geom(i) for i in pieces]
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".geojson") as temp_file:
+            temp_file.write(json.dumps(self.geojson).encode("utf-8"))
+            temp_file_path = temp_file.name
 
-        if as_extent:
-            split_out = pieces_extents
-            unsplit_out = [_get_bounding_box_geom(unary_union)]
-        else:
-            split_out = pieces
-            unsplit_out = [unary_union]
+        out = []
+        for layer in ogr.Open(temp_file_path):
+            for feature in layer:
+                geom = feature.geometry()
 
-        # Perform areal calculations on extents even if output is NOT extents,
-        # so that meridian split gives consistent results (in terms of number
-        # of pieces) regardless of whether requested output is original
-        # polygons or extents
-        pieces_extents_union = pieces_extents[0].Clone()
+                intersections = [hemi.Intersection(geom) for hemi in [hemi_e, hemi_w]]
 
-        for piece_extent in pieces_extents[1:]:
-            pieces_extents_union = pieces_extents_union.Union(piece_extent)
-        bounding_area_unsplit = _get_bounding_box_geom(pieces_extents_union).GetArea()
-        bounding_area_split = sum(
-            [piece_extent.GetArea() for piece_extent in pieces_extents]
-        )
+                logger.debug("making pieces")
+                pieces = [i for i in intersections if not i.IsEmpty()]
+                pieces_extents = [_get_bounding_box_geom(i) for i in pieces]
 
-        logger.debug(
-            f"len(pieces_extents): {len(pieces_extents)} "
-            f"unary_union area {unary_union.GetArea()}, "
-            f"bounding_area_unsplit: {bounding_area_unsplit} "
-            f"bounding_area_split: {bounding_area_split}"
-        )
+                if as_extent:
+                    split_out = pieces_extents
+                    unsplit_out = [_get_bounding_box_geom(geom)]
+                else:
+                    split_out = pieces
+                    unsplit_out = [geom]
 
-        if (len(pieces) == 1) or (bounding_area_unsplit < 2 * bounding_area_split):
-            # If there is no area in one of the hemispheres, return the
-            # original layer, or extent of the original layer. Also return the
-            # original layer (or extent) if the area of the combined pieces
-            # from both hemispheres is not significantly smaller than that of
-            # the original polygon.
-            logger.info(
-                "AOI being processed in one piece "
-                "(does not appear to cross 180th meridian)"
-            )
-            out = unsplit_out
-        else:
-            logger.info(
-                "AOI appears to cross 180th meridian - splitting AOI into two geojsons."
-            )
-            out = split_out
+                # Perform areal calculations on extents even if output is NOT extents,
+                # so that meridian split gives consistent results (in terms of number
+                # of pieces) regardless of whether requested output is original
+                # polygons or extents
+                pieces_extents_union = pieces_extents[0].Clone()
 
-        if out_format == "geojson":
-            return [json.loads(o.ExportToJson()) for o in out]
-        elif out_format == "wkt":
-            return [o.ExportToWkt() for o in out]
+                for piece_extent in pieces_extents[1:]:
+                    pieces_extents_union = pieces_extents_union.Union(piece_extent)
+                bounding_area_unsplit = _get_bounding_box_geom(
+                    pieces_extents_union
+                ).GetArea()
+                bounding_area_split = sum(
+                    [piece_extent.GetArea() for piece_extent in pieces_extents]
+                )
+
+                logger.debug(
+                    f"len(pieces_extents): {len(pieces_extents)} "
+                    f"polygon area {geom.GetArea()}, "
+                    f"bounding_area_unsplit: {bounding_area_unsplit} "
+                    f"bounding_area_split: {bounding_area_split}"
+                )
+
+                if (len(pieces) == 1) or (
+                    bounding_area_unsplit < 2 * bounding_area_split
+                ):
+                    # If there is no area in one of the hemispheres, return the
+                    # original layer, or extent of the original layer. Also return the
+                    # original layer (or extent) if the area of the combined pieces
+                    # from both hemispheres is not significantly smaller than that of
+                    # the original polygon.
+                    logger.info(
+                        "Feature being processed in one piece "
+                        "(does not appear to cross 180th meridian)"
+                    )
+                    this_out = unsplit_out
+                else:
+                    logger.info(
+                        "Feature appears to cross 180th meridian - splitting feature into two geojsons."
+                    )
+                    this_out = split_out
+
+                if out_format == "geojson":
+                    out.extend([json.loads(o.ExportToJson()) for o in this_out])
+                elif out_format == "wkt":
+                    out.extend([o.ExportToWkt() for o in this_out])
+        return out
 
     def get_aligned_output_bounds(self, f):
         geojsons = self.meridian_split(as_extent=True)
