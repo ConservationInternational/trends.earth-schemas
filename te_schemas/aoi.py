@@ -1,11 +1,15 @@
 import json
 import logging
+import os
 import tempfile
+import uuid
 
 from marshmallow_dataclass import dataclass
 from osgeo import gdal, ogr
 
 logger = logging.getLogger(__name__)
+
+ogr.UseExceptions()
 
 
 def _get_bounding_box_geom(geom):
@@ -22,59 +26,97 @@ def _get_bounding_box_geom(geom):
     return poly_envelope
 
 
-ogr.UseExceptions()
+def _geojson_to_ds(geojson):
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".geojson") as temp_file:
+        temp_file.write(json.dumps(geojson).encode("utf-8"))
+        temp_file_path = temp_file.name
+    logger.debug(f"Wrote temporary file with geojsons to {temp_file.name}")
+
+    return ogr.Open(temp_file_path)
+
+
+def _make_temp_name(dir=tempfile.gettempdir()):
+    return os.path.join(dir, str(uuid.uuid1()))
+
+
+def _ds_to_geojson(ds):
+    temp_file = _make_temp_name()
+    driver = ogr.GetDriverByName("GeoJSON")
+    temp_ds = driver.CreateDataSource(temp_file)
+    temp_layer = temp_ds.CreateLayer("layer_name", geom_type=ogr.wkbPolygon)
+    for aoi_layer in ds:
+        for feature in aoi_layer:
+            temp_layer.CreateFeature(feature)
+    temp_ds = None
+
+    with open(temp_file, "r") as file:
+        return json.load(file)
+
+
+def _clean_geojson(geojson):
+    if isinstance(geojson, str):
+        geojson = json.loads(geojson)
+
+    if "type" in geojson and geojson["type"] == "FeatureCollection":
+        geojson = geojson
+    elif "type" in geojson and geojson["type"] == "Feature":
+        geojson = {"type": "FeatureCollection", "features": [geojson]}
+    elif "type" in geojson and geojson["type"] in [
+        "Point",
+        "LineString",
+        "Polygon",
+        "MultiPoint",
+        "MultiLineString",
+        "MultiPolygon",
+    ]:
+        geojson = {
+            "type": "FeatureCollection",
+            "features": [{"type": "Feature", "geometry": geojson}],
+        }
+    elif isinstance(geojson, list):
+        # Assume 'geojson' is a list of geometries
+        for g in geojson:
+            assert "coordinates" in g
+            assert "type" in g
+        geojson = {
+            "type": "FeatureCollection",
+            "features": [
+                {"type": "Feature", "id": i, "properties": {}, "geometry": g}
+                for i, g in enumerate(geojson)
+            ],
+        }
+    else:
+        raise ValueError
+
+    return geojson
 
 
 @dataclass
 class AOI(object):
-    geojson: dict
+    geojson: str
 
     def __init__(self, geojson):
-        if isinstance(geojson, str):
-            geojson = json.loads(geojson)
-
-        if "type" in geojson and geojson["type"] == "FeatureCollection":
-            self.geojson = geojson
-        elif "type" in geojson and geojson["type"] == "Feature":
-            self.geojson = {"type": "FeatureCollection", "features": [geojson]}
-        elif "type" in geojson and geojson["type"] in [
-            "Point",
-            "LineString",
-            "Polygon",
-            "MultiPoint",
-            "MultiLineString",
-            "MultiPolygon",
-        ]:
-            self.geojson = {
-                "type": "FeatureCollection",
-                "features": [{"type": "Feature", "geometry": geojson}],
-            }
-        elif isinstance(geojson, list):
-            # Assume it is a list of features
-            self.geojson = {"type": "FeatureCollection", "features": geojson}
-        else:
-            raise ValueError
+        aoi = _geojson_to_ds(_clean_geojson(geojson))
+        assert aoi.GetLayerCount() == 1
+        self.geojson = _ds_to_geojson(aoi)
 
         if not self.is_valid():
             raise ValueError
 
     def is_valid(self):
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".geojson") as temp_file:
-            temp_file.write(json.dumps(self.geojson).encode("utf-8"))
-            temp_file_path = temp_file.name
-
-        try:
-            for layer in ogr.Open(temp_file_path):
+        if not self.geojson:
+            return False
+        else:
+            aoi = self.get_ds()
+            for layer in aoi:
                 for feature in layer:
                     if not feature.geometry().IsValid():
                         return False
-            return True
-        except (AttributeError, RuntimeError):
-            return False
+        return True
 
     @property
     def crs(self):
-        return ogr.Open(json.dumps(self.geojson)).GetSpatialReference().ExportToWkt()
+        return self.get_ds().GetSpatialReference().ExportToWkt()
 
     def meridian_split(self, as_extent=False, out_format="geojson"):
         """
@@ -84,7 +126,7 @@ class AOI(object):
         crossing the 180th meridian
         """
 
-        logger.debug("performing meridian split")
+        logger.debug("Performing meridian split")
 
         if out_format not in ["geojson", "wkt"]:
             raise ValueError(f'Unrecognized out_format "{out_format}')
@@ -96,20 +138,18 @@ class AOI(object):
             "POLYGON ((-180 -90, -180 90, 0 90, 0 -90, -180 -90))"
         )
 
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".geojson") as temp_file:
-            temp_file.write(json.dumps(self.geojson).encode("utf-8"))
-            temp_file_path = temp_file.name
-
         out = []
-        for layer in ogr.Open(temp_file_path):
+        aoi = self.get_ds()
+        for layer in aoi:
             for feature in layer:
                 geom = feature.geometry()
 
                 intersections = [hemi.Intersection(geom) for hemi in [hemi_e, hemi_w]]
-
-                logger.debug("making pieces")
                 pieces = [i for i in intersections if not i.IsEmpty()]
                 pieces_extents = [_get_bounding_box_geom(i) for i in pieces]
+                logger.debug(
+                    f"pieces extents: {[g.ExportToWkt() for g in pieces_extents]}"
+                )
 
                 if as_extent:
                     split_out = pieces_extents
@@ -222,24 +262,20 @@ class AOI(object):
                     top = 90
                 out.append([left, bottom, right, top])
 
-        logger.debug("aligned output bounds %s", out)
+        logger.debug("aligned output bounds is %s", out)
 
         return out
-
-    def get_crs_wkt(self):
-        # TODO fix this
-        # return self.geojson.GetSpatialReference().ExportToWkt()
-
-        return 'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]'
 
     def bounding_box_gee_geojson(self):
         """
         Returns list of bounding box geojsons.
         """
 
-        if self.datatype == "polygon":
+        aoi = self.get_ds()
+        datatype = aoi.GetLayer()[0].GetGeomType()
+        if datatype == "polygon":
             return self.meridian_split()
-        elif self.datatype == "point":
+        elif datatype == "point":
             # TODO: Code this for OGR
 
             # If there is only on point, don't calculate an extent (extent of
@@ -265,7 +301,7 @@ class AOI(object):
         else:
             raise RuntimeError(
                 f"Failed to process area of interest - unknown geometry "
-                f"type: {self.geojson.GetGeometryType()}"
+                f"type: {aoi.GetLayer()[0].GetGeomType()}"
             )
 
     def calc_frac_overlap(self, in_geom):
@@ -287,11 +323,14 @@ class AOI(object):
         logger.debug("fractional overlap is %s", frac)
         return frac
 
+    def get_ds(self):
+        return _geojson_to_ds(self.geojson)
+
     def get_geojson(self, split=False):
         if split:
-            out = {"type": "FeatureCollection", "features": []}
-            out["features"].append(self.meridian_split(as_extent=False))
+            features = self.meridian_split(as_extent=False)
+            aoi = _geojson_to_ds(_clean_geojson(features))
         else:
-            out = self.geojson
+            aoi = self.get_ds()
 
-        return out
+        return _ds_to_geojson(aoi)
