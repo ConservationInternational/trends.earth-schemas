@@ -58,8 +58,10 @@ def _clean_geojson(geojson):
         geojson = json.loads(geojson)
 
     if "type" in geojson and geojson["type"] == "FeatureCollection":
+        # Feature collection
         geojson = geojson
     elif "type" in geojson and geojson["type"] == "Feature":
+        # Single feature
         geojson = {"type": "FeatureCollection", "features": [geojson]}
     elif "type" in geojson and geojson["type"] in [
         "Point",
@@ -69,22 +71,27 @@ def _clean_geojson(geojson):
         "MultiLineString",
         "MultiPolygon",
     ]:
+        # Single geometry
         geojson = {
             "type": "FeatureCollection",
             "features": [{"type": "Feature", "geometry": geojson}],
         }
     elif isinstance(geojson, list):
-        # Assume 'geojson' is a list of geometries
-        for g in geojson:
-            assert "coordinates" in g
-            assert "type" in g
-        geojson = {
-            "type": "FeatureCollection",
-            "features": [
-                {"type": "Feature", "id": i, "properties": {}, "geometry": g}
-                for i, g in enumerate(geojson)
-            ],
-        }
+        if all("type" in g and g["type"] == "Feature" for g in geojson):
+            # List of features
+            geojson = {"type": "FeatureCollection", "features": geojson}
+        else:
+            # Assume 'geojson' is a list of geometries
+            for g in geojson:
+                assert "coordinates" in g
+                assert "type" in g
+            geojson = {
+                "type": "FeatureCollection",
+                "features": [
+                    {"type": "Feature", "id": i, "properties": {}, "geometry": g}
+                    for i, g in enumerate(geojson)
+                ],
+            }
     else:
         raise ValueError
 
