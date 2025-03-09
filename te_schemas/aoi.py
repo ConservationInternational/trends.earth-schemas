@@ -30,7 +30,7 @@ def _geojson_to_ds(geojson):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".geojson") as temp_file:
         temp_file.write(json.dumps(geojson).encode("utf-8"))
         temp_file_path = temp_file.name
-    logger.debug(f"Wrote temporary file with geojsons to {temp_file.name}")
+    logger.debug(f"In _geojson_to_ds wrote temporary file to {temp_file.name}")
 
     return ogr.Open(temp_file_path)
 
@@ -43,11 +43,14 @@ def _ds_to_geojson(ds):
     temp_file = _make_temp_name()
     driver = ogr.GetDriverByName("GeoJSON")
     temp_ds = driver.CreateDataSource(temp_file)
-    temp_layer = temp_ds.CreateLayer("layer_name", geom_type=ogr.wkbPolygon)
+    temp_layer = temp_ds.CreateLayer(
+        "layer_name", srs=ds.GetLayer(0).GetSpatialRef(), geom_type=ogr.wkbPolygon
+    )
     for aoi_layer in ds:
         for feature in aoi_layer:
             temp_layer.CreateFeature(feature)
     temp_ds = None
+    logger.debug(f"In _ds_to_geojson wrote temporary file to {temp_file}")
 
     with open(temp_file, "r") as file:
         return json.load(file)
@@ -123,7 +126,14 @@ class AOI(object):
 
     @property
     def crs(self):
-        return self.get_ds().GetSpatialReference().ExportToWkt()
+        return self.get_srs().ExportToWkt()
+
+    def get_crs_wkt(self):
+        return self.crs
+
+    def get_srs(self):
+        aoi = self.get_ds()
+        return aoi.GetLayer(0).GetSpatialRef()
 
     def meridian_split(self, as_extent=False, out_format="geojson"):
         """
@@ -279,7 +289,7 @@ class AOI(object):
         """
 
         aoi = self.get_ds()
-        datatype = aoi.GetLayer()[0].GetGeomType()
+        datatype = aoi.GetLayer(0).GetGeomType()
         if datatype == "polygon":
             return self.meridian_split()
         elif datatype == "point":
@@ -308,7 +318,7 @@ class AOI(object):
         else:
             raise RuntimeError(
                 f"Failed to process area of interest - unknown geometry "
-                f"type: {aoi.GetLayer()[0].GetGeomType()}"
+                f"type: {aoi.GetLayer(0).GetGeomType()}"
             )
 
     def calc_frac_overlap(self, in_geom):

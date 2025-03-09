@@ -156,3 +156,56 @@ def test_meridian_split():
 
     assert AOI(geom).meridian_split() == geoms_split
     assert AOI(geom).get_geojson(split=True) == AOI(geoms_split).get_geojson()
+
+
+def test_crs_not_specified():
+    aoi = AOI(
+        {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [125.6, 10.1],
+                    [125.7, 10.1],
+                    [125.7, 10.2],
+                    [125.6, 10.2],
+                    [125.6, 10.1],
+                ]
+            ],
+        }
+    )
+    assert aoi.get_srs().GetAuthorityCode(None) == "4326"
+    assert aoi.get_srs().GetAuthorityName(None) == "EPSG"
+
+
+def test_crs_3857():
+    aoi = AOI(
+        {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {"type": "Point", "coordinates": [125.6, 10.1]},
+                    "properties": {"name": "Dinagat Islands"},
+                },
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [125.6, 10.1],
+                                [125.7, 10.1],
+                                [125.7, 10.2],
+                                [125.6, 10.2],
+                                [125.6, 10.1],
+                            ]
+                        ],
+                    },
+                    "properties": {"name": "Polygon Feature"},
+                },
+            ],
+            "crs": {"type": "name", "properties": {"name": "EPSG:3857"}},
+        }
+    )
+    assert aoi.get_srs().GetAuthorityCode(None) == "3857"
+    assert aoi.get_srs().GetAuthorityName(None) == "EPSG"
