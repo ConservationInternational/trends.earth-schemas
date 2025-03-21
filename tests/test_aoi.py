@@ -1,5 +1,3 @@
-import logging
-
 import pytest
 
 from te_schemas.aoi import AOI
