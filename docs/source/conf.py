@@ -1,0 +1,50 @@
+# Configuration file for the Sphinx documentation builder.
+#
+# For the full list of built-in configuration values, see the documentation:
+# https://www.sphinx-doc.org/en/master/usage/configuration.html
+
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath("../.."))  # Source code dir relative to this file
+
+# -- Project information -----------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+
+project = "te_schemas"
+copyright = "2025, Conservation International"
+author = "Conservation International"
+release = "2.1.17"
+
+# -- General configuration ---------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
+
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.autosummary"]
+
+autosummary_generate = True  # Turn on sphinx.ext.autosummary
+
+templates_path = ["_templates"]
+exclude_patterns = []
+
+
+# -- Options for HTML output -------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
+
+READTHEDOCS_VERSION_STRING = os.environ.get("READTHEDOCS_VERSION", "")
+relative_path = "../"
+# On RTD there the root is two folders back - one for the language, and one for the
+# version name, so need to add another "../"
+if READTHEDOCS_VERSION_STRING != "":
+    relative_path += "../"
+
+# Set canonical URL from the Read the Docs Domain
+html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "")
+
+# Tell Jinja2 templates the build is running on Read the Docs
+if os.environ.get("READTHEDOCS", "") == "True":
+    html_context = {"READTHEDOCS": True}
+
+# The theme to use for HTML and HTML Help pages.  See the documentation for
+# a list of builtin themes.
+html_theme = "sphinx_rtd_theme"
+html_static_path = ["_static"]
