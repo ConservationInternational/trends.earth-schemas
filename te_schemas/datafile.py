@@ -11,7 +11,10 @@ class DataFile:
     bands: List[Band]
 
     def indices_for_name(
-        self, name_filter: Union[str, list], field: str = None, field_filter: str = None
+        self,
+        name_filter: Union[str, list],
+        field: Union[None, str] = None,
+        field_filter: Union[None, str] = None,
     ):
         if isinstance(name_filter, str):
             # make name_filter a length 1 list if it is a string
@@ -32,7 +35,10 @@ class DataFile:
             ]
 
     def index_for_name(
-        self, name_filter: Union[str, list], field: str = None, field_filter: str = None
+        self,
+        name_filter: Union[str, list],
+        field: Union[None, str] = None,
+        field_filter: Union[None, str] = None,
     ):
         """throw an error if more than one result"""
         if isinstance(name_filter, str):
@@ -64,6 +70,9 @@ class DataFile:
         This assumes that both DataFile share the same path (where the path
         is the one of the original DataFile)
         """
+
+        assert datafile.path == self.path
+
         datafiles = [self, datafile]
 
         self.bands = [b for d in datafiles for b in d.bands]
@@ -76,12 +85,14 @@ class DataFile:
         is the one of the original DataFile)
         """
 
+        assert all([datafile.path == self.path for datafile in datafiles])
+
         datafiles = [self] + datafiles
 
         self.bands = [b for d in datafiles for b in d.bands]
 
 
-def combine_data_files(path, datafiles: List[Band]) -> DataFile:
-    """combine multiple datafiles with same path into one object"""
+def combine_data_files(path, datafiles: List[DataFile]) -> DataFile:
+    """combine multiple datafiles with into one object, using shared path"""
 
     return DataFile(path=path, bands=[b for d in datafiles for b in d.bands])
