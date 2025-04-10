@@ -51,7 +51,7 @@ on the "Period Assessment" as well as the "Status" for each reporting period
 The Period Assessment and Status reports are contained in
 :class:`te_schemas.reporting.LandConditionReport` objects within a `dict` in the 
 `land_condition` field of the
-:class:`te_schemas.reporting.LandConditionSummary` object. The keys within that
+:class:`te_schemas.reporting.TrendsEarthLandConditionSummary` object. The keys within that
 `dict` are used to distinguish the Status reports from the Period Assessments -
 Status reports have the period name followed by "_status". The keys are
 sequentially named, as "Report_1", "Report_2", etc., where "Report_1" is the
