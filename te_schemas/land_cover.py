@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import field, fields
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from marshmallow import validate, validates_schema
 from marshmallow.exceptions import ValidationError
@@ -17,10 +17,10 @@ from . import SchemaBase
 @dataclass
 class LCClass(SchemaBase):
     code: int
-    name_short: str = field(
+    name_short: Union[str, None] = field(
         metadata={"validate": validate.Length(max=20)}, default=None
     )
-    name_long: str = field(
+    name_long: Union[str, None] = field(
         default=None, metadata={"validate": validate.Length(max=120)}
     )
     description: Optional[str] = field(default=None)
@@ -46,8 +46,10 @@ class LCClass(SchemaBase):
     def get_name_short(self):
         if self.name_short and self.name_short != "":
             return self.name_short
-        else:
+        elif self.name_long and self.name_long != "":
             return self.name_long[0:20]
+        else:
+            return ""
 
     def get_name(self):
         if self.name_short and self.name_short != "":
@@ -85,7 +87,7 @@ class LCClass(SchemaBase):
 class LCLegend(SchemaBase):
     name: str
     key: List[LCClass] = field(default_factory=list)
-    nodata: LCClass = field(default_factory=None)
+    nodata: Union[LCClass, None] = field(default=None)
 
     def __post_init__(self):
         # Check all class codes are unique
@@ -188,11 +190,11 @@ class LCLegend(SchemaBase):
 
         return True
 
-    def class_by_name_long(self, name_long: str) -> LCClass:
+    def class_by_name_long(self, name_long: str) -> Union[LCClass, None]:
         # Returns a class matching the given name_long else None.
         return self.class_by_attr("name_long", name_long)
 
-    def class_by_attr(self, attr_name, attr_val) -> LCClass:
+    def class_by_attr(self, attr_name, attr_val) -> Union[LCClass, None]:
         """
         Returns class in 'key' attribute by searching based on attribute
         name and corresponding value.
@@ -288,8 +290,6 @@ class LCLegend(SchemaBase):
 class LCLegendNesting(SchemaBase):
     parent: LCLegend
     child: LCLegend
-    # nesting is a dict where the keys are the parent classes, and the items
-    # are the child classes
     nesting: Dict[int, List[int]] = field(default_factory=dict)
 
     def __post_init__(self):
@@ -297,7 +297,7 @@ class LCLegendNesting(SchemaBase):
         nesting_parent_codes = self.nesting.keys()
         # Note the below is to avoid having a list of lists of child codes
         # given the structure the "items" method returns them in
-        nesting_child_codes = [i for key, value in self.nesting.items() for i in value]
+        nesting_child_codes = [i for _, value in self.nesting.items() for i in value]
 
         # Sort the two nesting class lists by code before comparison with
         # legend class lists
@@ -341,14 +341,6 @@ class LCLegendNesting(SchemaBase):
         self.nesting[old_parent.code].remove(child.code)
         self.nesting[new_parent.code].append(child.code)
 
-    def parentClassForChild(self, c):
-        parent_code = [key for key, values in self.nesting.items() if c.code in values]
-
-        if len(parent_code) == 0:
-            raise KeyError
-        else:
-            return self.parent.classByCode(parent_code[0])
-
     def get_list(self):
         """Return the nesting in format needed for GEE"""
         out = [[], []]
@@ -361,11 +353,9 @@ class LCLegendNesting(SchemaBase):
 
         return out
 
-    def parent_for_child(self, c) -> LCClass:
+    def parent_for_child(self, c) -> Union[LCClass, None]:
         """
-        Returns the parent for the given child. Varies from
-        :ref:`parentClassForChild` in that it does not raise an error if
-        there is no parent, but instead returns None.
+        Returns the parent for the given child.
         """
         parent_code = [key for key, values in self.nesting.items() if c.code in values]
 
@@ -452,26 +442,26 @@ class LCLegendNesting(SchemaBase):
 
         return True
 
-    def nest(self, nesting) -> LCLegendNesting:
-        """
-        Given a nesting instance whose child class is the parent of this one, will nest
-        this child class legend under the parent of that instance, and return a new
-        nesting instance
-        """
-
-        if self.parent != nesting.child:
-            raise Exception
-
-        nesting = {}
-        for lcc in nesting.key:
-            current_parent_class = self.parentForChild(lcc)
-            new_parent_class = nesting.parentForChild(current_parent_class)
-            if lcc.code not in nesting:
-                nesting[new_parent_class.code] = [lcc.code]
-            else:
-                nesting[new_parent_class.code].append(lcc.code)
-
-        return LCLegendNesting(parent=nesting.parent, child=self.child, nesting=nesting)
+    # def nest(self, nesting) -> LCLegendNesting:
+    #     """
+    #     Given a nesting instance whose child class is the parent of this one, will nest
+    #     this child class legend under the parent of that instance, and return a new
+    #     nesting instance
+    #     """
+    #
+    #     if self.parent != nesting.child:
+    #         raise Exception
+    #
+    #     nesting = {}
+    #     for lcc in nesting.key:
+    #         current_parent_class = self.parentForChild(lcc)
+    #         new_parent_class = nesting.parentForChild(current_parent_class)
+    #         if lcc.code not in nesting:
+    #             nesting[new_parent_class.code] = [lcc.code]
+    #         else:
+    #             nesting[new_parent_class.code].append(lcc.code)
+    #
+    #     return LCLegendNesting(parent=nesting.parent, child=self.child, nesting=nesting)
 
     def translate(self, translations):
         self.parent.translate(translations)
@@ -511,27 +501,12 @@ class LCTransitionMatrixBase(SchemaBase):
     transitions: list
     name: str
 
-    def meaningByTransition(self, initial, final):
-        """Get meaning for a particular transition"""
-        out = [
-            m.meaning
-            for m in self.transitions
-            if (m.initial == initial) and (m.final == final)
-        ][0]
-
-        if out == []:
-            return KeyError
-        else:
-            return out
-
     def meaning_by_transition(
         self, initial: LCClass, final: LCClass
-    ) -> "LCTransitionMeaningDeg":
+    ) -> "Union[LCTransitionMeaningDeg, None]":
         """
         Returns the meanings which contain the given land cover classes for
-        initial and final respectively. Differs from
-        :ref:`meaningByTransition` as it uses the code for comparison and
-        will not raise an error but will return None if there is no match.
+        initial and final respectively.
         """
         matches = [
             m
@@ -609,7 +584,7 @@ class LCTransitionDefinitionBase(SchemaBase):
         """Ensure each transition is represented once and only once"""
 
         if isinstance(data["definitions"], dict):
-            for key, m in data["definitions"]:
+            for _, m in data["definitions"]:
                 _validate_matrix(data["legend"], m.transitions)
         elif isinstance(data["definitions"], LCTransitionMatrixBase):
             _validate_matrix(data["legend"], data["definitions"].transitions)

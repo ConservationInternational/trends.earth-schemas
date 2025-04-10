@@ -109,7 +109,7 @@ class CrossTab:
     unit: str
     initial_year: int
     final_year: int
-    values: Union[List[CrossTabEntry], List[CrossTabEntryInitialFinal]]
+    values: List[CrossTabEntry]
 
 
 ###
@@ -155,20 +155,19 @@ class SoilOrganicCarbonReport:
 
 @dataclass
 class LandConditionReport:
+    """Class to hold data on land condition for UNCCD reporting."""
+
+    #: Summary statistics on SDG 15.3.1.
     sdg: Optional[SDG15Report] = field(default=None)
+    #: Report on land productivity.
     productivity: Optional[ProductivityReport] = field(default=None)
+    #: Report on land cover.
     land_cover: Optional[LandCoverReport] = field(default=None)
+    #: Report on soil organic carbon.
     soil_organic_carbon: Optional[SoilOrganicCarbonReport] = field(default=None)
+    #: Polygons indicating false positives and false negatives in the SDG Indicator 15.3.1 layer.
     error_recode: Optional[ErrorRecodePolygons] = field(default=None)
-
-
-@dataclass
-class LandConditionProgressReport:
-    sdg: AreaList
-    productivity: Dict[str, AreaList]
-    land_cover: AreaList
-    soil_organic_carbon: Dict[str, AreaList]
-    error_recode: Optional[ErrorRecodePolygons] = field(default=None)
+    #: Report on soil organic carbon.
     sdg_error_recode: Optional[AreaList] = field(default=None)
 
 
@@ -206,7 +205,7 @@ class DroughtReport:
 @dataclass
 class TrendsEarthLandConditionSummary:
     metadata: ReportMetadata
-    land_condition: Dict[str, Union[LandConditionReport, LandConditionProgressReport]]
+    land_condition: Dict[str, LandConditionReport]
     affected_population: Dict[str, AffectedPopulationReport]
 
 
