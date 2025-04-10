@@ -41,8 +41,22 @@ are contained within that report:
 Format changes relative to 2020 reporting cycle
 -----------------------------------------------
 
-- Renames of classes:
-  - TODO: Summarize
-- Changes in schema:
-  - TODO: Discuss additions to handle multiple reporting periods
-  - TODO: Discuss additions to handle new status datasets
+The primary changes to the schemas used for UNCCD reporting for the 2024
+reporting cycle relative to the 2020 reporting cycle are to suport an arbitrary
+number of reporting periods, with the potential for multiple reports (of
+different types) for each period. This change was made to allow reporting both
+on the "Period Assessment" as well as the "Status" for each reporting period
+(using the terminology of the SDG 15.3.1. GPG Addendum).
+
+The Period Assessment and Status reports are contained in
+:class:`te_schemas.reporting.LandConditionReport` objects within a `dict` in the 
+`land_condition` field of the
+:class:`te_schemas.reporting.LandConditionSummary` object. The keys within that
+`dict` are used to distinguish the Status reports from the Period Assessments -
+Status reports have the period name followed by "_status". The keys are
+sequentially named, as "Report_1", "Report_2", etc., where "Report_1" is the
+Period Assessment for the first reporting period, and "Report_1_status", the
+Status report for the first reporting period.
+
+TODOS:
+- List renames of classes that were done for clarity
