@@ -36,7 +36,7 @@ setup(
         "marshmallow-dataclass[enum, union]>=8.7.1",
     ],
     extras_require={
-        "dev": ["check-manifest", "sphinx"],
+        "dev": ["check-manifest", "sphinx", "sphinx-rtd-theme"],
         "test": ["coverage", "pytest"],
     },
 )

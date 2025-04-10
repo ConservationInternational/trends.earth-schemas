@@ -5,6 +5,7 @@
 
 import os
 import sys
+from datetime import date
 
 sys.path.insert(0, os.path.abspath("../.."))  # Source code dir relative to this file
 
@@ -12,7 +13,7 @@ sys.path.insert(0, os.path.abspath("../.."))  # Source code dir relative to this
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "te_schemas"
-copyright = "2025, Conservation International"
+copyright = "2017-{}, Conservation International".format(date.today().year)
 author = "Conservation International"
 release = "2.1.17"
 
