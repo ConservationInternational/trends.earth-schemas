@@ -23,22 +23,21 @@ class PathValidator(validate.Regexp):
 
 
 class VSIPathField(fields.Field):
-    def _serialize(self, value: pathlib.PurePosixPath, attr, obj, **kwargs):
+    def _serialize(
+        self, value: typing.Union[None, pathlib.PurePosixPath], attr, obj, **kwargs
+    ):
         if value is None:
             return ""
 
         return str(value)
 
-    def _deserialize(self, value: dict, attr, data, **kwargs):
+    def _deserialize(self, value: str, attr, data, **kwargs):
         return pathlib.PurePosixPath(value)
 
 
-VSIPath = marshmallow_dataclass.NewType(
-    "VSIPath",
-    pathlib.PurePosixPath,
-    validate=PathValidator(r"/vsi(s3)|(gs)"),
-    field=VSIPathField,
-)
+VSIPath = typing.Annotated[
+    pathlib.PurePosixPath, VSIPathField(validate=PathValidator(r"/vsi(s3)|(gs)"))
+]
 
 
 class LocalPathField(fields.Field):
@@ -52,9 +51,7 @@ class LocalPathField(fields.Field):
         return pathlib.Path(value)
 
 
-LocalPath = marshmallow_dataclass.NewType(
-    "LocalPath", pathlib.Path, field=LocalPathField
-)
+LocalPath = typing.Annotated[pathlib.Path, LocalPathField]
 
 
 class ResultType(enum.Enum):
@@ -106,7 +103,7 @@ class Etag:
     # TODO: Fix below as doesn't work on an s3 file uploaded with multipart
     @property
     def decoded_hash(self):
-        return binascii.hexlify(base64.b64decode(self.md5_hash)).decode()
+        return binascii.hexlify(base64.b64decode(self.hash)).decode()
 
 
 @marshmallow_dataclass.dataclass
@@ -138,7 +135,7 @@ class TiledRaster:
         None  # should point to a single VRT file linking the tiles
     )
     extents: typing.Optional[typing.List[typing.Tuple[float, float, float, float]]] = (
-        None
+        dataclasses.field(default_factory=list)
     )
     type: RasterType = dataclasses.field(
         default=RasterType.TILED_RASTER,
@@ -202,8 +199,10 @@ class RasterResults:
                 uris.append(raster.uri)  # tif or main vrt (for TiledRaster)
 
             if raster.type == RasterType.TILED_RASTER:
-                if raster.tile_uris:
-                    uris.extend(raster.tile_uris)  # tif (for TiledRaster)
+                if raster.tile_uris:  # type: ignore
+                    uris.extend(
+                        raster.tile_uris  # type: ignore
+                    )  # tif (for TiledRaster)
 
         return uris
 
@@ -211,11 +210,11 @@ class RasterResults:
         return [b for raster in self.rasters.values() for b in raster.bands]
 
     def get_extents(self):
-        extents = []
+        extents: typing.List[typing.Tuple[float, float, float, float]] = []
 
         for raster in self.rasters.values():
             if raster.type == RasterType.ONE_FILE_RASTER:
-                extents.append(raster.extent)
+                extents.append(raster.extent)  # type: ignore
             elif raster.type == RasterType.TILED_RASTER:
                 extents.extend(raster.extents)
         return [*set(extents)]
@@ -243,7 +242,7 @@ class RasterResults:
             if self.rasters[key].type == RasterType.ONE_FILE_RASTER:
                 tile_uris.append(self.rasters[key].uri)
             elif self.rasters[key].type == RasterType.TILED_RASTER:
-                tile_uris.extend(self.rasters[key].tile_uris)
+                tile_uris.extend(self.rasters[key].tile_uris)  # type: ignore
             if other.rasters[key].type == RasterType.ONE_FILE_RASTER:
                 tile_uris.append(other.rasters[key].uri)
             elif other.rasters[key].type == RasterType.TILED_RASTER:
