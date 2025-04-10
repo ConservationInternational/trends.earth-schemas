@@ -3,9 +3,10 @@ import logging
 import os
 import tempfile
 import uuid
+from typing import Dict, List
 
 from marshmallow_dataclass import dataclass
-from osgeo import gdal, ogr
+from osgeo import gdal, ogr, osr
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ def _get_bounding_box_geom(geom):
     return poly_envelope
 
 
-def _geojson_to_ds(geojson):
+def _geojson_to_ds(geojson) -> ogr.DataSource:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".geojson") as temp_file:
         temp_file.write(json.dumps(geojson).encode("utf-8"))
         temp_file_path = temp_file.name
@@ -35,11 +36,11 @@ def _geojson_to_ds(geojson):
     return ogr.Open(temp_file_path)
 
 
-def _make_temp_name(dir=tempfile.gettempdir()):
+def _make_temp_name(dir=tempfile.gettempdir()) -> str:
     return os.path.join(dir, str(uuid.uuid1()))
 
 
-def _ds_to_geojson(ds):
+def _ds_to_geojson(ds) -> str:
     temp_file = _make_temp_name()
     driver = ogr.GetDriverByName("GeoJSON")
     temp_ds = driver.CreateDataSource(temp_file)
@@ -56,7 +57,7 @@ def _ds_to_geojson(ds):
         return json.load(file)
 
 
-def _clean_geojson(geojson):
+def _clean_geojson(geojson) -> Dict:
     if isinstance(geojson, str):
         geojson = json.loads(geojson)
 
@@ -103,7 +104,7 @@ def _clean_geojson(geojson):
 
 @dataclass
 class AOI(object):
-    geojson: str
+    geojson: Dict
 
     def __init__(self, geojson):
         aoi = _geojson_to_ds(_clean_geojson(geojson))
@@ -113,7 +114,7 @@ class AOI(object):
         if not self.is_valid():
             raise ValueError
 
-    def is_valid(self):
+    def is_valid(self) -> bool:
         if not self.geojson:
             return False
         else:
@@ -125,17 +126,17 @@ class AOI(object):
         return True
 
     @property
-    def crs(self):
+    def crs(self) -> str:
         return self.get_srs().ExportToWkt()
 
-    def get_crs_wkt(self):
+    def get_crs_wkt(self) -> str:
         return self.crs
 
-    def get_srs(self):
+    def get_srs(self) -> osr.SpatialReference:
         aoi = self.get_ds()
         return aoi.GetLayer(0).GetSpatialRef()
 
-    def meridian_split(self, as_extent=False, out_format="geojson"):
+    def meridian_split(self, as_extent=False, out_format="geojson") -> List[str]:
         """
         Return list of bounding boxes in WGS84 as geojson or WKT
 
@@ -222,7 +223,7 @@ class AOI(object):
                     out.extend([o.ExportToWkt() for o in this_out])
         return out
 
-    def get_aligned_output_bounds(self, f):
+    def get_aligned_output_bounds(self, f) -> List[List[float]]:
         geojsons = self.meridian_split(as_extent=True)
 
         if not geojsons:
@@ -283,7 +284,7 @@ class AOI(object):
 
         return out
 
-    def bounding_box_gee_geojson(self):
+    def bounding_box_gee_geojson(self) -> List[str]:
         """
         Returns list of bounding box geojsons.
         """
@@ -321,7 +322,7 @@ class AOI(object):
                 f"type: {aoi.GetLayer(0).GetGeomType()}"
             )
 
-    def calc_frac_overlap(self, in_geom):
+    def calc_frac_overlap(self, in_geom) -> float:
         """
         Returns fraction of AOI that is overlapped by OGR geometry
 
@@ -340,10 +341,10 @@ class AOI(object):
         logger.debug("fractional overlap is %s", frac)
         return frac
 
-    def get_ds(self):
+    def get_ds(self) -> ogr.DataSource:
         return _geojson_to_ds(self.geojson)
 
-    def get_geojson(self, split=False):
+    def get_geojson(self, split=False) -> Dict:
         if split:
             features = self.meridian_split(as_extent=False)
             aoi = _geojson_to_ds(_clean_geojson(features))
