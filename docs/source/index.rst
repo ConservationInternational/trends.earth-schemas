@@ -8,12 +8,13 @@ well as schemas that are used for reporting results to the United Nations
 Convention to Combat Desertification's PRAIS system.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
+   :caption: Usage
 
-   reporting
-   land_cover
-   productivity
-   error_recode
-   results
-   schema
+   Usage in reporting <reporting/index>
 
+.. toctree::
+   :maxdepth: 3
+   :caption: API
+
+   API Reference <api/index>
