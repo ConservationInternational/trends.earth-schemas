@@ -10,11 +10,12 @@ build:
   tools:
     python: "3.13"
 
-# Build documentation in the "docs/" directory with Sphinx
 sphinx:
    configuration: docs/source/conf.py
 
+# Install module dependencies
 python:
    install:
     - method: setuptools
       path: .
+    - requirements: docs/source/requirements.txt
