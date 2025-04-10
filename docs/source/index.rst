@@ -8,13 +8,13 @@ well as schemas that are used for reporting results to the United Nations
 Convention to Combat Desertification's PRAIS system.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :caption: Usage
 
    Usage in reporting <reporting/index>
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :caption: API
 
    API Reference <api/index>

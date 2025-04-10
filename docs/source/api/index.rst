@@ -2,7 +2,7 @@ API reference
 ========================
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    reporting
    land_cover
