@@ -33,7 +33,7 @@ setup(
     install_requires=[
         "defusedxml>=0.7.1",
         "marshmallow>=3.21.3",
-        "marshmallow-dataclass[enum, union]>=8.7.1",
+        "marshmallow-dataclass>=8.7.1",
     ],
     extras_require={
         "dev": ["check-manifest", "sphinx", "sphinx-rtd-theme"],
