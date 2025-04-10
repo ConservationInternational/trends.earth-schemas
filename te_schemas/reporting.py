@@ -1,6 +1,6 @@
 import datetime
 from dataclasses import field
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 from marshmallow import validate
 from marshmallow_dataclass import dataclass
@@ -86,21 +86,11 @@ class PopulationList:
     values: List[Population]
 
 
-# Crosstab summary schemas
 @dataclass
 class CrossTabEntry:
     initial_label: str
     final_label: str
     value: float
-
-
-# Crosstab summary schemas
-@dataclass
-class CrossTabEntryInitialFinal:
-    initial_label: str
-    final_label: str
-    initial_value: float
-    final_value: float
 
 
 @dataclass
@@ -110,6 +100,23 @@ class CrossTab:
     initial_year: int
     final_year: int
     values: List[CrossTabEntry]
+
+
+@dataclass
+class CrossTabEntryInitialFinal:
+    initial_label: str
+    final_label: str
+    initial_value: float
+    final_value: float
+
+
+@dataclass
+class CrossTabInitialFinal:
+    name: Optional[str]
+    unit: str
+    initial_year: int
+    final_year: int
+    values: List[CrossTabEntryInitialFinal]
 
 
 ###
@@ -128,17 +135,23 @@ class ReportMetadata:
 
 @dataclass
 class SDG15Report:
+    """Summary report on SDG Indicator 15.3.1."""
+
     summary: AreaList
 
 
 @dataclass
 class ProductivityReport:
+    """Report on land productivity within a particular period."""
+
     summaries: Dict[str, AreaList]
     crosstabs_by_productivity_class: List[CrossTab]
 
 
 @dataclass
 class LandCoverReport:
+    """Report on land cover within a particular period."""
+
     summary: AreaList
     legend_nesting: land_cover.LCLegendNesting
     transition_matrix: land_cover.LCTransitionDefinitionDeg
@@ -148,16 +161,25 @@ class LandCoverReport:
 
 @dataclass
 class SoilOrganicCarbonReport:
+    """Report on soil organic carbon within a particular period."""
+
+    #: Summary statistics on change in soil organic carbon, stored as a `dict`,
+    #: where keys indicate summary type (over "all_cover_types" or
+    #: "non_water"), and values indicate areas improved, stable, degraded, or no
+    #: data.
     summaries: Dict[str, AreaList]
-    crosstab_by_land_cover_class: CrossTab
+    #: Crosstabs of change in soil organic carbon by land cover class over a
+    #: particular period
+    crosstab_by_land_cover_class: CrossTabInitialFinal
+    #: Soil organic carbon stock by year and land cover class
     soc_stock_by_year: ValuesByYearDict
 
 
 @dataclass
 class LandConditionReport:
-    """Class to hold data on land condition for UNCCD reporting."""
+    """Report on land condition within a particular period."""
 
-    #: Summary statistics on SDG 15.3.1.
+    #: Summary statistics on SDG Indicator 15.3.1.
     sdg: Optional[SDG15Report] = field(default=None)
     #: Report on land productivity.
     productivity: Optional[ProductivityReport] = field(default=None)
