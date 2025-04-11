@@ -7,6 +7,7 @@
 `trends.earth-schemas` is a python package that stores the schemas used for
 internal handling of the results of trends.earth analyses.
 
+
 `Trends.Earth` is a free and open source tool to understand land change: the how and why
 behind changes on the ground. Trends.Earth allows users to draw on the best available
 information from across a range of sources - from globally available data to customized
@@ -22,6 +23,10 @@ through a partnership with Conservation International, University of Bern,
 University of Colorado in partnership with USDA and USAID, University of California -
 Santa Barbara in partnership with University of North Carolina - Wilmington and Brown
 University with additional funding from the Global Environment Facility (GEF).
+
+# Documentation
+
+For further information on `trends.earth-schemas` see [the documentation](https://trendsearth-schemas.readthedocs.io).
 
 # License
 
