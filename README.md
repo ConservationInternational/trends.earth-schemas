@@ -2,6 +2,7 @@
 
 [![Ruff](https://github.com/ConservationInternational/trends.earth-algorithms/actions/workflows/ruff.yaml/badge.svg)](https://github.com/ConservationInternational/trends.earth-algorithms/actions/workflows/ruff.yaml)
 [![Test](https://github.com/ConservationInternational/trends.earth-schemas/actions/workflows/test.yaml/badge.svg)](https://github.com/ConservationInternational/trends.earth-schemas/actions/workflows/test.yaml)
+[![docs](https://readthedocs.org/projects/trendsearth-schemas/badge/?version=latest)](https://app.readthedocs.org/projects/trendsearth-schemas/builds/)
 
 `trends.earth-schemas` is a python package that stores the schemas used for
 internal handling of the results of trends.earth analyses.

@@ -49,14 +49,14 @@ on the "Period Assessment" as well as the "Status" for each reporting period
 (using the terminology of the SDG 15.3.1. GPG Addendum).
 
 The Period Assessment and Status reports are contained in
-:class:`te_schemas.reporting.LandConditionReport` objects within a `dict` in the 
-`land_condition` field of the
-:class:`te_schemas.reporting.TrendsEarthLandConditionSummary` object. The keys within that
-`dict` are used to distinguish the Status reports from the Period Assessments -
-Status reports have the period name followed by "_status". The keys are
-sequentially named, as "Report_1", "Report_2", etc., where "Report_1" is the
-Period Assessment for the first reporting period, and "Report_1_status", the
-Status report for the first reporting period.
+:class:`te_schemas.reporting.LandConditionReport` objects within a `dict` in
+the `land_condition` field of the
+:class:`te_schemas.reporting.TrendsEarthLandConditionSummary` object. The keys
+within that `dict` are used to distinguish the Status reports from the Period
+Assessments - Status reports have the period name followed by "_status". The
+keys are sequentially named, as "Report_1", "Report_2", etc., where "Report_1"
+is the Period Assessment for the first reporting period, and "Report_1_status",
+the Status report for the first reporting period.
 
 TODOS:
 - List renames of classes that were done for clarity
