@@ -36,7 +36,8 @@ setup(
         "marshmallow-dataclass>=8.7.1",
     ],
     extras_require={
-        "dev": ["check-manifest", "sphinx", "sphinx-rtd-theme"],
+        "dev": ["check-manifest"],
         "test": ["coverage", "pytest"],
+        "docs": ["sphinx", "sphinx_rtd_theme"],
     },
 )
