@@ -337,9 +337,10 @@ class LCLegendNesting(SchemaBase):
 
     def update_parent(self, child, new_parent):
         # Remove the child class from the old parent
-        old_parent = self.parentClassForChild(child)
-        self.nesting[old_parent.code].remove(child.code)
-        self.nesting[new_parent.code].append(child.code)
+        old_parent = self.parent_for_child(child)
+        if old_parent:
+            self.nesting[old_parent.code].remove(child.code)
+            self.nesting[new_parent.code].append(child.code)
 
     def get_list(self):
         """Return the nesting in format needed for GEE"""
