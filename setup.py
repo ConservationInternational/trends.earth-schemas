@@ -32,7 +32,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "defusedxml>=0.7.1",
-        "marshmallow>=3.21.3",
+        "marshmallow>=3.21.3,<4.0.0",
         "marshmallow-dataclass>=8.7.1",
     ],
     extras_require={

@@ -22,7 +22,9 @@ class ExecutionScript(SchemaBase):
         unknown = EXCLUDE
 
     id: typing.Union[uuid.UUID, str]
-    run_mode: typing.Optional[AlgorithmRunMode] = field(metadata={"by_value": True})
+    run_mode: typing.Optional[AlgorithmRunMode] = field(
+        metadata={"by_value": True}, default=AlgorithmRunMode.NOT_APPLICABLE
+    )
     name: typing.Optional[str] = field(default="")
     slug: typing.Optional[str] = field(default="")
     execution_callable: typing.Optional[str] = field(default="")
