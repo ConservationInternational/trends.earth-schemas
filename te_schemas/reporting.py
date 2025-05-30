@@ -176,21 +176,56 @@ class SoilOrganicCarbonReport:
 
 
 @dataclass
-class LandConditionReport:
+class LandConditionAssessment:
     """Report on land condition within a particular period."""
 
     #: Summary statistics on SDG Indicator 15.3.1.
-    sdg: Optional[SDG15Report] = field(default=None)
+    sdg: SDG15Report
     #: Report on land productivity.
-    productivity: Optional[ProductivityReport] = field(default=None)
+    productivity: ProductivityReport
     #: Report on land cover.
-    land_cover: Optional[LandCoverReport] = field(default=None)
+    land_cover: LandCoverReport
     #: Report on soil organic carbon.
-    soil_organic_carbon: Optional[SoilOrganicCarbonReport] = field(default=None)
+    soil_organic_carbon: SoilOrganicCarbonReport
     #: Polygons indicating false positives and false negatives in the SDG Indicator 15.3.1 layer.
     error_recode: Optional[ErrorRecodePolygons] = field(default=None)
-    #: Report on soil organic carbon.
+    #: Summary statistics on false positive/negative areas.
     sdg_error_recode: Optional[AreaList] = field(default=None)
+
+
+@dataclass
+class LandConditionStatus:
+    """Report on land condition for a particular period, relative to baseline."""
+
+    #: Summary statistics on SDG Indicator 15.3.1.
+    sdg: AreaList
+    #: Report on land productivity.
+    productivity: Dict[str, AreaList]
+    #: Report on land cover.
+    land_cover: AreaList
+    #: Report on soil organic carbon.
+    soil_organic_carbon: Dict[str, AreaList]
+
+
+@dataclass
+class LandConditionChange:
+    """Report on change in land condition between two periods."""
+
+    #: Cross tabulation of change in SDG Indicator 15.3.1
+    sdg: CrossTab
+    #: Cross tabulation of change in land productivity dynamics
+    productivity: CrossTab
+    #: Cross tabulation of change in land cover degradation
+    land_cover: CrossTab
+    #: Cross tabulation of change in productivity degradation
+    soil_organic_carbon: CrossTab
+
+
+@dataclass
+class LandConditionReport:
+    period_assessment: LandConditionAssessment
+    status_assessment: Optional[LandConditionStatus] = field(default=None)
+    change_assessment: Optional[LandConditionChange] = field(default=None)
 
 
 @dataclass
