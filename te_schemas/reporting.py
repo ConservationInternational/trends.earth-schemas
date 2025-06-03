@@ -214,7 +214,7 @@ class LandConditionChange:
     productivity: CrossTab
     #: Cross tabulation of change in land cover degradation
     land_cover: CrossTab
-    #: Cross tabulation of change in productivity degradation
+    #: Cross tabulation of change in soil organic carbon degradation
     soil_organic_carbon: CrossTab
 
 
