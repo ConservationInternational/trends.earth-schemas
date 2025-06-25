@@ -168,9 +168,6 @@ class SoilOrganicCarbonReport:
     #: "non_water"), and values indicate areas improved, stable, degraded, or no
     #: data.
     summaries: Dict[str, AreaList]
-    #: Crosstabs of change in soil organic carbon by land cover class over a
-    #: particular period
-    crosstab_by_land_cover_class: CrossTabInitialFinal
     #: Soil organic carbon stock by year and land cover class
     soc_stock_by_year: ValuesByYearDict
 
@@ -217,7 +214,7 @@ class LandConditionChange:
     productivity: CrossTab
     #: Cross tabulation of change in land cover degradation
     land_cover: CrossTab
-    #: Cross tabulation of change in productivity degradation
+    #: Cross tabulation of change in soil organic carbon degradation
     soil_organic_carbon: CrossTab
 
 
