@@ -206,7 +206,7 @@ class AOI(object):
                     # original layer (or extent) if the area of the combined pieces
                     # from both hemispheres is not significantly smaller than that of
                     # the original polygon.
-                    logger.info(
+                    logger.debug(
                         "Feature being processed in one piece "
                         "(does not appear to cross 180th meridian)"
                     )
