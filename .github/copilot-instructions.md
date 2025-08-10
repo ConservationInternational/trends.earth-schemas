@@ -10,6 +10,7 @@
 - **Main Framework:** marshmallow for schema definition and validation
 - **Size:** ~13MB repository, minimal complexity
 - **Dependencies:** defusedxml, marshmallow, marshmallow-dataclass, GDAL (for geo-spatial functionality)
+- **Downstream Dependencies:** `conservationinternational/trends.earth-algorithms` repository relies on these schemas
 
 ## Build and Testing Instructions
 
@@ -81,6 +82,14 @@ Before making changes, always:
 3. Run `pytest -v` to ensure tests pass
 4. Run `ruff check` for linting
 5. Run `ruff format` for formatting
+
+### Breaking Changes Considerations
+**IMPORTANT:** The `conservationinternational/trends.earth-algorithms` repository depends on these schemas. When making changes:
+- **Schema modifications:** Changes to field names, types, or required fields may break downstream consumers
+- **API changes:** Modifications to schema methods or validation logic should be backward-compatible
+- **New fields:** Adding optional fields is generally safe; adding required fields may break existing code
+- **Deprecations:** Consider deprecation warnings before removing schema fields or methods
+- **Version impact:** Major schema changes may require coordinated updates in the algorithms repository
 
 ## Project Architecture
 
