@@ -35,6 +35,7 @@ class JobStatus(enum.Enum):
     DELETED = "DELETED"
     DOWNLOADED = "DOWNLOADED"
     GENERATED_LOCALLY = "GENERATED_LOCALLY"
+    CANCELLED = "CANCELLED"
 
 
 @marshmallow_dataclass.dataclass
