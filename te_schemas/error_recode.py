@@ -1,6 +1,6 @@
 import uuid as uuid_module
 from dataclasses import field
-from typing import ClassVar, List, Optional, Tuple, Type
+from typing import ClassVar, List, Optional, Tuple
 
 from marshmallow import EXCLUDE, validate
 from marshmallow_dataclass import dataclass
@@ -48,9 +48,9 @@ class ErrorRecodePolygons:
     crs: Optional[dict]
     type: str = field(metadata={"validate": validate.Equal("FeatureCollection")})
 
-    recode_deg_to_options: ClassVar[Type[Tuple]] = (None, -32768, 0, 1)
-    recode_stable_to_options: ClassVar[Type[Tuple]] = (None, -32768, -1, 1)
-    recode_imp_to_options: ClassVar[Type[Tuple]] = (None, -32768, -1, 0)
+    recode_deg_to_options: ClassVar[Tuple] = (None, -32768, 0, 1)
+    recode_stable_to_options: ClassVar[Tuple] = (None, -32768, -1, 1)
+    recode_imp_to_options: ClassVar[Tuple] = (None, -32768, -1, 0)
 
     @property
     def trans_code_lists(self):
@@ -80,9 +80,26 @@ class ErrorRecodePolygons:
             for j in range(len(self.recode_stable_to_options)):
                 for k in range(len(self.recode_imp_to_options)):
                     codes.append(n)
-                    deg_to.append(self.recode_deg_to_options[i])
-                    stable_to.append(self.recode_stable_to_options[j])
-                    imp_to.append(self.recode_imp_to_options[k])
+                    # Convert None to -9999 for "no recoding" sentinel value
+                    # This allows -32768 to mean "recode to nodata" as intended
+                    deg_val = (
+                        self.recode_deg_to_options[i]
+                        if self.recode_deg_to_options[i] is not None
+                        else -9999
+                    )
+                    stable_val = (
+                        self.recode_stable_to_options[j]
+                        if self.recode_stable_to_options[j] is not None
+                        else -9999
+                    )
+                    imp_val = (
+                        self.recode_imp_to_options[k]
+                        if self.recode_imp_to_options[k] is not None
+                        else -9999
+                    )
+                    deg_to.append(deg_val)
+                    stable_to.append(stable_val)
+                    imp_to.append(imp_val)
                     n += 1
 
         return codes, deg_to, stable_to, imp_to
