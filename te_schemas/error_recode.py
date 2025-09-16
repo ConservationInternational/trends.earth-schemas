@@ -25,6 +25,13 @@ class ErrorRecodeProperties:
     recode_imp_to: Optional[int] = field(
         metadata={"validate": validate.OneOf([None, -32768, -1, 0]), "missing": None}
     )
+    periods_affected: List[str] = field(
+        default_factory=lambda: ["baseline"],
+        metadata={
+            "validate": validate.OneOf(["baseline", "reporting_1", "reporting_2"]),
+            "description": "List of periods to apply this change correction to. Valid values: baseline, reporting_1, reporting_2.",
+        },
+    )
     stats: Optional[dict]
 
 
@@ -51,13 +58,6 @@ class ErrorRecodePolygons:
     recode_deg_to_options: ClassVar[Tuple] = (None, -32768, 0, 1)
     recode_stable_to_options: ClassVar[Tuple] = (None, -32768, -1, 1)
     recode_imp_to_options: ClassVar[Tuple] = (None, -32768, -1, 0)
-    periods_affected: List[str] = field(
-        default_factory=lambda: ["baseline"],
-        metadata={
-            "validate": validate.OneOf(["baseline", "reporting_1", "reporting_2"]),
-            "description": "List of periods to apply this change correction to. Valid values: baseline, reporting_1, reporting_2.",
-        },
-    )
 
     @property
     def trans_code_lists(self):
