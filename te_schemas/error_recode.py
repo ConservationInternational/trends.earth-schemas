@@ -26,9 +26,13 @@ class ErrorRecodeProperties:
         metadata={"validate": validate.OneOf([None, -32768, -1, 0]), "missing": None}
     )
     periods_affected: List[str] = field(
-        default_factory=lambda: ["baseline"],
         metadata={
-            "validate": validate.OneOf(["baseline", "reporting_1", "reporting_2"]),
+            "validate": validate.And(
+                validate.Length(min=1),
+                lambda x: all(
+                    item in ["baseline", "reporting_1", "reporting_2"] for item in x
+                ),
+            ),
             "description": "List of periods to apply this change correction to. Valid values: baseline, reporting_1, reporting_2.",
         },
     )
