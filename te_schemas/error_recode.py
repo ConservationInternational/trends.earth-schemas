@@ -11,20 +11,7 @@ class ErrorRecodeProperties:
     class Meta:
         unknown = EXCLUDE
 
-    uuid: uuid_module.UUID = field(metadata={"default": uuid_module.uuid4})
-    location_name: Optional[str]
-    area_km_sq: Optional[float]
-    process_driving_change: Optional[str]
-    basis_for_judgement: Optional[str]
-    recode_deg_to: Optional[int] = field(
-        metadata={"validate": validate.OneOf([None, -32768, 0, 1]), "missing": None}
-    )
-    recode_stable_to: Optional[int] = field(
-        metadata={"validate": validate.OneOf([None, -32768, -1, 1]), "missing": None}
-    )
-    recode_imp_to: Optional[int] = field(
-        metadata={"validate": validate.OneOf([None, -32768, -1, 0]), "missing": None}
-    )
+    uuid: uuid_module.UUID
     periods_affected: List[str] = field(
         metadata={
             "validate": validate.And(
@@ -33,10 +20,25 @@ class ErrorRecodeProperties:
                     item in ["baseline", "reporting_1", "reporting_2"] for item in x
                 ),
             ),
-            "description": "List of periods to apply this change correction to. Valid values: baseline, reporting_1, reporting_2.",
         },
     )
-    stats: Optional[dict]
+    location_name: Optional[str] = None
+    area_km_sq: Optional[float] = None
+    process_driving_change: Optional[str] = None
+    basis_for_judgement: Optional[str] = None
+    recode_deg_to: Optional[int] = field(
+        default=None,
+        metadata={"validate": validate.OneOf([None, -32768, 0, 1])},
+    )
+    recode_stable_to: Optional[int] = field(
+        default=None,
+        metadata={"validate": validate.OneOf([None, -32768, -1, 1])},
+    )
+    recode_imp_to: Optional[int] = field(
+        default=None,
+        metadata={"validate": validate.OneOf([None, -32768, -1, 0])},
+    )
+    stats: Optional[dict] = None
 
 
 @dataclass
