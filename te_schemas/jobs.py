@@ -98,26 +98,39 @@ class Job:
     @pre_load
     def set_script_name_version(self, data, **kwargs):
         script_id = data.pop("script_id", None)
-        params_script = data["params"].pop("script", None)
+        params_script = None
+        if "params" in data and data["params"] is not None:
+            params_script = data["params"].pop("script", None)
 
         if not data.get("script"):
             if params_script:
-                data["script"] = params_script
+                # Handle case where params_script could be a string (script ID) or dict (script object)
+                if isinstance(params_script, str):
+                    # It's just a script ID, create ExecutionScript object
+                    data["script"] = ExecutionScript.Schema().dump(
+                        ExecutionScript(id=params_script, name=str(params_script))
+                    )
+                else:
+                    # It's a script object dictionary
+                    data["script"] = params_script
             elif script_id:
+                # Use script_id as both id and name for meaningful display
                 data["script"] = ExecutionScript.Schema().dump(
-                    ExecutionScript(script_id)
+                    ExecutionScript(id=script_id, name=str(script_id))
                 )
             else:
                 data["script"] = ExecutionScript.Schema().dump(
-                    ExecutionScript("Unknown script")
+                    ExecutionScript(id="unknown-script", name="Unknown script")
                 )
 
-        script_name_regex = re.compile("([0-9a-zA-Z -]*)(?: *)([0-9]+(_[0-9]+)+)")
-        matches = script_name_regex.search(data["script"].get("name"))
+        # Ensure data["script"] is a dictionary before accessing its properties
+        if isinstance(data["script"], dict):
+            script_name_regex = re.compile("([0-9a-zA-Z -]*)(?: *)([0-9]+(_[0-9]+)+)")
+            matches = script_name_regex.search(data["script"].get("name", ""))
 
-        if matches:
-            data["script"]["name"] = matches.group(1).rstrip()
-            data["script"]["version"] = matches.group(2).replace("_", ".")
+            if matches:
+                data["script"]["name"] = matches.group(1).rstrip()
+                data["script"]["version"] = matches.group(2).replace("_", ".")
 
         return data
 
@@ -148,10 +161,10 @@ class Job:
     @property
     def visible_name(self) -> str:
         if self.script is not None:
-            if self.script.name_readable:
-                script_name = self.script.name_readable
-            else:
+            if self.script.name:
                 script_name = self.script.name
+            else:
+                script_name = self.script.name_readable
         else:
             script_name = ""
 
