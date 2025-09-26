@@ -10,4 +10,3 @@ API reference
    error_recode
    results
    schema
-
