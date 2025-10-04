@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0", "setuptools-scm[toml]>=8.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "te_schemas"
-version = "2.1.17"
+dynamic = ["version"]
 description = "Schemas supporting the Trends.Earth QGIS plugin."
 readme = "README.md"
 license = {text = "MIT"}
@@ -54,3 +54,7 @@ include = ["te_schemas*"]
 
 [tool.setuptools.package-data]
 te_schemas = ["version.json"]
+
+[tool.setuptools_scm]
+version_scheme = "guess-next-dev"
+local_scheme = "no-local-version"
