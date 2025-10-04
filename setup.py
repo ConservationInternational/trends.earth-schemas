@@ -1,5 +1,7 @@
-# Minimal setup.py for backward compatibility
-# All configuration is now in pyproject.toml
+# Setup.py for backward compatibility
+# Configuration in pyproject.toml, but name must be explicit for git installs
 from setuptools import setup
 
-setup()
+setup(
+    name="te_schemas",
+)
