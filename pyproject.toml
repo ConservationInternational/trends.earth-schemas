@@ -53,7 +53,7 @@ where = ["."]
 include = ["te_schemas*"]
 
 [tool.setuptools.package-data]
-te_schemas = ["version.json"]
+te_schemas = []
 
 [tool.setuptools_scm]
 version_scheme = "guess-next-dev"

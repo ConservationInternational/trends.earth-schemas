@@ -4,6 +4,19 @@ from marshmallow.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 
+# Import version information
+try:
+    from te_schemas._version import __version__, __git_sha__, __git_date__
+except ImportError:
+    __version__ = "unknown"
+    __git_sha__ = "unknown"
+    __git_date__ = "unknown"
+    logging.warning(
+        "te_schemas version could not be determined. "
+        "If you're running from source, please run 'invoke set-version' first. "
+        "If you're running from a package, this may indicate a packaging issue."
+    )
+
 
 class SchemaBase:
     """Base class for te_schemas schemas"""
