@@ -1,4 +1,5 @@
 import logging
+import re
 
 from marshmallow.exceptions import ValidationError
 
@@ -16,6 +17,10 @@ except ImportError:
         "If you're running from source, please run 'invoke set-version' first. "
         "If you're running from a package, this may indicate a packaging issue."
     )
+
+# Backward compatibility attributes
+__version_major__ = re.sub(r"([0-9]+)(\.[0-9]+)+.*$", r"\g<1>", __version__)
+__release_date__ = __git_date__  # Use git date as release date
 
 
 class SchemaBase:
