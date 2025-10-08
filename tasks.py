@@ -123,17 +123,22 @@ def _replace(file_path, regex, subst):
 
 
 @task
-def set_version(c):
+def set_version(c, version=None):
     """
     Generate _version.py with git information.
 
-    Version is always determined automatically from git tags using setuptools-scm.
-    No manual version parameter needed - setuptools-scm reads from git tags.
+    Args:
+        version: Optional manual version string (e.g., "2.1.20"). If not provided,
+                 version is determined automatically from git tags using setuptools-scm.
     """
 
-    # Get version from setuptools-scm (git tags) - this is the ONLY source of truth
-    version_to_write = get_version(c)
-    print(f"Using version {version_to_write} from git tags")
+    # Get version - either from manual override or git tags
+    if version:
+        version_to_write = version
+        print(f"Using manually specified version: {version_to_write}")
+    else:
+        version_to_write = get_version(c)
+        print(f"Using version {version_to_write} from git tags")
 
     # Always generate _version.py with git information captured at build time
     print("Generating te_schemas/_version.py with git information")
@@ -172,8 +177,21 @@ def set_version(c):
 
 
 @task()
-def set_tag(c):
-    v = get_version(c)
+def set_tag(c, version=None):
+    """
+    Create and push a git tag for the current version.
+
+    Args:
+        version: Optional manual version string (e.g., "2.1.20"). If not provided,
+                 version is determined automatically from git tags using setuptools-scm.
+    """
+    if version:
+        v = version
+        print(f"Using manually specified version: {v}")
+    else:
+        v = get_version(c)
+        print(f"Using version {v} from git tags")
+
     ret = subprocess.run(
         ["git", "diff-index", "HEAD", "--"], capture_output=True, text=True
     )
