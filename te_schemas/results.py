@@ -320,6 +320,20 @@ class FileResults:
             if not uri.uri.exists() and possible_path.exists():
                 uri.uri = possible_path
 
+    def get_all_uris(self):
+        """Return a list of all URI objects associated with this file result.
+
+        Mirrors the interface provided by RasterResults so that downstream
+        code can treat different result types uniformly.
+        The primary archive or file (self.uri) is returned first (if set),
+        followed by any auxiliary URIs in other_uris.
+        """
+        uris = []
+        if self.uri is not None:
+            uris.append(self.uri)
+        uris.extend(self.other_uris)
+        return uris
+
 
 @marshmallow_dataclass.dataclass
 class JsonResults:
