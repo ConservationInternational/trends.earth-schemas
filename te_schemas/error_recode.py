@@ -17,7 +17,7 @@ class ErrorRecodeProperties:
             "validate": validate.And(
                 validate.Length(min=1),
                 lambda x: all(
-                    item in ["baseline", "reporting_1", "reporting_2"] for item in x
+                    item in ["baseline", "report_1", "report_2"] for item in x
                 ),
             ),
         },
