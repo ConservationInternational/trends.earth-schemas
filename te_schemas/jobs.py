@@ -107,7 +107,7 @@ class Job:
                 # Handle case where params_script could be a string (script ID) or dict (script object)
                 if isinstance(params_script, str):
                     # It's just a script ID, create ExecutionScript object
-                    data["script"] = ExecutionScript.Schema().dump(
+                    data["script"] = ExecutionScript.schema().dump(
                         ExecutionScript(id=params_script, name=str(params_script))
                     )
                 else:
@@ -115,11 +115,11 @@ class Job:
                     data["script"] = params_script
             elif script_id:
                 # Use script_id as both id and name for meaningful display
-                data["script"] = ExecutionScript.Schema().dump(
+                data["script"] = ExecutionScript.schema().dump(
                     ExecutionScript(id=script_id, name=str(script_id))
                 )
             else:
-                data["script"] = ExecutionScript.Schema().dump(
+                data["script"] = ExecutionScript.schema().dump(
                     ExecutionScript(id="unknown-script", name="Unknown script")
                 )
 
