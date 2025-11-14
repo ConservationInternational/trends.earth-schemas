@@ -31,7 +31,11 @@ class ExecutionScript(SchemaBase):
     version: typing.Optional[str] = field(default="")
     description: typing.Optional[str] = field(default="")
     name_readable: typing.Optional[str] = field(default="")
-    additional_configuration: typing.Optional[dict] = field(default_factory=dict)
+    additional_configuration: typing.Optional[dict] = None
+
+    def __post_init__(self):  # ensure mutable default created safely
+        if self.additional_configuration is None:
+            self.additional_configuration = {}
 
     @pre_load
     def set_id_and_slug(self, data, **kwargs):
