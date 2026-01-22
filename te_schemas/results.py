@@ -1,3 +1,29 @@
+"""
+Result schemas for Trends.Earth analysis outputs.
+
+This module defines the data structures for representing analysis results,
+including raster outputs, JSON data, and file references. These schemas
+are used for serialization/deserialization when communicating with the
+Trends.Earth API and for storing job results.
+
+Classes:
+    Band: Metadata for a single raster band.
+    Raster: A single-file raster layer.
+    TiledRaster: A multi-file tiled raster layer.
+    RasterResults: Results containing raster layers (primary result type).
+    JsonResults: Results containing only JSON data.
+    FileResults: Results referencing file outputs.
+    CloudResults: Results from cloud processing.
+    URI: Universal resource identifier for file locations.
+    Etag: File hash for integrity verification.
+
+Enums:
+    DataType: Pixel data types (Int16, Float32, etc.).
+    RasterType: Single file vs tiled raster.
+    RasterFileType: GeoTiff or COG format.
+    ResultType: Type discriminator for result classes.
+"""
+
 from __future__ import annotations
 
 import base64
@@ -118,6 +144,17 @@ class URI:
 
 @marshmallow_dataclass.dataclass
 class Band:
+    """
+    Metadata for a single band in a raster file.
+
+    Attributes:
+        name: Human-readable band name (e.g., "SDG 15.3.1 Indicator - Baseline").
+        metadata: Dictionary of additional band metadata.
+        no_data_value: Value representing no data (default: -32768).
+        activated: Whether the band should be processed (default: True).
+        add_to_map: Whether the band should be displayed in the map (default: True).
+    """
+
     name: str
     metadata: dict
     no_data_value: typing.Union[int, float] = -32768
@@ -127,6 +164,22 @@ class Band:
 
 @marshmallow_dataclass.dataclass
 class TiledRaster:
+    """
+    A tiled raster composed of multiple files.
+
+    Used for large rasters that are split across multiple GeoTIFF tiles,
+    typically with a VRT file linking them together.
+
+    Attributes:
+        tile_uris: List of URIs pointing to individual tile files.
+        bands: List of Band metadata for the raster.
+        datatype: Pixel data type (e.g., Int16, Float32).
+        filetype: File format (GeoTiff or COG).
+        uri: Optional URI to a VRT file linking all tiles.
+        extents: Optional list of (minx, miny, maxx, maxy) bounding boxes.
+        type: Must be RasterType.TILED_RASTER.
+    """
+
     tile_uris: typing.List[URI]
     bands: typing.List[Band]
     datatype: DataType = dataclasses.field(metadata={"by_value": True})
@@ -148,6 +201,20 @@ class TiledRaster:
 
 @marshmallow_dataclass.dataclass
 class Raster:
+    """
+    A single-file raster layer.
+
+    Represents a GeoTIFF or COG file containing one or more bands.
+
+    Attributes:
+        uri: URI pointing to the raster file (S3, GCS, or local path).
+        bands: List of Band metadata for each band in the file.
+        datatype: Pixel data type (e.g., Int16, Float32).
+        filetype: File format (GeoTiff or COG).
+        extent: Optional bounding box as (minx, miny, maxx, maxy).
+        type: Must be RasterType.ONE_FILE_RASTER.
+    """
+
     uri: URI
     bands: typing.List[Band]
     datatype: DataType = dataclasses.field(metadata={"by_value": True})
@@ -164,6 +231,39 @@ class Raster:
 
 @marshmallow_dataclass.dataclass
 class RasterResults:
+    """
+    Results containing one or more raster layers.
+
+    The primary result type for land degradation analysis jobs. Contains
+    raster data organized by data type (e.g., Int16, Float32) along with
+    optional metadata and summary statistics.
+
+    Attributes:
+        name: Human-readable result name (e.g., "SDG 15.3.1 Indicator").
+        rasters: Dict mapping data type keys to Raster or TiledRaster objects.
+        uri: Optional URI to a combined VRT or TIF linking all rasters.
+        data: Optional dict containing additional result data (e.g., summaries).
+        type: Must be ResultType.RASTER_RESULTS.
+
+    Example:
+        Typical structure after serialization::
+
+            {
+                "name": "SDG 15.3.1 Indicator",
+                "type": "RasterResults",
+                "rasters": {
+                    "Int16": {
+                        "uri": {...},
+                        "bands": [...],
+                        "datatype": "Int16",
+                        "filetype": "GeoTiff",
+                        "type": "One file raster"
+                    }
+                },
+                "data": {"report": {"summary": {...}}}
+            }
+    """
+
     name: str
     rasters: typing.Dict[str, typing.Union[Raster, TiledRaster]]
     uri: typing.Optional[URI] = (
@@ -337,6 +437,18 @@ class FileResults:
 
 @marshmallow_dataclass.dataclass
 class JsonResults:
+    """
+    Results containing only JSON data without raster outputs.
+
+    Used for analysis jobs that produce statistics or reports without
+    generating new raster files (e.g., sdg-15-3-1-stats script).
+
+    Attributes:
+        name: Human-readable result name.
+        data: Dictionary containing all result data (statistics, reports, etc.).
+        type: Must be ResultType.JSON_RESULTS.
+    """
+
     class Meta:
         unknown = marshmallow.EXCLUDE
 
