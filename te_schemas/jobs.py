@@ -69,6 +69,17 @@ class JobLocalContext:
     area_of_interest_name: str = dataclasses.field(default="unknown-area")
 
 
+# Type alias for a single result
+SingleResult = typing.Union[
+    RasterResults,
+    FileResults,
+    JsonResults,
+    TimeSeriesTableResult,
+    VectorResults,
+    EmptyResults,
+]
+
+
 @marshmallow_dataclass.dataclass
 class Job:
     id: uuid.UUID
@@ -79,14 +90,11 @@ class Job:
     local_context: typing.Optional[JobLocalContext] = dataclasses.field(
         default_factory=JobLocalContext
     )
+    # Results can be a single result object or a list of result objects
     results: typing.Optional[
         typing.Union[
-            RasterResults,
-            FileResults,
-            JsonResults,
-            TimeSeriesTableResult,
-            VectorResults,
-            EmptyResults,
+            SingleResult,
+            typing.List[SingleResult],
         ]
     ] = dataclasses.field(default_factory=dict)
     task_name: typing.Optional[str] = None
@@ -179,8 +187,33 @@ class Job:
 
         return name
 
+    def _get_results_list(self) -> typing.List[SingleResult]:
+        """Return results as a list, whether it's a single result or already a list."""
+        if self.results is None:
+            return []
+        if isinstance(self.results, list):
+            return self.results
+        return [self.results]
+
     def is_file(self) -> bool:
-        return isinstance(self.results, FileResults)
+        """Check if any result is a FileResults."""
+        return any(isinstance(r, FileResults) for r in self._get_results_list())
 
     def is_vector(self) -> bool:
-        return isinstance(self.results, VectorResults)
+        """Check if any result is a VectorResults."""
+        return any(isinstance(r, VectorResults) for r in self._get_results_list())
+
+    def is_raster(self) -> bool:
+        """Check if any result is a RasterResults."""
+        return any(isinstance(r, RasterResults) for r in self._get_results_list())
+
+    def get_results_by_type(self, result_type: type) -> typing.List[SingleResult]:
+        """Get all results of a specific type."""
+        return [r for r in self._get_results_list() if isinstance(r, result_type)]
+
+    def get_first_result_by_type(
+        self, result_type: type
+    ) -> typing.Optional[SingleResult]:
+        """Get the first result of a specific type, or None if not found."""
+        results = self.get_results_by_type(result_type)
+        return results[0] if results else None
