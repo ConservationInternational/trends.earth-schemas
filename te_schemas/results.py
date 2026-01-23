@@ -119,6 +119,7 @@ class EtagType(enum.Enum):
 
 class VectorType(enum.Enum):
     ERROR_RECODE = "False positive/negative"
+    GENERIC = "Generic"
 
 
 @marshmallow_dataclass.dataclass
@@ -494,9 +495,22 @@ class VectorFalsePositive:
 
 @marshmallow_dataclass.dataclass
 class VectorResults:
+    """
+    Generic vector results class for any vector/geojson output.
+
+    For generic vector results, only `name` and `uri` are required.
+    The `vector` field is optional and used for specific vector types
+    like ErrorRecode that need additional metadata.
+    """
+
     name: str
-    vector: VectorFalsePositive
+    uri: typing.Optional[URI] = None
     extent: typing.Optional[typing.Tuple[float, float, float, float]] = None
+    vector: typing.Optional[VectorFalsePositive] = None
+    vector_type: VectorType = dataclasses.field(
+        default=VectorType.GENERIC,
+        metadata={"by_value": True},
+    )
     type: ResultType = dataclasses.field(
         default=ResultType.VECTOR_RESULTS,
         metadata={
@@ -504,10 +518,14 @@ class VectorResults:
             "validate": validate.Equal(ResultType.VECTOR_RESULTS),
         },
     )
-    uri: typing.Optional[URI] = None
 
     def update_uris(self, job_path):
-        for uri in [self.uri, self.vector.uri]:
-            possible_path = pathlib.Path(job_path.parent / uri.uri.name).resolve()
-            if possible_path.exists():
-                uri.uri = possible_path
+        uris_to_update = [self.uri]
+        if self.vector is not None and self.vector.uri is not None:
+            uris_to_update.append(self.vector.uri)
+
+        for uri in uris_to_update:
+            if uri is not None and uri.uri is not None:
+                possible_path = pathlib.Path(job_path.parent / uri.uri.name).resolve()
+                if possible_path.exists():
+                    uri.uri = possible_path

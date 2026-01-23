@@ -6,7 +6,7 @@ import typing
 import uuid
 
 import marshmallow_dataclass
-from marshmallow import post_load, pre_load
+from marshmallow import fields, post_load, pre_load
 
 from .algorithms import ExecutionScript
 from .results import (
@@ -18,6 +18,73 @@ from .results import (
     TimeSeriesTableResult,
     VectorResults,
 )
+
+
+class ResultsField(fields.Field):
+    """Custom field to handle results that can be a single result or a list of results."""
+
+    # Map result type strings to their schema classes
+    RESULT_TYPE_MAP = {
+        "RasterResults": RasterResults,
+        "VectorResults": VectorResults,
+        "FileResults": FileResults,
+        "JsonResults": JsonResults,
+        "TimeSeriesTableResult": TimeSeriesTableResult,
+        "EmptyResults": EmptyResults,
+    }
+
+    def _deserialize_single(self, value, attr, data, **kwargs):
+        """Deserialize a single result object."""
+        if value is None:
+            return None
+        if not isinstance(value, dict):
+            # Already deserialized
+            return value
+
+        result_type = value.get("type")
+        if result_type in self.RESULT_TYPE_MAP:
+            schema_class = self.RESULT_TYPE_MAP[result_type]
+            return schema_class.Schema().load(value)
+        else:
+            # Unknown type, try to return as-is
+            return value
+
+    def _deserialize(self, value, attr, data, **kwargs):
+        if value is None:
+            return None
+
+        if isinstance(value, list):
+            # Handle list of results
+            return [
+                self._deserialize_single(item, attr, data, **kwargs) for item in value
+            ]
+        else:
+            # Handle single result
+            return self._deserialize_single(value, attr, data, **kwargs)
+
+    def _serialize(self, value, attr, obj, **kwargs):
+        if value is None:
+            return None
+
+        if isinstance(value, list):
+            # Serialize list of results
+            result = []
+            for item in value:
+                if hasattr(item, "Schema"):
+                    result.append(item.Schema().dump(item))
+                elif isinstance(item, dict):
+                    result.append(item)
+                else:
+                    result.append(item)
+            return result
+        else:
+            # Serialize single result
+            if hasattr(value, "Schema"):
+                return value.Schema().dump(value)
+            elif isinstance(value, dict):
+                return value
+            else:
+                return value
 
 
 class ScriptStatus(enum.Enum):
@@ -91,12 +158,13 @@ class Job:
         default_factory=JobLocalContext
     )
     # Results can be a single result object or a list of result objects
-    results: typing.Optional[
-        typing.Union[
-            SingleResult,
-            typing.List[SingleResult],
-        ]
-    ] = dataclasses.field(default_factory=dict)
+    # Use custom ResultsField via marshmallow_field metadata to handle Union properly
+    results: typing.Optional[typing.Any] = dataclasses.field(
+        default=None,
+        metadata={
+            "marshmallow_field": ResultsField(allow_none=True, load_default=None)
+        },
+    )
     task_name: typing.Optional[str] = None
     task_notes: typing.Optional[str] = None
     script: typing.Optional[ExecutionScript] = None
