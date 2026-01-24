@@ -482,8 +482,29 @@ class TimeSeriesTableResult:
 
 
 @marshmallow_dataclass.dataclass
-class VectorFalsePositive:
-    uri: URI
+class Vector:
+    """
+    Base class for vector data in VectorResults.
+
+    Contains the URI and type discriminator for different vector types.
+    Subclasses can add additional metadata specific to their type.
+    """
+
+    uri: typing.Optional[URI] = None
+    type: VectorType = dataclasses.field(
+        default=VectorType.GENERIC,
+        metadata={"by_value": True},
+    )
+
+
+@marshmallow_dataclass.dataclass
+class VectorFalsePositive(Vector):
+    """
+    Vector data for false positive/negative (error recode) results.
+
+    Inherits from Vector with type defaulting to ERROR_RECODE.
+    """
+
     type: VectorType = dataclasses.field(
         default=VectorType.ERROR_RECODE,
         metadata={
@@ -496,21 +517,19 @@ class VectorFalsePositive:
 @marshmallow_dataclass.dataclass
 class VectorResults:
     """
-    Generic vector results class for any vector/geojson output.
+    Vector results class for any vector/geojson output.
 
-    For generic vector results, only `name` and `uri` are required.
-    The `vector` field is optional and used for specific vector types
-    like ErrorRecode that need additional metadata.
+    The `vector` field contains the vector data and its type discriminator.
+    Use `vector.type` to determine the category of vector (ERROR_RECODE, GENERIC, etc.).
     """
 
+    class Meta:
+        # Ignore unknown fields for backward compatibility (e.g., old vector_type field)
+        unknown = EXCLUDE
+
     name: str
-    uri: typing.Optional[URI] = None
+    vector: Vector
     extent: typing.Optional[typing.Tuple[float, float, float, float]] = None
-    vector: typing.Optional[VectorFalsePositive] = None
-    vector_type: VectorType = dataclasses.field(
-        default=VectorType.GENERIC,
-        metadata={"by_value": True},
-    )
     type: ResultType = dataclasses.field(
         default=ResultType.VECTOR_RESULTS,
         metadata={
@@ -519,13 +538,15 @@ class VectorResults:
         },
     )
 
-    def update_uris(self, job_path):
-        uris_to_update = [self.uri]
-        if self.vector is not None and self.vector.uri is not None:
-            uris_to_update.append(self.vector.uri)
+    @property
+    def uri(self) -> typing.Optional[URI]:
+        """Convenience property to access vector.uri directly."""
+        return self.vector.uri if self.vector else None
 
-        for uri in uris_to_update:
-            if uri is not None and uri.uri is not None:
+    def update_uris(self, job_path):
+        if self.vector is not None and self.vector.uri is not None:
+            uri = self.vector.uri
+            if uri.uri is not None:
                 possible_path = pathlib.Path(job_path.parent / uri.uri.name).resolve()
                 if possible_path.exists():
                     uri.uri = possible_path
