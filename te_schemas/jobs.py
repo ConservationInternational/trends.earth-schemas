@@ -10,6 +10,7 @@ from marshmallow import fields, post_load, pre_load
 
 from .algorithms import ExecutionScript
 from .results import (
+    CloudResults,
     EmptyResults,
     FileResults,
     JsonResults,
@@ -24,13 +25,15 @@ class ResultsField(fields.Field):
     """Custom field to handle results that can be a single result or a list of results."""
 
     # Map result type strings to their schema classes
+    # Keys must match ResultType enum values (by_value=True serialization)
     RESULT_TYPE_MAP = {
         "RasterResults": RasterResults,
         "VectorResults": VectorResults,
         "FileResults": FileResults,
         "JsonResults": JsonResults,
-        "TimeSeriesTableResult": TimeSeriesTableResult,
+        "TimeSeriesTable": TimeSeriesTableResult,
         "EmptyResults": EmptyResults,
+        "CloudResults": CloudResults,
     }
 
     def _deserialize_single(self, value, attr, data, **kwargs):
@@ -274,6 +277,12 @@ class Job:
     def is_raster(self) -> bool:
         """Check if any result is a RasterResults."""
         return any(isinstance(r, RasterResults) for r in self._get_results_list())
+
+    def is_timeseries(self) -> bool:
+        """Check if any result is a TimeSeriesTableResult."""
+        return any(
+            isinstance(r, TimeSeriesTableResult) for r in self._get_results_list()
+        )
 
     def get_results_by_type(self, result_type: type) -> typing.List[SingleResult]:
         """Get all results of a specific type."""
