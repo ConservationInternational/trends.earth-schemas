@@ -651,10 +651,12 @@ class TestHooks:
         assert loaded.script.version == "1.0.3"
 
     def test_job_pre_load_extracts_task_name(self):
-        """@pre_load moves task_name from params to top level."""
+        """@pre_load moves task_name from params when top-level is absent."""
         job_data = _make_job_dict(
             params={"task_name": "My Task"},
         )
+        # Remove top-level task_name so pre_load picks it up from params
+        job_data.pop("task_name", None)
         loaded = Job.Schema().load(job_data)
         assert loaded.task_name == "My Task"
 
@@ -710,7 +712,7 @@ class TestValidation:
     def test_path_validator_accepts_vsigs(self):
         from te_schemas.results import PathValidator
 
-        v = PathValidator(r"/vsi(s3)|(gs)")
+        v = PathValidator(r"/vsi(s3|gs)")
         result = v("/vsigs/bucket/path")
         assert result == "/vsigs/bucket/path"
 
@@ -985,10 +987,16 @@ class TestSchemaBase:
 
 class TestLegacySchemas:
     def test_band_info_schema_dump_defaults(self):
-        """BandInfoSchema uses dump_default for add_to_map and activated."""
+        """BandInfoSchema uses dump_default for add_to_map and activated.
+
+        Note: BandInfo.__init__ defaults add_to_map=False, activated=True.
+        dump_default only applies when the attribute is missing entirely.
+        When the object is constructed, the constructor defaults take precedence."""
         schema = BandInfoSchema()
         data = schema.dump(BandInfo(name="b", metadata={"k": "v"}))
-        assert data["add_to_map"] is True
+        # add_to_map comes from BandInfo.__init__ default (False)
+        assert data["add_to_map"] is False
+        # activated comes from BandInfo.__init__ default (True)
         assert data["activated"] is True
 
     def test_cloud_results_schema_post_load(self):
@@ -1111,7 +1119,7 @@ class TestJobIntegration:
         rr = _make_raster_results()
         job_data = _make_job_dict(
             results=RasterResults.Schema().dump(rr),
-            params={"task_name": "Full cycle test"},
+            task_name="Full cycle test",
         )
         loaded1 = Job.Schema().load(job_data)
         dumped = Job.Schema().dump(loaded1)
