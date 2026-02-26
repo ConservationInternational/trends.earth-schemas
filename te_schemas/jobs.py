@@ -37,7 +37,12 @@ class ResultsField(fields.Field):
     }
 
     def _deserialize_single(self, value, attr, data, **kwargs):
-        """Deserialize a single result object."""
+        """Deserialize a single result object.
+
+        Returns a typed result object when the type is recognised, the
+        original *dict* when it is not (so round-trip serialisation
+        preserves unknown types), or *None* when the input is *None*.
+        """
         if value is None:
             return None
         if not isinstance(value, dict):
@@ -49,7 +54,9 @@ class ResultsField(fields.Field):
             schema_class = self.RESULT_TYPE_MAP[result_type]
             return schema_class.Schema().load(value)
         else:
-            # Unknown type, try to return as-is
+            # Unknown type – keep the raw dict so it is preserved on
+            # round-trip serialisation.  _get_results_list() filters
+            # these out for callers that need typed objects.
             return value
 
     def _deserialize(self, value, attr, data, **kwargs):
@@ -57,9 +64,14 @@ class ResultsField(fields.Field):
             return None
 
         if isinstance(value, list):
-            # Handle list of results
+            # Deserialize each item; drop None entries produced by
+            # _deserialize_single so the stored list stays clean.
             return [
-                self._deserialize_single(item, attr, data, **kwargs) for item in value
+                item
+                for item in (
+                    self._deserialize_single(v, attr, data, **kwargs) for v in value
+                )
+                if item is not None
             ]
         else:
             # Handle single result
@@ -70,9 +82,11 @@ class ResultsField(fields.Field):
             return None
 
         if isinstance(value, list):
-            # Serialize list of results
+            # Serialize list of results, skipping None entries
             result = []
             for item in value:
+                if item is None:
+                    continue
                 if hasattr(item, "Schema"):
                     result.append(item.Schema().dump(item))
                 elif isinstance(item, dict):
@@ -263,7 +277,12 @@ class Job:
         if self.results is None:
             return []
         if isinstance(self.results, list):
-            return self.results
+            # Filter out any raw dicts or None values that failed deserialization
+            return [
+                r for r in self.results if r is not None and not isinstance(r, dict)
+            ]
+        if isinstance(self.results, dict):
+            return []
         return [self.results]
 
     def is_file(self) -> bool:
