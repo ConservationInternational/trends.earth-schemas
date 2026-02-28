@@ -6,8 +6,9 @@ import typing
 import uuid
 
 import marshmallow_dataclass
-from marshmallow import fields, post_load, pre_load
+from marshmallow import EXCLUDE, fields, post_load, pre_load
 
+from .analysis import AnalysisResults
 from .algorithms import ExecutionScript
 from .results import (
     CloudResults,
@@ -34,6 +35,7 @@ class ResultsField(fields.Field):
         "TimeSeriesTable": TimeSeriesTableResult,
         "EmptyResults": EmptyResults,
         "CloudResults": CloudResults,
+        "AnalysisResults": AnalysisResults,
     }
 
     def _deserialize_single(self, value, attr, data, **kwargs):
@@ -125,6 +127,9 @@ class JobStatus(enum.Enum):
 
 @marshmallow_dataclass.dataclass
 class RemoteScript:
+    class Meta:
+        unknown = EXCLUDE
+
     id: uuid.UUID
     name: str
     slug: str
@@ -166,6 +171,9 @@ SingleResult = typing.Union[
 
 @marshmallow_dataclass.dataclass
 class Job:
+    class Meta:
+        unknown = EXCLUDE
+
     id: uuid.UUID
     params: dict
     progress: int

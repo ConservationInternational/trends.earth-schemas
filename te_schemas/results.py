@@ -88,6 +88,7 @@ class ResultType(enum.Enum):
     JSON_RESULTS = "JsonResults"
     EMPTY_RESULTS = "EmptyResults"
     VECTOR_RESULTS = "VectorResults"
+    ANALYSIS_RESULTS = "AnalysisResults"
 
 
 class DataType(enum.Enum):
