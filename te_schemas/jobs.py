@@ -1,15 +1,17 @@
 import dataclasses
 import datetime
 import enum
+import logging
 import re
 import typing
 import uuid
 
 import marshmallow_dataclass
 from marshmallow import EXCLUDE, fields, post_load, pre_load
+from marshmallow.exceptions import ValidationError
 
-from .analysis import AnalysisResults
 from .algorithms import ExecutionScript
+from .analysis import AnalysisResults
 from .results import (
     CloudResults,
     EmptyResults,
@@ -20,6 +22,8 @@ from .results import (
     TimeSeriesTableResult,
     VectorResults,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class ResultsField(fields.Field):
@@ -54,7 +58,16 @@ class ResultsField(fields.Field):
         result_type = value.get("type")
         if result_type in self.RESULT_TYPE_MAP:
             schema_class = self.RESULT_TYPE_MAP[result_type]
-            return schema_class.Schema().load(value)
+            try:
+                return schema_class.Schema().load(value)
+            except (ValidationError, Exception) as exc:
+                logger.warning(
+                    "Failed to deserialize result of type %r: %s. "
+                    "Keeping raw dict for round-trip preservation.",
+                    result_type,
+                    exc,
+                )
+                return value
         else:
             # Unknown type – keep the raw dict so it is preserved on
             # round-trip serialisation.  _get_results_list() filters
