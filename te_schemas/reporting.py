@@ -88,17 +88,36 @@ class PopulationList:
 
 @dataclass
 class CrossTabEntry:
+    """A single cell in a cross-tabulation matrix.
+
+    Each entry represents the area (or other metric) for a specific
+    combination of initial and final classification labels.
+    """
+
+    #: Classification label for the initial period (rows of the matrix).
     initial_label: str
+    #: Classification label for the final period (columns of the matrix).
     final_label: str
+    #: Area or metric value for this (initial_label, final_label) combination.
     value: float
 
 
 @dataclass
 class CrossTab:
+    """A cross-tabulation of land area by two classification layers.
+
+    Used to summarise how land area is distributed across combinations of
+    an initial-period classification (rows) and a final-period
+    classification (columns).
+    """
+
     name: Optional[str]
     unit: str
+    #: Start year of the initial (baseline) period.
     initial_year: int
+    #: End year of the final (reporting) period.
     final_year: int
+    #: List of cross-tabulation entries, one per (row, column) cell.
     values: List[CrossTabEntry]
 
 
@@ -206,22 +225,52 @@ class LandConditionStatus:
 
 @dataclass
 class LandConditionChange:
-    """Report on change in land condition between two periods."""
+    """Cross-tabulation of baseline vs reporting-period assessment.
 
-    #: Cross tabulation of change in SDG Indicator 15.3.1
+    Each field is a cross-tabulation whose rows represent the
+    baseline-period indicator assessment (Improved / Stable / Degraded)
+    and whose columns represent the reporting-period indicator assessment
+    (Improved / Stable / Degraded).  Cell values are land areas. No data
+    may also be included as a category.
+    """
+
+    #: Baseline vs reporting-period assessment for the combined SDG 15.3.1
+    #: indicator (one-out, all-out rule across productivity, land cover,
+    #: and soil organic carbon).
     sdg: CrossTab
-    #: Cross tabulation of change in land productivity dynamics
+    #: Baseline vs reporting-period assessment for land productivity.
     productivity: CrossTab
-    #: Cross tabulation of change in land cover degradation
+    #: Baseline vs reporting-period assessment for land cover.
     land_cover: CrossTab
-    #: Cross tabulation of change in soil organic carbon degradation
+    #: Baseline vs reporting-period assessment for soil organic carbon.
     soil_organic_carbon: CrossTab
 
 
 @dataclass
 class LandConditionReport:
+    """Full land-condition report for one reporting period.
+
+    Combines three complementary views of land condition:
+
+    *  ``period_assessment`` – per-period indicator values and summaries
+       (improved / stable / degraded areas for each sub-indicator).
+    *  ``status_assessment`` – final degradation *status* after applying
+       the 3×3 reclassification rule to derive status from baseline and
+       reporting-period assessments.
+    *  ``change_assessment`` – 3×3 cross-tabulations of baseline
+       assessment (rows) vs reporting-period assessment (columns) for
+       each sub-indicator.  These are the raw inputs to the status rule.
+    """
+
+    #: Indicator-level assessment for this period (areas by class for
+    #: SDG, productivity, land cover, and soil organic carbon).
     period_assessment: LandConditionAssessment
+    #: Degradation status derived by applying the UNCCD 3×3
+    #: reclassification rule to baseline and reporting-period assessments.
     status_assessment: Optional[LandConditionStatus] = field(default=None)
+    #: Cross-tabulations of baseline vs reporting-period assessment
+    #: (one per sub-indicator).  These are the inputs used to derive
+    #: ``status_assessment``.
     change_assessment: Optional[LandConditionChange] = field(default=None)
 
 
