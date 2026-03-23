@@ -316,3 +316,32 @@ class TrendsEarthLandConditionSummary:
 class TrendsEarthDroughtSummary:
     metadata: ReportMetadata
     drought: DroughtReport
+
+
+###############################################################################
+# LDN Counterbalancing schemas (GPG Addendum)
+
+
+@dataclass
+class CounterbalancingLandTypeResult:
+    """Gains, losses, and delta LDN for a single land type."""
+
+    land_type_name: str
+    gains_area_sq_km: float
+    losses_area_sq_km: float
+    delta_ldn: float
+    ldn_achieved: bool
+
+
+@dataclass
+class CounterbalancingReport:
+    """Full counterbalancing report for one assessment period."""
+
+    land_type_results: List[CounterbalancingLandTypeResult]
+    overall_ldn_achieved: bool
+
+
+@dataclass
+class TrendsEarthCounterbalancingSummary:
+    metadata: ReportMetadata
+    counterbalancing: CounterbalancingReport
