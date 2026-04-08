@@ -169,6 +169,7 @@ class RemoteScript:
 class JobLocalContext:
     base_dir: LocalPath = dataclasses.field(default=None)
     area_of_interest_name: str = dataclasses.field(default="unknown-area")
+    owner_pid: typing.Optional[int] = dataclasses.field(default=None)
 
 
 # Type alias for a single result
