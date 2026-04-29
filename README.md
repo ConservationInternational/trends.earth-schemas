@@ -56,7 +56,3 @@ Contributions are welcome. Please report bugs or suggest improvements via the
 ## License
 
 `trends.earth-schemas` is free and open-source. MIT License — see [LICENSE](LICENSE).
-
----
-
-[![Part of Trends.Earth](https://s3.amazonaws.com/trends.earth/sharing/trends_earth_logo_bl_600width.png)](http://trends.earth)
