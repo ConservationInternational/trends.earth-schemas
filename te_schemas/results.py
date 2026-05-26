@@ -326,9 +326,19 @@ class RasterResults:
 
     def update_uris(self, job_path):
         for uri in self.get_all_uris():
-            possible_path = pathlib.Path(job_path.parent / uri.uri.name).resolve()
-            if not uri.uri.exists() and possible_path.exists():
-                uri.uri = possible_path
+            # Try the original path first
+            try:
+                path_exists = uri.uri.exists()
+            except (OSError, ValueError):
+                # Path validation failed (e.g., Linux path on Windows)
+                path_exists = False
+
+            # If original path doesn't exist or can't be validated,
+            # look for the file in the same folder as the job JSON
+            if not path_exists:
+                possible_path = pathlib.Path(job_path.parent / uri.uri.name).resolve()
+                if possible_path.exists():
+                    uri.uri = possible_path
 
     def combine(self, other):
         "Merge with another RasterResults with matching bands"
@@ -418,9 +428,19 @@ class FileResults:
 
     def update_uris(self, job_path):
         for uri in [self.uri, *self.other_uris]:
-            possible_path = pathlib.Path(job_path.parent / uri.uri.name).resolve()
-            if not uri.uri.exists() and possible_path.exists():
-                uri.uri = possible_path
+            # Try the original path first
+            try:
+                path_exists = uri.uri.exists()
+            except (OSError, ValueError):
+                # Path validation failed (e.g., Linux path on Windows)
+                path_exists = False
+
+            # If original path doesn't exist or can't be validated,
+            # look for the file in the same folder as the job JSON
+            if not path_exists:
+                possible_path = pathlib.Path(job_path.parent / uri.uri.name).resolve()
+                if possible_path.exists():
+                    uri.uri = possible_path
 
     def get_all_uris(self):
         """Return a list of all URI objects associated with this file result.
@@ -548,6 +568,18 @@ class VectorResults:
         if self.vector is not None and self.vector.uri is not None:
             uri = self.vector.uri
             if uri.uri is not None:
-                possible_path = pathlib.Path(job_path.parent / uri.uri.name).resolve()
-                if possible_path.exists():
-                    uri.uri = possible_path
+                # Try the original path first
+                try:
+                    path_exists = uri.uri.exists()
+                except (OSError, ValueError):
+                    # Path validation failed (e.g., Linux path on Windows)
+                    path_exists = False
+
+                # If original path doesn't exist or can't be validated,
+                # look for the file in the same folder as the job JSON
+                if not path_exists:
+                    possible_path = pathlib.Path(
+                        job_path.parent / uri.uri.name
+                    ).resolve()
+                    if possible_path.exists():
+                        uri.uri = possible_path
