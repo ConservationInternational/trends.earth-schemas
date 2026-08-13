@@ -32,15 +32,13 @@ class SpatialUnit(Enum):
     KILOMETER = "km"
 
 
-def validate_spatial_resolution_value(value: typing.Union[int, float]):
+def validate_spatial_resolution_value(value: float):
     """Validate spatial resolution value is positive."""
     if value <= 0:
         raise ValidationError(f"Spatial resolution value '{value}' must be positive")
 
 
-def validate_temporal_resolution_value(
-    value: typing.Union[int, float, None], unit: str
-):
+def validate_temporal_resolution_value(value: typing.Union[float, None], unit: str):
     """Validate temporal resolution value based on unit."""
     if unit == "one-time":
         if value is not None:
@@ -576,4 +574,4 @@ def validate_gee_dataset_file(file_path: str) -> typing.Tuple[bool, typing.List[
         error_messages = [str(e)]
         return False, error_messages
     except Exception as e:
-        return False, [f"Error loading file: {str(e)}"]
+        return False, [f"Error loading file: {e!s}"]

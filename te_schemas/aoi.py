@@ -103,7 +103,7 @@ def _clean_geojson(geojson) -> Dict:
 
 
 @dataclass
-class AOI(object):
+class AOI:
     geojson: Dict
 
     def __init__(self, geojson):
@@ -264,20 +264,16 @@ class AOI(object):
                 )
                 left = geom_minx - (geom_minx - img_xmin) % img_xres
 
-                if left < -180:
-                    left = -180
+                left = max(left, -180)
                 right = geom_maxx + (img_xres - ((geom_maxx - img_xmin) % img_xres))
 
-                if right > 180:
-                    right = 180
+                right = min(right, 180)
                 bottom = geom_miny + (img_yres - ((geom_miny - img_ymax) % img_yres))
 
-                if bottom < -90:
-                    bottom = -90
+                bottom = max(bottom, -90)
                 top = geom_maxy - (geom_maxy - img_ymax) % img_yres
 
-                if top > 90:
-                    top = 90
+                top = min(top, 90)
                 out.append([left, bottom, right, top])
 
         logger.debug("aligned output bounds is %s", out)
@@ -313,7 +309,7 @@ class AOI(object):
 
                 return [json.loads(geom.asJson())]
             else:
-                logger.info("Layer has many points ({})".format(n))
+                logger.info(f"Layer has many points ({n})")
 
                 return self.meridian_split()
         else:

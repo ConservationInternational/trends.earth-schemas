@@ -1,4 +1,4 @@
-from te_schemas.results import FileResults, URI
+from te_schemas.results import URI, FileResults
 
 
 def test_fileresults_get_all_uris_primary_only(tmp_path):

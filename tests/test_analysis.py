@@ -3,7 +3,6 @@
 from te_schemas.analysis import AnalysisRecord, AnalysisResults, AnalysisTimeStep
 from te_schemas.results import ResultType
 
-
 # ---------------------------------------------------------------------------
 # AnalysisTimeStep
 # ---------------------------------------------------------------------------

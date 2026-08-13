@@ -51,8 +51,8 @@ from te_schemas.results import (
     RasterResults,
     RasterType,
     ResultType,
-    TimeSeriesTableResult,
     TiledRaster,
+    TimeSeriesTableResult,
     Vector,
     VectorFalsePositive,
     VectorResults,
@@ -64,7 +64,6 @@ from te_schemas.schemas import (
     CloudResultsSchema,
     TrendsEarthVersion,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers

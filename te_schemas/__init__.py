@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 # Import version information
 try:
-    from te_schemas._version import __version__, __git_sha__, __git_date__
+    from te_schemas._version import __git_date__, __git_sha__, __version__
 except ImportError:
     __version__ = "unknown"
     __git_sha__ = "unknown"
@@ -74,7 +74,7 @@ class SchemaBase:
         factory = getattr(cls, "Schema", None)
         if factory is None:
             cls._normalize_schema_attribute()
-            factory = getattr(cls, "Schema")
+            factory = cls.Schema
         return factory()
 
     def validate(self):
@@ -102,16 +102,14 @@ def validate_matrix(legend, transitions):
             ]
             if len(trans) == 0:
                 raise ValidationError(
-                    "Meaning of transition from {} to {} is undefined for {}".format(
-                        c_initial, c_final, transitions
-                    )
+                    f"Meaning of transition from {c_initial} to {c_final} is undefined for {transitions}"
                 )
             if len(trans) > 1:
                 raise ValidationError(
                     "Multiple definitions found for "
-                    "transition from {} to {} - each "
+                    f"transition from {c_initial} to {c_final} - each "
                     "transition must have only one "
-                    "meaning".format(c_initial, c_final)
+                    "meaning"
                 )
 
     if len(transitions) != len(legend.key) ** 2:

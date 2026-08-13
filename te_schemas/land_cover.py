@@ -29,7 +29,7 @@ class LCClass(SchemaBase):
         metadata={"validate": validate.Regexp("^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$")},
     )
 
-    def update(self, other: "LCClass"):
+    def update(self, other: LCClass):
         """
         Update this object with attribute values from another LCClass object.
         Does not update 'code' since its assumed to be the unique identifier.
@@ -128,7 +128,7 @@ class LCLegend(SchemaBase):
         out = [c for c in self._key_with_nodata() if c.code == code]
 
         if out == []:
-            raise KeyError('No LCClass found for code "{}"'.format(code))
+            raise KeyError(f'No LCClass found for code "{code}"')
         else:
             return out[0]
 
@@ -504,7 +504,7 @@ class LCTransitionMatrixBase(SchemaBase):
 
     def meaning_by_transition(
         self, initial: LCClass, final: LCClass
-    ) -> "Union[LCTransitionMeaningDeg, None]":
+    ) -> Union[LCTransitionMeaningDeg, None]:
         """
         Returns the meanings which contain the given land cover classes for
         initial and final respectively.
@@ -519,7 +519,7 @@ class LCTransitionMatrixBase(SchemaBase):
 
         return matches[0]
 
-    def meanings_by_class(self, lcc: LCClass) -> List["LCTransitionMeaningDeg"]:
+    def meanings_by_class(self, lcc: LCClass) -> List[LCTransitionMeaningDeg]:
         """
         Returns the meanings which contain the given land cover class in the
         'initial' and/or 'final' attributes.
@@ -558,9 +558,9 @@ def _validate_matrix(legend, transitions):
             if len(trans) > 1:
                 raise ValidationError(
                     "Multiple definitions found for "
-                    "transition from {} to {} - each "
+                    f"transition from {c_initial} to {c_final} - each "
                     "transition must have only one "
-                    "meaning".format(c_initial, c_final)
+                    "meaning"
                 )
 
     if len(transitions) != len(legend.key) ** 2:
