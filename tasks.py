@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import stat
 import subprocess
@@ -165,6 +166,14 @@ def set_version(c, version=None):
 
     print(
         f"Successfully generated _version.py with version {version_to_write}, git SHA {git_sha}"
+    )
+
+    conf_path = "docs/source/conf.py"
+    print(f"Updating release in {conf_path}")
+    _replace(
+        conf_path,
+        re.compile(r'^release = ".*"'),
+        f'release = "{version_to_write}"',
     )
 
 
