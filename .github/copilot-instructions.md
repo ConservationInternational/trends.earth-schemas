@@ -6,7 +6,7 @@
 
 **Key Facts:**
 - **Type:** Python package (~3,174 lines of code)
-- **Languages:** Python 3.7-3.13 supported
+- **Languages:** Python 3.12-3.14 supported
 - **Main Framework:** marshmallow for schema definition and validation
 - **Size:** ~13MB repository, minimal complexity
 - **Dependencies:** defusedxml, marshmallow, marshmallow-dataclass, GDAL (for geo-spatial functionality)
@@ -72,7 +72,7 @@ The repository includes pre-commit configuration but may fail due to network tim
 ## CI/CD and Validation
 
 ### GitHub Actions Workflows
-- **test.yaml:** Runs pytest on Python 3.9-3.13 with GDAL installation
+- **test.yaml:** Runs pytest on Python 3.12-3.13 with GDAL installation
 - **ruff.yaml:** Runs `ruff check --output-format=github .` for linting
 
 ### Validation Checklist

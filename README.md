@@ -31,6 +31,8 @@ For further information on `trends.earth-schemas` see [the documentation](https:
 
 ## Installation
 
+Python 3.12 or newer is required.
+
 ```bash
 git clone https://github.com/ConservationInternational/trends.earth-schemas
 cd trends.earth-schemas
