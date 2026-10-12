@@ -153,15 +153,15 @@ class RemoteScript:
     updated_at: datetime.datetime
     user_id: uuid.UUID
     public: bool
-    cpu_reservation: typing.Optional[int]
-    cpu_limit: typing.Optional[int]
-    memory_reservation: typing.Optional[int]
-    memory_limit: typing.Optional[int]
+    cpu_reservation: int | None
+    cpu_limit: int | None
+    memory_reservation: int | None
+    memory_limit: int | None
 
     @post_load
     def set_timezone(self, data, **kwargs):
-        data["created_at"] = data["created_at"].replace(tzinfo=datetime.timezone.utc)
-        data["updated_at"] = data["updated_at"].replace(tzinfo=datetime.timezone.utc)
+        data["created_at"] = data["created_at"].replace(tzinfo=datetime.UTC)
+        data["updated_at"] = data["updated_at"].replace(tzinfo=datetime.UTC)
 
         return data
 
@@ -170,7 +170,7 @@ class RemoteScript:
 class JobLocalContext:
     base_dir: LocalPath = dataclasses.field(default=None)
     area_of_interest_name: str = dataclasses.field(default="unknown-area")
-    owner_pid: typing.Optional[int] = dataclasses.field(default=None)
+    owner_pid: int | None = dataclasses.field(default=None)
 
 
 # Type alias for a single result
@@ -194,22 +194,22 @@ class Job:
     progress: int
     start_date: datetime.datetime
     status: JobStatus = dataclasses.field(metadata={"by_value": True})
-    local_context: typing.Optional[JobLocalContext] = dataclasses.field(
+    local_context: JobLocalContext | None = dataclasses.field(
         default_factory=JobLocalContext
     )
     # Results can be a single result object or a list of result objects
     # Use custom ResultsField via marshmallow_field metadata to handle Union properly
-    results: typing.Optional[typing.Any] = dataclasses.field(
+    results: typing.Any | None = dataclasses.field(
         default=None,
         metadata={
             "marshmallow_field": ResultsField(allow_none=True, load_default=None)
         },
     )
-    task_name: typing.Optional[str] = None
-    task_notes: typing.Optional[str] = None
-    script: typing.Optional[ExecutionScript] = None
-    end_date: typing.Optional[datetime.datetime] = None
-    user_id: typing.Optional[uuid.UUID] = None
+    task_name: str | None = None
+    task_notes: str | None = None
+    script: ExecutionScript | None = None
+    end_date: datetime.datetime | None = None
+    user_id: uuid.UUID | None = None
 
     @pre_load
     def set_script_name_version(self, data, **kwargs):
@@ -267,10 +267,10 @@ class Job:
 
     @post_load
     def set_timezone(self, data, **kwargs):
-        data["start_date"] = data["start_date"].replace(tzinfo=datetime.timezone.utc)
+        data["start_date"] = data["start_date"].replace(tzinfo=datetime.UTC)
 
         if data["end_date"]:
-            data["end_date"] = data["end_date"].replace(tzinfo=datetime.timezone.utc)
+            data["end_date"] = data["end_date"].replace(tzinfo=datetime.UTC)
 
         return data
 
@@ -295,7 +295,7 @@ class Job:
 
         return name
 
-    def _get_results_list(self) -> typing.List[SingleResult]:
+    def _get_results_list(self) -> list[SingleResult]:
         """Return results as a list, whether it's a single result or already a list."""
         if self.results is None:
             return []
@@ -326,13 +326,11 @@ class Job:
             isinstance(r, TimeSeriesTableResult) for r in self._get_results_list()
         )
 
-    def get_results_by_type(self, result_type: type) -> typing.List[SingleResult]:
+    def get_results_by_type(self, result_type: type) -> list[SingleResult]:
         """Get all results of a specific type."""
         return [r for r in self._get_results_list() if isinstance(r, result_type)]
 
-    def get_first_result_by_type(
-        self, result_type: type
-    ) -> typing.Optional[SingleResult]:
+    def get_first_result_by_type(self, result_type: type) -> SingleResult | None:
         """Get the first result of a specific type, or None if not found."""
         results = self.get_results_by_type(result_type)
         return results[0] if results else None

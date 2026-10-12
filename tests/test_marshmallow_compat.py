@@ -663,9 +663,9 @@ class TestHooks:
         """@post_load adds UTC timezone to start_date and end_date."""
         job_data = _make_job_dict()
         loaded = Job.Schema().load(job_data)
-        assert loaded.start_date.tzinfo == datetime.timezone.utc
+        assert loaded.start_date.tzinfo == datetime.UTC
         if loaded.end_date:
-            assert loaded.end_date.tzinfo == datetime.timezone.utc
+            assert loaded.end_date.tzinfo == datetime.UTC
 
     def test_execution_script_pre_load_sets_slug(self):
         """@pre_load generates slug from name if not provided."""
@@ -691,8 +691,8 @@ class TestHooks:
             "memory_limit": None,
         }
         loaded = RemoteScript.Schema().load(data)
-        assert loaded.created_at.tzinfo == datetime.timezone.utc
-        assert loaded.updated_at.tzinfo == datetime.timezone.utc
+        assert loaded.created_at.tzinfo == datetime.UTC
+        assert loaded.updated_at.tzinfo == datetime.UTC
 
 
 # ===================================================================
