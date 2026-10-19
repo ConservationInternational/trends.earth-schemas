@@ -70,7 +70,7 @@ class AreaList:
 @dataclass
 class Population:
     name: Optional[str]
-    population: int = field(metadata={"validate": validate.Range(min=0)})
+    population: float = field(metadata={"validate": validate.Range(min=0)})
     type: str = field(
         metadata={
             "validate": validate.OneOf(
