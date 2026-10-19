@@ -1,6 +1,5 @@
 import datetime
 from dataclasses import field
-from typing import Dict, List, Optional
 
 from marshmallow import validate
 from marshmallow_dataclass import dataclass
@@ -16,7 +15,7 @@ class HotspotBrightspotProperties:
     type: str = field(metadata={"validate": validate.OneOf(["hotspot", "brightspot"])})
     process: str
     basis: str
-    periods: List[str]
+    periods: list[str]
 
 
 ###############################################################################
@@ -49,27 +48,27 @@ class Value:
 class ValuesByYearDict:
     name: str
     unit: str
-    values: Dict[int, Dict[str, float]]
+    values: dict[int, dict[str, float]]
 
 
 # Area summary schemas
 @dataclass
 class Area:
-    name: Optional[str]
+    name: str | None
     area: float = field(metadata={"validate": validate.Range(min=0)})
 
 
 @dataclass
 class AreaList:
-    name: Optional[str]
+    name: str | None
     unit: str = field(metadata={"validate": validate.OneOf(["m", "ha", "sq km"])})
-    areas: List[Area]
+    areas: list[Area]
 
 
 # Population summary schema
 @dataclass
 class Population:
-    name: Optional[str]
+    name: str | None
     population: int = field(metadata={"validate": validate.Range(min=0)})
     type: str = field(
         metadata={
@@ -82,8 +81,8 @@ class Population:
 
 @dataclass
 class PopulationList:
-    name: Optional[str]
-    values: List[Population]
+    name: str | None
+    values: list[Population]
 
 
 @dataclass
@@ -111,14 +110,14 @@ class CrossTab:
     classification (columns).
     """
 
-    name: Optional[str]
+    name: str | None
     unit: str
     #: Start year of the initial (baseline) period.
     initial_year: int
     #: End year of the final (reporting) period.
     final_year: int
     #: List of cross-tabulation entries, one per (row, column) cell.
-    values: List[CrossTabEntry]
+    values: list[CrossTabEntry]
 
 
 @dataclass
@@ -131,11 +130,11 @@ class CrossTabEntryInitialFinal:
 
 @dataclass
 class CrossTabInitialFinal:
-    name: Optional[str]
+    name: str | None
     unit: str
     initial_year: int
     final_year: int
-    values: List[CrossTabEntryInitialFinal]
+    values: list[CrossTabEntryInitialFinal]
 
 
 ###
@@ -163,8 +162,8 @@ class SDG15Report:
 class ProductivityReport:
     """Report on land productivity within a particular period."""
 
-    summaries: Dict[str, AreaList]
-    crosstabs_by_productivity_class: List[CrossTab]
+    summaries: dict[str, AreaList]
+    crosstabs_by_productivity_class: list[CrossTab]
 
 
 @dataclass
@@ -174,7 +173,7 @@ class LandCoverReport:
     summary: AreaList
     legend_nesting: land_cover.LCLegendNesting
     transition_matrix: land_cover.LCTransitionDefinitionDeg
-    crosstabs_by_land_cover_class: List[CrossTab]
+    crosstabs_by_land_cover_class: list[CrossTab]
     land_cover_areas_by_year: ValuesByYearDict
 
 
@@ -186,7 +185,7 @@ class SoilOrganicCarbonReport:
     #: where keys indicate summary type (over "all_cover_types" or
     #: "non_water"), and values indicate areas improved, stable, degraded, or no
     #: data.
-    summaries: Dict[str, AreaList]
+    summaries: dict[str, AreaList]
     #: Soil organic carbon stock by year and land cover class
     soc_stock_by_year: ValuesByYearDict
 
@@ -204,9 +203,9 @@ class LandConditionAssessment:
     #: Report on soil organic carbon.
     soil_organic_carbon: SoilOrganicCarbonReport
     #: Polygons indicating false positives and false negatives in the SDG Indicator 15.3.1 layer.
-    error_recode: Optional[ErrorRecodePolygons] = field(default=None)
+    error_recode: ErrorRecodePolygons | None = field(default=None)
     #: Summary statistics on false positive/negative areas.
-    sdg_error_recode: Optional[AreaList] = field(default=None)
+    sdg_error_recode: AreaList | None = field(default=None)
 
 
 @dataclass
@@ -216,11 +215,11 @@ class LandConditionStatus:
     #: Summary statistics on SDG Indicator 15.3.1.
     sdg: AreaList
     #: Report on land productivity.
-    productivity: Dict[str, AreaList]
+    productivity: dict[str, AreaList]
     #: Report on land cover.
     land_cover: AreaList
     #: Report on soil organic carbon.
-    soil_organic_carbon: Dict[str, AreaList]
+    soil_organic_carbon: dict[str, AreaList]
 
 
 @dataclass
@@ -267,16 +266,16 @@ class LandConditionReport:
     period_assessment: LandConditionAssessment
     #: Degradation status derived by applying the UNCCD 3×3
     #: reclassification rule to baseline and reporting-period assessments.
-    status_assessment: Optional[LandConditionStatus] = field(default=None)
+    status_assessment: LandConditionStatus | None = field(default=None)
     #: Cross-tabulations of baseline vs reporting-period assessment
     #: (one per sub-indicator).  These are the inputs used to derive
     #: ``status_assessment``.
-    change_assessment: Optional[LandConditionChange] = field(default=None)
+    change_assessment: LandConditionChange | None = field(default=None)
 
 
 @dataclass
 class AffectedPopulationReport:
-    summary: Dict[str, PopulationList]
+    summary: dict[str, PopulationList]
 
 
 @dataclass
@@ -295,21 +294,21 @@ class DroughtExposedPopulation:
         }
     )
     year: int
-    exposed_population: List[Population]
+    exposed_population: list[Population]
 
 
 @dataclass
 class DroughtReport:
-    tier_one: Dict[int, AreaList]
-    tier_two: Dict[int, Dict[str, PopulationList]]
-    tier_three: Dict[int, Value]
+    tier_one: dict[int, AreaList]
+    tier_two: dict[int, dict[str, PopulationList]]
+    tier_three: dict[int, Value]
 
 
 @dataclass
 class TrendsEarthLandConditionSummary:
     metadata: ReportMetadata
-    land_condition: Dict[str, LandConditionReport]
-    affected_population: Dict[str, AffectedPopulationReport]
+    land_condition: dict[str, LandConditionReport]
+    affected_population: dict[str, AffectedPopulationReport]
 
 
 @dataclass
@@ -337,7 +336,7 @@ class CounterbalancingLandTypeResult:
 class CounterbalancingReport:
     """Full counterbalancing report for one assessment period."""
 
-    land_type_results: List[CounterbalancingLandTypeResult]
+    land_type_results: list[CounterbalancingLandTypeResult]
     overall_ldn_achieved: bool
 
 
