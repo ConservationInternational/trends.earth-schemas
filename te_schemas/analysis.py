@@ -47,7 +47,6 @@ An avoided-emissions job would produce::
 from __future__ import annotations
 
 import dataclasses
-import typing
 
 import marshmallow
 import marshmallow_dataclass
@@ -83,8 +82,8 @@ class AnalysisTimeStep(SchemaBase):
     entity_id: str
     year: int
     values: dict
-    entity_name: typing.Optional[str] = None
-    metadata: typing.Optional[dict] = None
+    entity_name: str | None = None
+    metadata: dict | None = None
 
 
 @marshmallow_dataclass.dataclass
@@ -110,10 +109,10 @@ class AnalysisRecord(SchemaBase):
 
     entity_id: str
     values: dict
-    entity_name: typing.Optional[str] = None
-    period_start: typing.Optional[int] = None
-    period_end: typing.Optional[int] = None
-    metadata: typing.Optional[dict] = None
+    entity_name: str | None = None
+    period_start: int | None = None
+    period_end: int | None = None
+    metadata: dict | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -157,9 +156,9 @@ class AnalysisResults(SchemaBase):
     name: str
     analysis_type: str
     summary: dict
-    records: typing.Optional[typing.List[AnalysisRecord]] = None
-    time_series: typing.Optional[typing.List[AnalysisTimeStep]] = None
-    data: typing.Optional[dict] = None
+    records: list[AnalysisRecord] | None = None
+    time_series: list[AnalysisTimeStep] | None = None
+    data: dict | None = None
     type: ResultType = dataclasses.field(
         default=ResultType.ANALYSIS_RESULTS,
         metadata={

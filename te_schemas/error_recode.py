@@ -14,7 +14,7 @@ Classes:
 
 import uuid as uuid_module
 from dataclasses import field
-from typing import ClassVar, Dict, List, Optional, Tuple
+from typing import ClassVar
 
 from marshmallow import EXCLUDE, validate
 from marshmallow_dataclass import dataclass
@@ -49,7 +49,7 @@ class ErrorRecodeProperties:
         unknown = EXCLUDE
 
     uuid: uuid_module.UUID
-    periods_affected: List[str] = field(
+    periods_affected: list[str] = field(
         metadata={
             "validate": validate.And(
                 validate.Length(min=1),
@@ -59,23 +59,23 @@ class ErrorRecodeProperties:
             ),
         },
     )
-    location_name: Optional[str] = None
-    area_km_sq: Optional[float] = None
-    process_driving_change: Optional[str] = None
-    basis_for_judgement: Optional[str] = None
-    recode_deg_to: Optional[int] = field(
+    location_name: str | None = None
+    area_km_sq: float | None = None
+    process_driving_change: str | None = None
+    basis_for_judgement: str | None = None
+    recode_deg_to: int | None = field(
         default=None,
         metadata={"validate": validate.OneOf([None, -32768, 0, 1])},
     )
-    recode_stable_to: Optional[int] = field(
+    recode_stable_to: int | None = field(
         default=None,
         metadata={"validate": validate.OneOf([None, -32768, -1, 1])},
     )
-    recode_imp_to: Optional[int] = field(
+    recode_imp_to: int | None = field(
         default=None,
         metadata={"validate": validate.OneOf([None, -32768, -1, 0])},
     )
-    stats: Optional[dict] = None
+    stats: dict | None = None
 
 
 @dataclass
@@ -121,24 +121,24 @@ class ErrorRecodePolygons:
     class Meta:
         unknown = EXCLUDE
 
-    features: List[ErrorRecodeFeature]
-    name: Optional[str]
-    crs: Optional[dict]
+    features: list[ErrorRecodeFeature]
+    name: str | None
+    crs: dict | None
     type: str = field(metadata={"validate": validate.Equal("FeatureCollection")})
 
-    recode_deg_to_options: ClassVar[Tuple[Optional[int], ...]] = (None, -32768, 0, 1)
-    recode_stable_to_options: ClassVar[Tuple[Optional[int], ...]] = (
+    recode_deg_to_options: ClassVar[tuple[int | None, ...]] = (None, -32768, 0, 1)
+    recode_stable_to_options: ClassVar[tuple[int | None, ...]] = (
         None,
         -32768,
         -1,
         1,
     )
-    recode_imp_to_options: ClassVar[Tuple[Optional[int], ...]] = (None, -32768, -1, 0)
+    recode_imp_to_options: ClassVar[tuple[int | None, ...]] = (None, -32768, -1, 0)
 
     @property
     def trans_code_lists(
         self,
-    ) -> Tuple[List[int], List[int], List[int], List[int]]:
+    ) -> tuple[list[int], list[int], list[int], list[int]]:
         """
         Generate lookup tables for recode transformations.
 
@@ -168,10 +168,10 @@ class ErrorRecodePolygons:
             -9999 is used as a sentinel value meaning "no recoding".
             -32768 means "recode to nodata".
         """
-        codes: List[int] = []
-        deg_to: List[int] = []
-        stable_to: List[int] = []
-        imp_to: List[int] = []
+        codes: list[int] = []
+        deg_to: list[int] = []
+        stable_to: list[int] = []
+        imp_to: list[int] = []
         n = 0
         for i in range(len(self.recode_deg_to_options)):
             for j in range(len(self.recode_stable_to_options)):
@@ -204,7 +204,7 @@ class ErrorRecodePolygons:
     @property
     def recode_to_trans_code_dict(
         self,
-    ) -> Dict[Tuple[Optional[int], Optional[int], Optional[int]], int]:
+    ) -> dict[tuple[int | None, int | None, int | None], int]:
         """
         Generate a mapping from recode options to transformation codes.
 
@@ -215,9 +215,7 @@ class ErrorRecodePolygons:
         Returns:
             Dict mapping (deg_to, stable_to, imp_to) tuples to integer codes.
         """
-        recode_to_trans_code: Dict[
-            Tuple[Optional[int], Optional[int], Optional[int]], int
-        ] = {}
+        recode_to_trans_code: dict[tuple[int | None, int | None, int | None], int] = {}
         n = 0
         for i in range(len(self.recode_deg_to_options)):
             for j in range(len(self.recode_stable_to_options)):

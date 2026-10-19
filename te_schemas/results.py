@@ -49,9 +49,7 @@ class PathValidator(validate.Regexp):
 
 
 class VSIPathField(fields.Field):
-    def _serialize(
-        self, value: typing.Union[None, pathlib.PurePosixPath], attr, obj, **kwargs
-    ):
+    def _serialize(self, value: None | pathlib.PurePosixPath, attr, obj, **kwargs):
         if value is None:
             return ""
 
@@ -140,8 +138,8 @@ class URI:
         # Below is needed as URI used to include a type field, which is now deprecated
         unknown = EXCLUDE
 
-    uri: typing.Union[Url, VSIPath, LocalPath, None]
-    etag: typing.Optional[Etag] = None
+    uri: Url | VSIPath | LocalPath | None
+    etag: Etag | None = None
 
 
 @marshmallow_dataclass.dataclass
@@ -159,9 +157,9 @@ class Band:
 
     name: str
     metadata: dict
-    no_data_value: typing.Union[int, float] = -32768
-    activated: typing.Optional[bool] = dataclasses.field(default=True)
-    add_to_map: typing.Optional[bool] = dataclasses.field(default=True)
+    no_data_value: int | float = -32768
+    activated: bool | None = dataclasses.field(default=True)
+    add_to_map: bool | None = dataclasses.field(default=True)
 
 
 @marshmallow_dataclass.dataclass
@@ -182,15 +180,13 @@ class TiledRaster:
         type: Must be RasterType.TILED_RASTER.
     """
 
-    tile_uris: typing.List[URI]
-    bands: typing.List[Band]
+    tile_uris: list[URI]
+    bands: list[Band]
     datatype: DataType = dataclasses.field(metadata={"by_value": True})
     filetype: RasterFileType = dataclasses.field(metadata={"by_value": True})
-    uri: typing.Optional[URI] = (
-        None  # should point to a single VRT file linking the tiles
-    )
-    extents: typing.Optional[typing.List[typing.Tuple[float, float, float, float]]] = (
-        dataclasses.field(default_factory=list)
+    uri: URI | None = None  # should point to a single VRT file linking the tiles
+    extents: list[tuple[float, float, float, float]] | None = dataclasses.field(
+        default_factory=list
     )
     type: RasterType = dataclasses.field(
         default=RasterType.TILED_RASTER,
@@ -218,10 +214,10 @@ class Raster:
     """
 
     uri: URI
-    bands: typing.List[Band]
+    bands: list[Band]
     datatype: DataType = dataclasses.field(metadata={"by_value": True})
     filetype: RasterFileType = dataclasses.field(metadata={"by_value": True})
-    extent: typing.Optional[typing.Tuple[float, float, float, float]] = None
+    extent: tuple[float, float, float, float] | None = None
     type: RasterType = dataclasses.field(
         default=RasterType.ONE_FILE_RASTER,
         metadata={
@@ -267,11 +263,9 @@ class RasterResults:
     """
 
     name: str
-    rasters: typing.Dict[str, typing.Union[Raster, TiledRaster]]
-    uri: typing.Optional[URI] = (
-        None  # should point to a single VRT or tif linking all rasters
-    )
-    data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
+    rasters: dict[str, Raster | TiledRaster]
+    uri: URI | None = None  # should point to a single VRT or tif linking all rasters
+    data: dict | None = dataclasses.field(default_factory=dict)
     type: ResultType = dataclasses.field(
         default=ResultType.RASTER_RESULTS,
         metadata={
@@ -312,7 +306,7 @@ class RasterResults:
         return [b for raster in self.rasters.values() for b in raster.bands]
 
     def get_extents(self):
-        extents: typing.List[typing.Tuple[float, float, float, float]] = []
+        extents: list[tuple[float, float, float, float]] = []
 
         for raster in self.rasters.values():
             if raster.type == RasterType.ONE_FILE_RASTER:
@@ -373,8 +367,8 @@ class EmptyResults:
     class Meta:
         unknown = marshmallow.EXCLUDE
 
-    name: typing.Optional[str] = None
-    data_path: typing.Optional[typing.Union[VSIPath, LocalPath]] = None
+    name: str | None = None
+    data_path: VSIPath | LocalPath | None = None
     type: ResultType = dataclasses.field(
         default=ResultType.EMPTY_RESULTS,
         metadata={
@@ -390,15 +384,13 @@ class CloudResults:
         unknown = marshmallow.EXCLUDE
 
     name: str
-    bands: typing.List[Band]
-    urls: typing.List[Url]
-    data_path: typing.Optional[typing.Union[VSIPath, LocalPath]] = dataclasses.field(
-        default=None
+    bands: list[Band]
+    urls: list[Url]
+    data_path: VSIPath | LocalPath | None = dataclasses.field(default=None)
+    other_paths: list[VSIPath | LocalPath] | None = dataclasses.field(
+        default_factory=list
     )
-    other_paths: typing.Optional[typing.List[typing.Union[VSIPath, LocalPath]]] = (
-        dataclasses.field(default_factory=list)
-    )
-    data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
+    data: dict | None = dataclasses.field(default_factory=dict)
     type: ResultType = dataclasses.field(
         default=ResultType.CLOUD_RESULTS,
         metadata={
@@ -415,8 +407,8 @@ class FileResults:
 
     name: str
     uri: URI = dataclasses.field(default=None)
-    other_uris: typing.List[URI] = dataclasses.field(default_factory=list)
-    data: typing.Optional[dict] = dataclasses.field(default_factory=dict)
+    other_uris: list[URI] = dataclasses.field(default_factory=list)
+    data: dict | None = dataclasses.field(default_factory=dict)
 
     type: ResultType = dataclasses.field(
         default=ResultType.FILE_RESULTS,
@@ -492,7 +484,7 @@ class TimeSeriesTableResult:
         unknown = marshmallow.EXCLUDE
 
     name: str
-    table: typing.List[dict]
+    table: list[dict]
     type: ResultType = dataclasses.field(
         default=ResultType.TIME_SERIES_TABLE,
         metadata={
@@ -511,7 +503,7 @@ class Vector:
     Subclasses can add additional metadata specific to their type.
     """
 
-    uri: typing.Optional[URI] = None
+    uri: URI | None = None
     type: VectorType = dataclasses.field(
         default=VectorType.GENERIC,
         metadata={"by_value": True},
@@ -550,7 +542,7 @@ class VectorResults:
 
     name: str
     vector: Vector
-    extent: typing.Optional[typing.Tuple[float, float, float, float]] = None
+    extent: tuple[float, float, float, float] | None = None
     type: ResultType = dataclasses.field(
         default=ResultType.VECTOR_RESULTS,
         metadata={
@@ -560,7 +552,7 @@ class VectorResults:
     )
 
     @property
-    def uri(self) -> typing.Optional[URI]:
+    def uri(self) -> URI | None:
         """Convenience property to access vector.uri directly."""
         return self.vector.uri if self.vector else None
 
