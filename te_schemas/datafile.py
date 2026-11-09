@@ -1,5 +1,3 @@
-from typing import List, Union
-
 import marshmallow_dataclass
 
 from .results import Band, LocalPath
@@ -8,13 +6,13 @@ from .results import Band, LocalPath
 @marshmallow_dataclass.dataclass
 class DataFile:
     path: LocalPath
-    bands: List[Band]
+    bands: list[Band]
 
     def indices_for_name(
         self,
-        name_filter: Union[str, list],
-        field: Union[None, str] = None,
-        field_filter: Union[None, str] = None,
+        name_filter: str | list,
+        field: None | str = None,
+        field_filter: None | str = None,
     ):
         if isinstance(name_filter, str):
             # make name_filter a length 1 list if it is a string
@@ -36,9 +34,9 @@ class DataFile:
 
     def index_for_name(
         self,
-        name_filter: Union[str, list],
-        field: Union[None, str] = None,
-        field_filter: Union[None, str] = None,
+        name_filter: str | list,
+        field: None | str = None,
+        field_filter: None | str = None,
     ):
         """throw an error if more than one result"""
         if isinstance(name_filter, str):
@@ -51,7 +49,7 @@ class DataFile:
         else:
             return out[0]
 
-    def metadata_for_name(self, name_filter: Union[str, list], field: str):
+    def metadata_for_name(self, name_filter: str | list, field: str):
         """get value of metadata field for all bands of specific type"""
         if isinstance(name_filter, str):
             # make name_filter a length 1 list if it is a string
@@ -92,7 +90,7 @@ class DataFile:
         self.bands = [b for d in datafiles for b in d.bands]
 
 
-def combine_data_files(path, datafiles: List[DataFile]) -> DataFile:
+def combine_data_files(path, datafiles: list[DataFile]) -> DataFile:
     """combine multiple datafiles with into one object, using shared path"""
 
     return DataFile(path=path, bands=[b for d in datafiles for b in d.bands])

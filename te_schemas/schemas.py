@@ -1,5 +1,4 @@
 import datetime
-import typing
 
 from marshmallow import Schema, fields, post_load
 from marshmallow_dataclass import dataclass
@@ -9,7 +8,7 @@ from marshmallow_dataclass import dataclass
 class TrendsEarthVersion:
     version: str
     release_date: datetime.datetime
-    revision: typing.Optional[str] = None
+    revision: str | None = None
 
     class Meta:
         datetimeformat = "%Y-%m-%dT%H:%M:%S+00:00"
