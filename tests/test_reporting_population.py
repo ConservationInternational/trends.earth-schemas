@@ -2,6 +2,7 @@ import json
 
 import pytest
 from marshmallow import ValidationError
+
 from te_schemas.reporting import Population, PopulationList
 
 
