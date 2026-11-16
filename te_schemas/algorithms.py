@@ -1,5 +1,4 @@
 import enum
-import typing
 import uuid
 from dataclasses import field
 
@@ -21,17 +20,17 @@ class ExecutionScript(SchemaBase):
     class Meta:
         unknown = EXCLUDE
 
-    id: typing.Union[uuid.UUID, str]
-    run_mode: typing.Optional[AlgorithmRunMode] = field(
+    id: uuid.UUID | str
+    run_mode: AlgorithmRunMode | None = field(
         metadata={"by_value": True}, default=AlgorithmRunMode.NOT_APPLICABLE
     )
-    name: typing.Optional[str] = field(default="")
-    slug: typing.Optional[str] = field(default="")
-    execution_callable: typing.Optional[str] = field(default="")
-    version: typing.Optional[str] = field(default="")
-    description: typing.Optional[str] = field(default="")
-    name_readable: typing.Optional[str] = field(default="")
-    additional_configuration: typing.Optional[dict] = None
+    name: str | None = field(default="")
+    slug: str | None = field(default="")
+    execution_callable: str | None = field(default="")
+    version: str | None = field(default="")
+    description: str | None = field(default="")
+    name_readable: str | None = field(default="")
+    additional_configuration: dict | None = None
 
     def __post_init__(self):  # ensure mutable default created safely
         if self.additional_configuration is None:

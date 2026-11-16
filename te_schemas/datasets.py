@@ -7,7 +7,6 @@ and dataset accessibility information.
 """
 
 import re
-import typing
 from enum import Enum
 
 from marshmallow import ValidationError
@@ -38,7 +37,7 @@ def validate_spatial_resolution_value(value: float):
         raise ValidationError(f"Spatial resolution value '{value}' must be positive")
 
 
-def validate_temporal_resolution_value(value: typing.Union[float, None], unit: str):
+def validate_temporal_resolution_value(value: float | None, unit: str):
     """Validate temporal resolution value based on unit."""
     if unit == "one-time":
         if value is not None:
@@ -52,7 +51,7 @@ def validate_temporal_resolution_value(value: typing.Union[float, None], unit: s
             )
 
 
-def validate_url_format(url: typing.Optional[str]):
+def validate_url_format(url: str | None):
     """Validate URL format if provided."""
     if url is None or url == "" or url == "None available":
         return
@@ -73,12 +72,12 @@ def validate_url_format(url: typing.Optional[str]):
 class SpatialExtent(SchemaBase):
     """Spatial extent definition with validation."""
 
-    spatial_resolution_value: typing.Union[int, float]
+    spatial_resolution_value: int | float
     spatial_resolution_unit: str
-    min_latitude: typing.Union[int, float]
-    max_latitude: typing.Union[int, float]
-    min_longitude: typing.Union[int, float]
-    max_longitude: typing.Union[int, float]
+    min_latitude: int | float
+    max_latitude: int | float
+    min_longitude: int | float
+    max_longitude: int | float
 
     def __post_init__(self):
         """Validate spatial extent after initialization."""
@@ -121,10 +120,10 @@ class SpatialExtent(SchemaBase):
 class TemporalExtent(SchemaBase):
     """Temporal extent definition with validation."""
 
-    temporal_resolution_value: typing.Optional[typing.Union[int, float]] = None
+    temporal_resolution_value: int | float | None = None
     temporal_resolution_unit: str = "one-time"
-    start_year: typing.Optional[typing.Union[int, str]] = None
-    end_year: typing.Optional[typing.Union[int, str]] = None
+    start_year: int | str | None = None
+    end_year: int | str | None = None
 
     def __post_init__(self):
         """Validate temporal extent after initialization."""
@@ -195,10 +194,10 @@ class RemoteDataset(SchemaBase):
 
     # Optional fields with defaults
     description: str = ""
-    dataset_url: typing.Optional[str] = None
-    license_url: typing.Optional[str] = None
-    citation: typing.Optional[str] = None
-    comments: typing.Optional[str] = None
+    dataset_url: str | None = None
+    license_url: str | None = None
+    citation: str | None = None
+    comments: str | None = None
     downloadable: bool = True
 
     def __post_init__(self):
@@ -241,8 +240,8 @@ class GEEDataset(RemoteDataset):
     gee_dataset: str = ""
 
     # Optional fields for specific dataset types
-    source_code: typing.Optional[str] = None
-    lags: typing.Optional[typing.List[int]] = None
+    source_code: str | None = None
+    lags: list[int] | None = None
 
     def __post_init__(self):
         """Validate GEE dataset after initialization."""
@@ -387,7 +386,7 @@ class DatasetCategory(SchemaBase):
     """Schema for dataset category containing multiple datasets."""
 
     name: str
-    datasets: typing.Optional[typing.Dict[str, GEEDataset]] = None
+    datasets: dict[str, GEEDataset] | None = None
 
     def __post_init__(self):
         """Initialize datasets if not provided."""
@@ -404,7 +403,7 @@ class GEEDatasetCollection(SchemaBase):
     nested categories and datasets.
     """
 
-    categories: typing.Optional[typing.Dict[str, typing.Dict[str, GEEDataset]]] = None
+    categories: dict[str, dict[str, GEEDataset]] | None = None
 
     def __post_init__(self):
         """Validate collection after initialization."""
@@ -551,7 +550,7 @@ def load_gee_dataset_collection(data: dict) -> GEEDatasetCollection:
     return GEEDatasetCollection(categories=categories)
 
 
-def validate_gee_dataset_file(file_path: str) -> typing.Tuple[bool, typing.List[str]]:
+def validate_gee_dataset_file(file_path: str) -> tuple[bool, list[str]]:
     """
     Validate a GEE dataset JSON file.
 
