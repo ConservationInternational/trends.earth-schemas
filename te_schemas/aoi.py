@@ -3,7 +3,6 @@ import logging
 import os
 import tempfile
 import uuid
-from typing import Dict, List
 
 from marshmallow_dataclass import dataclass
 from osgeo import gdal, ogr, osr
@@ -57,7 +56,7 @@ def _ds_to_geojson(ds) -> str:
         return json.load(file)
 
 
-def _clean_geojson(geojson) -> Dict:
+def _clean_geojson(geojson) -> dict:
     if isinstance(geojson, str):
         geojson = json.loads(geojson)
 
@@ -104,7 +103,7 @@ def _clean_geojson(geojson) -> Dict:
 
 @dataclass
 class AOI:
-    geojson: Dict
+    geojson: dict
 
     def __init__(self, geojson):
         aoi = _geojson_to_ds(_clean_geojson(geojson))
@@ -136,7 +135,7 @@ class AOI:
         aoi = self.get_ds()
         return aoi.GetLayer(0).GetSpatialRef()
 
-    def meridian_split(self, as_extent=False, out_format="geojson") -> List[str]:
+    def meridian_split(self, as_extent=False, out_format="geojson") -> list[str]:
         """
         Return list of bounding boxes in WGS84 as geojson or WKT
 
@@ -223,7 +222,7 @@ class AOI:
                     out.extend([o.ExportToWkt() for o in this_out])
         return out
 
-    def get_aligned_output_bounds(self, f) -> List[List[float]]:
+    def get_aligned_output_bounds(self, f) -> list[list[float]]:
         geojsons = self.meridian_split(as_extent=True)
 
         if not geojsons:
@@ -280,7 +279,7 @@ class AOI:
 
         return out
 
-    def bounding_box_gee_geojson(self) -> List[str]:
+    def bounding_box_gee_geojson(self) -> list[str]:
         """
         Returns list of bounding box geojsons.
         """
@@ -340,7 +339,7 @@ class AOI:
     def get_ds(self) -> ogr.DataSource:
         return _geojson_to_ds(self.geojson)
 
-    def get_geojson(self, split=False) -> Dict:
+    def get_geojson(self, split=False) -> dict:
         if split:
             features = self.meridian_split(as_extent=False)
             aoi = _geojson_to_ds(_clean_geojson(features))
